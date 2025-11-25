@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Tổng hợp Nhu cầu AI & Tự động hóa</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 40px;
+            border-left: 5px solid #2980b9;
+            padding-left: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            vertical-align: top;
+        }
+        th {
+            background-color: #34495e;
+            color: #fff;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .department-col {
+            font-weight: bold;
+            color: #c0392b;
+            background-color: #fdf2f2;
+            width: 10%;
+        }
+        .kpi-col { width: 15%; }
+        .wishlist-col { width: 35%; }
+        .percent-col { width: 10%; text-align: center; }
+        .productivity-col { width: 15%; }
+        
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        .note {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            margin-top: 10px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        .high-prio { background-color: #e74c3c; } /* Cao */
+        .med-prio { background-color: #f39c12; } /* Trung bình */
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>BÁO CÁO TỔNG HỢP NHU CẦU AI & TỰ ĐỘNG HÓA</h1>
+    <p><strong>Nguồn dữ liệu:</strong> Khảo sát nhu cầu AI Tự động hóa</p>
+
+    <!-- BẢNG 1 -->
+    <h2>1. Bảng Tổng Hợp Theo Bộ Phận & Nhu Cầu</h2>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Bộ phận</th>
+                    <th>Các KPI trọng tâm</th>
+                    <th>Mong muốn Tự động hóa (Pain points)</th>
+                    <th>% Tự động hóa<br>tối thiểu</th>
+                    <th>% Năng suất<br>kỳ vọng tăng</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- KẾ TOÁN -->
+                <tr>
+                    <td class="department-col">Kế Toán</td>
+                    <td>
+                        <ul>
+                            <li>Tự động hóa các khâu kế toán</li>
+                            <li>Kiểm soát chi phí, định mức</li>
+                            <li>Đảm bảo tính chính xác chứng từ</li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li><strong>Kiểm tra chứng từ:</strong> Tự động đọc/check file nghiệm thu, đối soát Jetpay, sao kê ngân hàng.</li>
+                            <li><strong>Thanh toán:</strong> Duyệt chi phí theo định mức (xăng xe, công tác phí), check số TK ngân hàng đại lý/CTV để đi lệnh UNC chính xác.</li>
+                            <li><strong>Hỗ trợ KD:</strong> Trả lời vướng mắc, tạo Voucher giảm giá hàng loạt từ chính sách bán hàng cũ.</li>
+                            <li><strong>Công cụ:</strong> Check-in địa điểm công tác (thay giấy đi đường), tính lương thưởng tự động theo chính sách mới.</li>
+                        </ul>
+                    </td>
+                    <td class="percent-col">
+                        50% - 100%<br>
+                        <span style="font-size:0.8em; color:#7f8c8d">(Tùy đầu việc)</span>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>50% khối lượng việc</li>
+                            <li>Nhanh hơn, chính xác hơn (giảm rủi ro hoàn tiền lỗi)</li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <!-- ONB (Onboarding) -->
+                <tr>
+                    <td class="department-col">ONB<br>(Dịch vụ/CSKH)</td>
+                    <td>
+                        <ul>
+                            <li><strong>Tỷ lệ Khách hàng sử dụng (Key)</strong>: >95%</li>
+                            <li>Tỷ lệ đưa vào sử dụng thành công</li>
+                            <li>Hoàn thành đào tạo/hướng dẫn</li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li><strong>Lọc & Phân loại Data:</strong> Lọc KH rời bỏ, KH ngưng sử dụng, KH hết hạn thuê bao, phát hiện KH cũ kém tương tác.</li>
+                            <li><strong>Thông tin KH:</strong> Tìm SĐT/Liên hệ người phụ trách chính, tóm tắt lịch sử chăm sóc/hoạt động của KH, check điều kiện tiếp nhận thẻ.</li>
+                            <li><strong>Hỗ trợ nghiệp vụ:</strong> 
+                                <ul>
+                                    <li>Hướng dẫn nhập liệu Excel (Lương, công), tự sửa lỗi dữ liệu KH.</li>
+                                    <li>Gợi ý kịch bản chăm sóc riêng biệt.</li>
+                                    <li>Tự động đánh dấu/chuyển trạng thái thẻ khi hoàn thành nhiệm vụ.</li>
+                                </ul>
+                            </li>
+                            <li><strong>Check trùng lặp:</strong> Xử lý trùng thẻ, trùng liên hệ giữa các bộ phận (CRM/MCP).</li>
+                        </ul>
+                    </td>
+                    <td class="percent-col">
+                        30% - 90%
+                    </td>
+                    <td>
+                        <ul>
+                            <li>10% - 50% hiệu suất</li>
+                            <li>Tiết kiệm thời gian check thủ công</li>
+                            <li>Gấp >2 lần (với việc lọc data)</li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <!-- PARTNER -->
+                <tr>
+                    <td class="department-col">Partner<br>(Đối tác)</td>
+                    <td>
+                        <ul>
+                            <li>Doanh số bán mới & gia hạn</li>
+                            <li>Số lượng đối tác/đại lý</li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li><strong>Đặt hàng:</strong> Tự động hóa quy trình lên đơn hàng cho Đại lý (giảm bớt thao tác thủ công nhiều bước).</li>
+                            <li><strong>Báo cáo & Đối soát:</strong> Tự động đối soát hoa hồng, tạo báo cáo theo nhu cầu (Doanh số theo thị trường/đại lý), quy trình thanh toán tự động.</li>
+                            <li><strong>Nhập liệu:</strong> Ghi nội dung cuộc gọi vào nhiệm vụ (Voice-to-text), khai báo cơ hội bằng giọng nói.</li>
+                            <li><strong>Hỗ trợ:</strong> Nhắc hạn sản phẩm, tạo báo giá nhanh.</li>
+                        </ul>
+                    </td>
+                    <td class="percent-col">
+                        80% - 100%
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Tăng trải nghiệm Đại lý</li>
+                            <li>Tiết kiệm thời gian hỗ trợ của NV MISA</li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- BẢNG 2 -->
+    <h2>2. Tổng Hợp Ý Tưởng Về Trợ Lý Ảo (Agent)</h2>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 15%;">Bộ phận</th>
+                    <th>Ý tưởng Agent (Trợ lý ảo) đề xuất</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- KẾ TOÁN -->
+                <tr>
+                    <td class="department-col">Kế Toán</td>
+                    <td>
+                        <ul>
+                            <li><strong>Agent Duyệt hồ sơ:</strong> Chuyên duyệt hồ sơ đại lý, tự động kiểm tra tính hợp lệ.</li>
+                            <li><strong>Agent Hỗ trợ KD:</strong> Trả lời tự động các thắc mắc về quy định/thủ tục cho bộ phận Kinh doanh.</li>
+                            <li><strong>Agent Nhắc nợ/Thanh toán:</strong> Tự động nhắc hạn thanh toán tạm ứng, nhắc nhân viên hoàn ứng khi đến hạn.</li>
+                            <li><strong>Agent Kiểm soát chi phí:</strong> Tự động tính toán chi phí công tác (xăng xe, khách sạn) dựa trên check-in thực tế và định mức công ty.</li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <!-- ONB -->
+                <tr>
+                    <td class="department-col">ONB</td>
+                    <td>
+                        <ul>
+                            <li><strong>Agent Nhắc lịch & Kịch bản:</strong> Nhắc lịch hẹn chăm sóc, lên kịch bản chăm sóc khách hàng mục tiêu để tăng tỷ lệ sử dụng.</li>
+                            <li><strong>Agent Kiểm tra liên hệ:</strong> Chuyên check liên hệ nào đang sử dụng phần mềm chính, tìm SĐT người phụ trách.</li>
+                            <li><strong>Agent Hỗ trợ Excel:</strong> Hỗ trợ khách hàng chỉnh sửa file Excel nhập liệu (lương, công), giải thích lỗi sai trong file.</li>
+                            <li><strong>Agent Cảnh báo:</strong> Cảnh báo về điều kiện tiếp nhận thẻ (đủ/thiếu điều kiện).</li>
+                            <li><strong>Agent Tổng hợp thông tin (Knowledge Base):</strong> Tóm tắt toàn bộ lịch sử chăm sóc, tình trạng hoạt động của công ty chỉ qua Mã số thuế.</li>
+                            <li><strong>Agent Phân tích hành vi:</strong> Phân tích nhật ký sử dụng (dùng thường xuyên hay ngắt quãng) để đưa ra nhận định KH rời bỏ chính xác hơn quy tắc 90 ngày cứng nhắc.</li>
+                            <li><strong>Agent Điều phối:</strong> Tổng hợp quy định xử lý thẻ, tự động đề xuất số lượng thẻ cần xử lý trong ngày cho nhân viên.</li>
+                            <li><strong>Agent Đồng hành (Onboarding):</strong> Hỗ trợ khách hàng mới thiết lập ban đầu (danh mục, thông tin) thay cho việc xem video tự học.</li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <!-- PARTNER -->
+                <tr>
+                    <td class="department-col">Partner</td>
+                    <td>
+                        <ul>
+                            <li><strong>Agent Thấu hiểu nhu cầu:</strong> Tổng hợp nhu cầu tệp KH chưa sử dụng/ngưng sử dụng để chăm sóc lại.</li>
+                            <li><strong>Agent Chăm sóc chủ động:</strong> Tự động liệt kê danh sách KH hết hạn (chữ ký số, phần mềm) và gửi thông báo Zalo/Email nhắc gia hạn (tương tự chúc mừng sinh nhật).</li>
+                            <li><strong>Agent Đặt hàng thông minh:</strong> Hiểu lệnh ngôn ngữ tự nhiên (ví dụ: "Đặt đơn cho MST X gói hóa đơn 300 số...") để lên đơn hàng nháp cho Đại lý kiểm tra.</li>
+                            <li><strong>Agent Báo giá:</strong> Giúp tạo báo giá nhanh cho Đại lý.</li>
+                            <li><strong>Agent Phê duyệt:</strong> Phê duyệt và phân công nhân sự phụ trách theo Rule định sẵn.</li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="note">
+        <p>Ghi chú: Dữ liệu được trích xuất và tổng hợp nguyên văn từ file khảo sát, loại bỏ các nội dung trùng lặp hoàn toàn.</p>
+    </div>
+</div>
+
+</body>
+</html>
