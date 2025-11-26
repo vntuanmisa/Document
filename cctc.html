@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slides: Intro CCTC Ban CNTT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; overflow: hidden; }
+        
+        /* Slide Animations */
+        .slide {
+            display: none;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        .slide.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            transition: width 0.1s linear;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white h-screen w-screen relative">
+
+    <!-- Background Elements -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600 rounded-full blur-[120px] opacity-30"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-500 rounded-full blur-[120px] opacity-20"></div>
+    </div>
+
+    <!-- Main Content Container -->
+    <div id="slide-container" class="w-full h-full">
+
+        <!-- SLIDE 1: WELCOME -->
+        <div class="slide active w-full h-full flex-col justify-center items-center text-center p-12">
+            <div class="mb-6 animate-bounce">
+                <i data-lucide="network" size="80" class="text-cyan-400 mx-auto"></i>
+            </div>
+            <h2 class="text-3xl font-light text-cyan-300 uppercase tracking-widest mb-4">Chào mừng anh chị em đến với</h2>
+            <h1 class="text-6xl md:text-8xl font-black text-white mb-8 leading-tight">
+                LỄ CÔNG BỐ <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">CCTC MỚI BAN CNTT</span>
+            </h1>
+            <div class="flex gap-8 text-xl text-slate-300 mt-8 border-t border-slate-700 pt-8">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="clock" class="text-blue-500"></i>
+                    <span>15:30 - 17:30</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="calendar" class="text-blue-500"></i>
+                    <span>26/11/2025</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: AGENDA TÓM TẮT -->
+        <div class="slide w-full h-full flex-col justify-center items-center p-12">
+            <h2 class="text-5xl font-bold text-white mb-16 border-b-4 border-blue-500 pb-4">Lịch Trình Hôm Nay</h2>
+            
+            <div class="grid grid-cols-2 gap-12 max-w-5xl w-full">
+                <!-- Item -->
+                <div class="flex items-center gap-6 bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <div class="text-4xl font-black text-blue-400 w-24">15:30</div>
+                    <div class="text-left">
+                        <h3 class="text-2xl font-bold text-white">Khai mạc & Check-in</h3>
+                        <p class="text-slate-400">Ổn định tổ chức</p>
+                    </div>
+                </div>
+                <!-- Item -->
+                <div class="flex items-center gap-6 bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <div class="text-4xl font-black text-cyan-400 w-24">15:38</div>
+                    <div class="text-left">
+                        <h3 class="text-2xl font-bold text-white">Công bố CCTC Mới</h3>
+                        <p class="text-slate-400">Mô hình & JD các vị trí</p>
+                    </div>
+                </div>
+                <!-- Item -->
+                <div class="flex items-center gap-6 bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <div class="text-4xl font-black text-purple-400 w-24">16:08</div>
+                    <div class="text-left">
+                        <h3 class="text-2xl font-bold text-white">Định hướng Hệ thống</h3>
+                        <p class="text-slate-400">Kiến trúc & Roadmap</p>
+                    </div>
+                </div>
+                <!-- Item -->
+                <div class="flex items-center gap-6 bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <div class="text-4xl font-black text-green-400 w-24">16:38</div>
+                    <div class="text-left">
+                        <h3 class="text-2xl font-bold text-white">Chia sẻ & Q&A</h3>
+                        <p class="text-slate-400">Giải đáp thắc mắc</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: MỤC TIÊU -->
+        <div class="slide w-full h-full flex-col justify-center items-center p-12">
+            <h2 class="text-4xl text-slate-300 font-light mb-12 uppercase tracking-widest">Mục Tiêu Chương Trình</h2>
+            <div class="flex gap-12">
+                <!-- Card 1 -->
+                <div class="w-80 h-80 bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl flex flex-col justify-center items-center p-6 shadow-2xl transform hover:scale-105 transition-transform">
+                    <i data-lucide="eye" size="64" class="text-white mb-6"></i>
+                    <h3 class="text-3xl font-bold text-white mb-2">MINH BẠCH</h3>
+                    <p class="text-blue-200 text-center">Rõ ràng về lộ trình và thay đổi</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="w-80 h-80 bg-gradient-to-br from-cyan-600 to-cyan-800 rounded-3xl flex flex-col justify-center items-center p-6 shadow-2xl transform hover:scale-105 transition-transform">
+                    <i data-lucide="users" size="64" class="text-white mb-6"></i>
+                    <h3 class="text-3xl font-bold text-white mb-2">ĐỒNG THUẬN</h3>
+                    <p class="text-cyan-200 text-center">Đoàn kết cùng phát triển</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="w-80 h-80 bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-3xl flex flex-col justify-center items-center p-6 shadow-2xl transform hover:scale-105 transition-transform">
+                    <i data-lucide="zap" size="64" class="text-white mb-6"></i>
+                    <h3 class="text-3xl font-bold text-white mb-2">ĐỘNG LỰC</h3>
+                    <p class="text-indigo-200 text-center">Bứt phá giới hạn mới</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: DIỄN GIẢ -->
+        <div class="slide w-full h-full flex-col justify-center items-center p-12">
+            <h2 class="text-5xl font-bold text-white mb-16">Diễn Giả Chính</h2>
+            <div class="flex gap-16 text-center">
+                <!-- Speaker 1 -->
+                <div>
+                    <div class="w-48 h-48 rounded-full bg-slate-700 mb-6 mx-auto flex items-center justify-center border-4 border-blue-500">
+                         <span class="text-4xl text-slate-500 font-bold">L</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white">Ms. Lê Thị Lệ</h3>
+                    <p class="text-blue-400 mt-2">Đại diện Ban CNTT</p>
+                </div>
+                <!-- Speaker 2 -->
+                <div class="transform scale-110">
+                    <div class="w-56 h-56 rounded-full bg-slate-700 mb-6 mx-auto flex items-center justify-center border-4 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.3)]">
+                        <span class="text-4xl text-slate-500 font-bold">Đ</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-white">Ms. Yên Định</h3>
+                    <p class="text-yellow-400 mt-2 font-bold">Chuyên gia Tư vấn</p>
+                </div>
+                <!-- Speaker 3 -->
+                <div>
+                    <div class="w-48 h-48 rounded-full bg-slate-700 mb-6 mx-auto flex items-center justify-center border-4 border-purple-500">
+                         <span class="text-4xl text-slate-500 font-bold">T</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white">Mr. Vũ Ngọc Tuấn</h3>
+                    <p class="text-purple-400 mt-2">Đại diện Kỹ thuật</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: LƯU Ý -->
+        <div class="slide w-full h-full flex-col justify-center items-center p-12">
+            <div class="bg-slate-800/80 p-12 rounded-3xl border border-slate-600 max-w-4xl text-center backdrop-blur-md">
+                <i data-lucide="info" size="80" class="text-yellow-400 mx-auto mb-8"></i>
+                <h2 class="text-4xl font-bold text-white mb-8">Lưu Ý Trước Khi Bắt Đầu</h2>
+                <ul class="text-2xl text-slate-300 space-y-6 text-left inline-block">
+                    <li class="flex items-center gap-4">
+                        <i data-lucide="smartphone-off" class="text-red-400"></i>
+                        Vui lòng chuyển điện thoại sang chế độ Rung/Im lặng.
+                    </li>
+                    <li class="flex items-center gap-4">
+                        <i data-lucide="message-circle" class="text-green-400"></i>
+                        Tích cực đặt câu hỏi trong phần Q&A cuối chương trình.
+                    </li>
+                    <li class="flex items-center gap-4">
+                        <i data-lucide="coffee" class="text-orange-400"></i>
+                        Teabreak được phục vụ ở cuối khán phòng.
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Controls -->
+    <div class="absolute bottom-12 w-full flex flex-col items-center gap-4 z-50">
+        <!-- Dots -->
+        <div class="flex gap-3" id="dots-container">
+            <!-- Dots generated by JS -->
+        </div>
+        <!-- Progress Bar -->
+        <div class="w-64 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div id="progress" class="h-full bg-blue-500 w-0"></div>
+        </div>
+        <!-- Play/Pause Hint -->
+        <div class="text-slate-500 text-xs uppercase tracking-widest mt-2">
+            Space to Pause/Play &bull; Arrows to Navigate
+        </div>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <button onclick="changeSlide(-1)" class="absolute top-1/2 left-8 -translate-y-1/2 p-4 text-slate-600 hover:text-white transition-colors">
+        <i data-lucide="chevron-left" size="48"></i>
+    </button>
+    <button onclick="changeSlide(1)" class="absolute top-1/2 right-8 -translate-y-1/2 p-4 text-slate-600 hover:text-white transition-colors">
+        <i data-lucide="chevron-right" size="48"></i>
+    </button>
+
+    <script>
+        lucide.createIcons();
+
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dotsContainer = document.getElementById('dots-container');
+        const progressBar = document.getElementById('progress');
+        const SLIDE_DURATION = 10000; // 10 seconds per slide
+        let interval;
+        let progressInterval;
+        let isPaused = false;
+        let startTime;
+
+        // Init Dots
+        slides.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.className = `w-3 h-3 rounded-full cursor-pointer transition-all ${index === 0 ? 'bg-blue-500 scale-125' : 'bg-slate-600 hover:bg-slate-400'}`;
+            dot.onclick = () => goToSlide(index);
+            dotsContainer.appendChild(dot);
+        });
+
+        const dots = dotsContainer.querySelectorAll('div');
+
+        function updateSlide() {
+            slides.forEach(s => s.classList.remove('active'));
+            slides[currentSlide].classList.add('active');
+            
+            dots.forEach((d, i) => {
+                d.className = `w-3 h-3 rounded-full cursor-pointer transition-all ${i === currentSlide ? 'bg-blue-500 scale-125' : 'bg-slate-600 hover:bg-slate-400'}`;
+            });
+
+            resetProgress();
+        }
+
+        function changeSlide(direction) {
+            currentSlide = (currentSlide + direction + slides.length) % slides.length;
+            updateSlide();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlide();
+        }
+
+        function resetProgress() {
+            clearInterval(progressInterval);
+            clearInterval(interval);
+            if (!isPaused) {
+                startAutoPlay();
+            }
+        }
+
+        function startAutoPlay() {
+            startTime = Date.now();
+            
+            // Progress bar animation
+            progressBar.style.width = '0%';
+            progressInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const pct = (elapsed / SLIDE_DURATION) * 100;
+                progressBar.style.width = `${pct}%`;
+                
+                if (pct >= 100) {
+                    changeSlide(1);
+                }
+            }, 50);
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                isPaused = !isPaused;
+                if (isPaused) {
+                    clearInterval(progressInterval);
+                    progressBar.classList.add('bg-yellow-500'); // Visual cue for pause
+                } else {
+                    progressBar.classList.remove('bg-yellow-500');
+                    changeSlide(0); // Restart current
+                }
+            } else if (e.code === 'ArrowRight') {
+                changeSlide(1);
+            } else if (e.code === 'ArrowLeft') {
+                changeSlide(-1);
+            }
+        });
+
+        // Start
+        startAutoPlay();
+
+    </script>
+</body>
+</html>
