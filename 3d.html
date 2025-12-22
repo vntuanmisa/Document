@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theo Dõi 2 Tay - Hợp Thể MISA Particles</title>
+    
+    <!-- Import thư viện MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .input_video {
+            display: none;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            z-index: 10;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        #fusion-status {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            font-size: 2em;
+            color: #ff00ff;
+            text-shadow: 0 0 20px #ff00ff;
+            font-weight: bold;
+            pointer-events: none;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading">Đang tải mô hình AI...<br><small>Vui lòng cho phép truy cập Camera</small></div>
+    
+    <div id="fusion-status">⚛️ HỢP THỂ ⚛️</div>
+
+    <video class="input_video"></video>
+    <canvas id="output_canvas"></canvas>
+
+    <script>
+        const videoElement = document.getElementsByClassName('input_video')[0];
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        const loadingElement = document.getElementById('loading');
+        const fusionStatus = document.getElementById('fusion-status');
+
+        let isModelLoaded = false;
+        let canvasWidth, canvasHeight;
+        
+        let detectedHands = []; 
+        let isHandsJoined = false;
+        let smoothedJoinedCenter = { x: window.innerWidth/2, y: window.innerHeight/2 };
+
+        let time = 0;
+        let globalHue = 0;
+
+        // Lưu trữ tọa độ các điểm tạo nên chữ MISA
+        let textPoints = [];
+
+        /**
+         * Hàm khởi tạo tọa độ điểm cho chữ MISA
+         * Vẽ chữ lên canvas ẩn rồi lấy data pixel
+         */
+        function initTextPoints() {
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            // Kích thước đủ bao chữ
+            tempCanvas.width = 600; 
+            tempCanvas.height = 200;
+
+            // Dùng font mảnh (300) và kích thước lớn (80px)
+            tempCtx.font = '300 80px "Segoe UI", sans-serif'; 
+            tempCtx.fillStyle = 'white';
+            tempCtx.textAlign = 'center';
+            tempCtx.textBaseline = 'middle';
+            // Vẽ chữ vào giữa canvas ẩn
+            tempCtx.fillText('MISA', tempCanvas.width / 2, tempCanvas.height / 2);
+
+            const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+            const data = imageData.data;
+            
+            textPoints = [];
+            // Step = 2 để lấy mẫu dày, nét chữ liền mạch
+            const step = 2; 
+
+            for (let y = 0; y < tempCanvas.height; y += step) {
+                for (let x = 0; x < tempCanvas.width; x += step) {
+                    const index = (y * tempCanvas.width + x) * 4;
+                    // Nếu pixel không trong suốt (có chữ)
+                    if (data[index + 3] > 128) { 
+                        textPoints.push({
+                            x: x - tempCanvas.width / 2, // Căn giữa tọa độ về (0,0)
+                            y: y - tempCanvas.height / 2
+                        });
+                    }
+                }
+            }
+        }
+
+        /**
+         * LỚP PARTICLE
+         */
+        class Particle {
+            constructor(index) {
+                this.index = index;
+                this.x = Math.random() * window.innerWidth;
+                this.y = Math.random() * window.innerHeight;
+                this.size = Math.random() * 2 + 0.5;
+
+                // Orbit
+                this.orbitAngle = Math.random() * Math.PI * 2;
+                this.orbitRadius = Math.random() * 150 + 50;
+                this.orbitSpeed = (Math.random() - 0.5) * 0.05;
+                this.freeRadiusScale = Math.random() * 3 + 2;
+
+                // Shapes
+                this.starTarget = this.calculateStarPosition();
+                this.sphereTarget = this.calculateSpherePosition();
+                
+                // Text Target (MISA)
+                if (index < textPoints.length) {
+                    this.textTarget = textPoints[index];
+                } else {
+                    this.textTarget = null;
+                }
+            }
+
+            calculateStarPosition() {
+                const angleStep = (Math.PI * 2) / 5;
+                const armIndex = Math.floor(Math.random() * 5);
+                const outerRadius = 120;
+                const innerRadius = 50;
+                const angleOuter = armIndex * angleStep - Math.PI / 2;
+                const angleInner = angleOuter + angleStep / 2;
+                const angleNextOuter = angleOuter + angleStep;
+
+                let x1, y1, x2, y2;
+                if (Math.random() < 0.5) {
+                    x1 = Math.cos(angleOuter) * outerRadius;
+                    y1 = Math.sin(angleOuter) * outerRadius;
+                    x2 = Math.cos(angleInner) * innerRadius;
+                    y2 = Math.sin(angleInner) * innerRadius;
+                } else {
+                    x1 = Math.cos(angleInner) * innerRadius;
+                    y1 = Math.sin(angleInner) * innerRadius;
+                    x2 = Math.cos(angleNextOuter) * outerRadius;
+                    y2 = Math.sin(angleNextOuter) * outerRadius;
+                }
+                const t = Math.random();
+                return { x: x1 + (x2 - x1) * t, y: y1 + (y2 - y1) * t };
+            }
+
+            calculateSpherePosition() {
+                const u = Math.random();
+                const v = Math.random();
+                const theta = 2 * Math.PI * u;
+                const phi = Math.acos(2 * v - 1);
+                const r = 100 * Math.cbrt(Math.random());
+                
+                return {
+                    x: r * Math.sin(phi) * Math.cos(theta),
+                    y: r * Math.sin(phi) * Math.sin(theta),
+                    z: r * Math.cos(phi)
+                };
+            }
+
+            update() {
+                // 1. CHẾ ĐỘ HỢP THỂ (2 TAY CHẬP LẠI)
+                if (isHandsJoined) {
+                    // ƯU TIÊN 1: Hạt thuộc về chữ MISA
+                    if (this.textTarget) {
+                        const jitterX = (Math.random() - 0.5) * 1.5;
+                        const jitterY = (Math.random() - 0.5) * 1.5;
+                        
+                        const targetX = smoothedJoinedCenter.x + this.textTarget.x + jitterX;
+                        const targetY = smoothedJoinedCenter.y + this.textTarget.y + jitterY;
+
+                        this.x += (targetX - this.x) * 0.15;
+                        this.y += (targetY - this.y) * 0.15;
+                        return;
+                    }
+
+                    // TỐI ƯU HÓA: Chỉ dùng 1/3 số hạt nền
+                    if (!this.textTarget && this.index % 3 !== 0) {
+                        return;
+                    }
+
+                    let targetX, targetY;
+                    
+                    if (this.index % 2 === 0) {
+                        // --- SAO BÊN TRONG ---
+                        const rotAngle = time * 0.5; 
+                        const s = this.starTarget;
+                        const rotX = s.x * Math.cos(rotAngle) - s.y * Math.sin(rotAngle);
+                        const rotY = s.x * Math.sin(rotAngle) + s.y * Math.cos(rotAngle);
+                        
+                        targetX = smoothedJoinedCenter.x + rotX * 2.4;
+                        targetY = smoothedJoinedCenter.y + rotY * 2.4;
+                    } else {
+                        // --- CẦU BÊN NGOÀI ---
+                        const cosT = Math.cos(time * 0.5);
+                        const sinT = Math.sin(time * 0.5);
+                        const s = this.sphereTarget;
+                        const rotX = s.x * cosT - s.z * sinT;
+                        
+                        targetX = smoothedJoinedCenter.x + rotX * 4.2;
+                        targetY = smoothedJoinedCenter.y + s.y * 4.2;
+                    }
+
+                    this.x += (targetX - this.x) * 0.1;
+                    this.y += (targetY - this.y) * 0.1;
+                    return;
+                }
+
+                // 2. KHÔNG CÓ TAY: TỎA TỰ DO
+                if (detectedHands.length === 0) {
+                    const cx = canvasWidth / 2;
+                    const cy = canvasHeight / 2;
+                    this.orbitAngle += this.orbitSpeed * 0.5;
+                    const largeRadius = this.orbitRadius * this.freeRadiusScale;
+                    const targetX = cx + Math.cos(this.orbitAngle) * largeRadius;
+                    const targetY = cy + Math.sin(this.orbitAngle) * largeRadius;
+                    this.x += (targetX - this.x) * 0.05;
+                    this.y += (targetY - this.y) * 0.05;
+                    return;
+                }
+
+                // 3. CÓ TAY (RIÊNG LẺ)
+                const handData = detectedHands[this.index % detectedHands.length];
+                let targetX = this.x;
+                let targetY = this.y;
+
+                if (handData.isPinching) {
+                    if (handData.label === 'Left') {
+                        // Tay trái: Sao
+                        targetX = handData.x + this.starTarget.x;
+                        targetY = handData.y + this.starTarget.y;
+                    } else {
+                        // Tay phải: Cầu
+                        const cosT = Math.cos(time);
+                        const sinT = Math.sin(time);
+                        const s = this.sphereTarget;
+                        const rotX = s.x * cosT - s.z * sinT;
+                        targetX = handData.x + rotX;
+                        targetY = handData.y + s.y;
+                    }
+                } else {
+                    // Xòe: Orbit
+                    this.orbitAngle += this.orbitSpeed;
+                    targetX = handData.x + Math.cos(this.orbitAngle) * this.orbitRadius;
+                    targetY = handData.y + Math.sin(this.orbitAngle) * this.orbitRadius;
+                }
+
+                this.x += (targetX - this.x) * 0.1;
+                this.y += (targetY - this.y) * 0.1;
+            }
+
+            draw(ctx) {
+                if (isHandsJoined && !this.textTarget && this.index % 3 !== 0) {
+                    return;
+                }
+
+                let color = `hsla(${globalHue}, 100%, 70%, 0.8)`; 
+
+                if (isHandsJoined) {
+                    if (this.textTarget) {
+                        // --- CHỮ MISA: 7 MÀU ---
+                        const rainbowHue = (time * 50 + this.x * 0.5) % 360; 
+                        color = `hsla(${rainbowHue}, 100%, 60%, 1)`;
+                    } else if (this.index % 2 === 0) {
+                        color = 'rgba(255, 215, 0, 0.9)';
+                    } else {
+                        const cosT = Math.cos(time * 0.5);
+                        const sinT = Math.sin(time * 0.5);
+                        const s = this.sphereTarget;
+                        const rotZ = s.x * sinT + s.z * cosT;
+                        const alpha = (rotZ + 100) / 200; 
+                        color = `rgba(138, 43, 226, ${Math.max(0.2, Math.min(1, alpha))})`;
+                    }
+                } 
+                else if (detectedHands.length > 0) {
+                    const handData = detectedHands[this.index % detectedHands.length];
+                    
+                    if (handData.label === 'Left') {
+                        color = 'rgba(255, 215, 0, 0.8)';
+                    } else {
+                        if (handData.isPinching) {
+                            const cosT = Math.cos(time);
+                            const sinT = Math.sin(time);
+                            const s = this.sphereTarget;
+                            const rotZ = s.x * sinT + s.z * cosT;
+                            const alpha = (rotZ + 100) / 200; 
+                            color = `rgba(0, 255, 255, ${Math.max(0.2, Math.min(1, alpha))})`;
+                        } else {
+                            color = 'rgba(0, 255, 255, 0.8)';
+                        }
+                    }
+                }
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+            }
+        }
+
+        const particles = [];
+        const PARTICLE_COUNT = 10000;
+
+        function initParticles() {
+            canvasWidth = window.innerWidth;
+            canvasHeight = window.innerHeight;
+            canvasElement.width = canvasWidth;
+            canvasElement.height = canvasHeight;
+            
+            initTextPoints();
+
+            particles.length = 0;
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push(new Particle(i));
+            }
+        }
+
+        function onResults(results) {
+            if (!isModelLoaded) {
+                isModelLoaded = true;
+                loadingElement.style.display = 'none';
+            }
+
+            canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+
+            const currentHands = [];
+
+            if (results.multiHandLandmarks && results.multiHandedness) {
+                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                    const landmarks = results.multiHandLandmarks[i];
+                    let label = results.multiHandedness[i] ? results.multiHandedness[i].label : (i === 0 ? 'Left' : 'Right'); 
+                    
+                    const palmX = (1 - landmarks[9].x) * canvasWidth; 
+                    const palmY = landmarks[9].y * canvasHeight;
+
+                    // --- CẬP NHẬT LOGIC NHẬN DIỆN CỬ CHỈ (MỚI) ---
+                    // Sử dụng đếm số ngón tay đang duỗi
+                    // Một ngón tay được coi là duỗi nếu đầu ngón xa cổ tay hơn khớp nối giữa (PIP)
+                    // Cổ tay: 0. 
+                    // Các cặp Tip/Pip: Trỏ(8/6), Giữa(12/10), Áp út(16/14), Út(20/18)
+                    
+                    let extendedCount = 0;
+                    
+                    const wrist = landmarks[0];
+                    const isFingerExtended = (tipId, pipId) => {
+                        const dTip = Math.pow(landmarks[tipId].x - wrist.x, 2) + Math.pow(landmarks[tipId].y - wrist.y, 2);
+                        const dPip = Math.pow(landmarks[pipId].x - wrist.x, 2) + Math.pow(landmarks[pipId].y - wrist.y, 2);
+                        return dTip > dPip; // Đầu ngón xa hơn -> Duỗi
+                    };
+
+                    if (isFingerExtended(8, 6)) extendedCount++;   // Trỏ
+                    if (isFingerExtended(12, 10)) extendedCount++; // Giữa
+                    if (isFingerExtended(16, 14)) extendedCount++; // Áp út
+                    if (isFingerExtended(20, 18)) extendedCount++; // Út
+                    
+                    // Logic: Nếu có ít hơn 2 ngón duỗi -> Đang nắm/cụp
+                    const isPinching = extendedCount < 2;
+
+                    currentHands.push({
+                        x: palmX,
+                        y: palmY,
+                        isPinching: isPinching,
+                        label: label
+                    });
+                }
+            }
+            
+            detectedHands = currentHands;
+
+            // --- LOGIC HỢP THỂ (FUSION) ---
+            isHandsJoined = false;
+            
+            if (detectedHands.length >= 2) {
+                const h1 = detectedHands[0];
+                const h2 = detectedHands[1];
+                
+                const dist = Math.sqrt(Math.pow(h1.x - h2.x, 2) + Math.pow(h1.y - h2.y, 2));
+                
+                if (dist < 300) {
+                    isHandsJoined = true;
+                    const targetCenterX = (h1.x + h2.x) / 2;
+                    const targetCenterY = (h1.y + h2.y) / 2;
+                    
+                    smoothedJoinedCenter.x += (targetCenterX - smoothedJoinedCenter.x) * 0.1;
+                    smoothedJoinedCenter.y += (targetCenterY - smoothedJoinedCenter.y) * 0.1;
+                }
+            }
+
+            // Cập nhật UI
+            if (isHandsJoined) {
+                fusionStatus.style.display = 'block';
+            } else {
+                fusionStatus.style.display = 'none';
+            }
+
+            time += 0.05;
+            globalHue = (globalHue + 1) % 360;
+
+            particles.forEach(p => {
+                p.update();
+                p.draw(canvasCtx);
+            });
+        }
+
+        const hands = new Hands({locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        }});
+
+        hands.setOptions({
+            maxNumHands: 2,
+            modelComplexity: 1, 
+            minDetectionConfidence: 0.4, 
+            minTrackingConfidence: 0.4
+        });
+
+        hands.onResults(onResults);
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await hands.send({image: videoElement});
+            },
+            width: 1280,
+            height: 720
+        });
+
+        initParticles();
+        camera.start();
+        window.addEventListener('resize', initParticles);
+    </script>
+</body>
+</html>
