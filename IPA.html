@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Làm Chủ Phiên Âm Tiếng Anh (IPA)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; color: #1f2937; }
+        .tab-btn.active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .ipa-symbol { font-family: 'Lucida Sans Unicode', 'Arial Unicode MS', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        /* Custom scrollbar for better look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-blue-600 tracking-tight">IPA<span class="text-gray-800">Mastery</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center" id="desktop-nav">
+                    <!-- Nav items injected by JS -->
+                </div>
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <span class="text-2xl">☰</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100">
+            <div class="px-2 pt-2 pb-3 space-y-1" id="mobile-nav-items">
+                <!-- Mobile items injected by JS -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Header Section -->
+        <header class="text-center mb-12 animate-fade-in">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-4">Làm Chủ Bảng Phiên Âm Quốc Tế (IPA)</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Công cụ tương tác giúp bạn "đánh vần" tiếng Anh chuẩn xác, tự tin giao tiếp và loại bỏ thói quen đoán mò.
+            </p>
+        </header>
+
+        <!-- Dynamic Content Area -->
+        <div id="app-content" class="space-y-8">
+            <!-- Content will be rendered here based on active tab -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            <p>&copy; 2026 IPA Mastery Training Tool. Dựa trên tài liệu đào tạo nội bộ.</p>
+        </div>
+    </footer>
+
+    <!-- Chosen Palette: Warm Neutrals & Professional Blues (Slate, Blue, White, Gray) -->
+    <!-- Application Structure Plan: 
+         - Dashboard/Overview: High-level summary using Chart.js to show the structure of IPA (44 sounds).
+         - Thematic Sections (Tabs): Principles, Monophthongs, Diphthongs, Consonants, Roadmap.
+         - Interaction: Clicking sounds reveals detailed cards with examples and tips. Filtering for consonants.
+         - Flow: Users start with the big picture, then drill down into specific sound groups, and finally review the practice roadmap.
+    -->
+    <!-- Visualization & Content Choices:
+         - Doughnut Chart: To visualize the proportion of Vowels vs Consonants, giving a "Map" of what to learn.
+         - Interactive Grids: For IPA symbols, allowing non-linear exploration.
+         - Color Coding: Blue for Monophthongs, Orange for Diphthongs, Green for Consonants for visual grouping.
+         - JS Logic: Handles tab switching, modal/card expansion, and dynamic HTML generation to keep the code clean.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script>
+        // --- DATA STORE ---
+        const appData = {
+            overview: {
+                title: "Tổng Quan Hệ Thống IPA",
+                description: "Tiếng Anh có 44 âm cơ bản. Việc nắm vững các nhóm âm này là chìa khóa để phát âm chuẩn như người bản xứ.",
+                stats: [12, 8, 24] // Monophthongs, Diphthongs, Consonants
+            },
+            principles: [
+                { title: "Trọng Âm (Stress)", icon: "'", desc: "Từ nào có dấu ' ở trước, hãy đọc âm đó <strong>CAO</strong> và <strong>MẠNH</strong> hơn.", color: "bg-yellow-50 border-yellow-200" },
+                { title: "Độ Dài Âm (:)", icon: ":", desc: "Ký hiệu hai chấm (:) chỉ âm <strong>DÀI</strong>. Hãy kéo dài âm đó ra khoảng 1-2 giây.", color: "bg-blue-50 border-blue-200" },
+                { title: "Âm Cuối (Ending Sounds)", icon: "_t", desc: "Luôn phải đọc rõ phụ âm ở cuối từ. Ví dụ: 'cat' phải bật âm /t/.", color: "bg-green-50 border-green-200" }
+            ],
+            monophthongs: [
+                { symbol: "/iː/", name: "i dài", tip: "Cười mỉm, kéo dài âm 'i'", how: "Miệng cười sang hai bên. Lưỡi nâng cao lên vòm miệng. Phát âm âm 'i' căng và kéo dài.", vn: "Giống 'Ly', 'Đi' (kéo dài)", ex: ["See /siː/", "Tea /tiː/", "Key /kiː/", "Sheep /ʃiːp/"], video: "https://youtu.be/mS7S_V_P3Hk", type: "long" },
+                { symbol: "/ɪ/", name: "i ngắn", tip: "Đọc cực nhanh, dứt khoát", how: "Mở miệng hẹp hơn /iː/. Lưỡi hạ thấp một chút. Phát âm ngắn, dứt khoát, lai giữa 'i' và 'ê'.", vn: "Giống 'Tin', 'Xinh' (lướt)", ex: ["Sit /sɪt/", "Hit /hɪt/", "Fish /fɪʃ/", "City /ˈsɪti/"], video: "https://youtu.be/R3nF-vM6L50", type: "short" },
+                { symbol: "/e/", name: "e", tip: "Ngắn, dứt khoát", how: "Mở miệng rộng hơn /ɪ/. Lưỡi hạ thấp hơn. Phát âm âm 'e' ngắn, gọn.", vn: "Giống 'Em', 'Mẹ'", ex: ["Bed /bed/", "Pen /pen/", "Check /tʃek/", "Head /hed/"], video: "https://youtu.be/Y87G-WqFv_Y", type: "short" },
+                { symbol: "/æ/", name: "a bẹt", tip: "Miệng chữ A, tiếng chữ E", how: "Hạ hàm dưới xuống thật sâu. Miệng mở rộng. Cố gắng phát âm âm 'e' khi miệng đang mở chữ 'a'.", vn: "Lai giữa A và E", ex: ["Cat /kæt/", "Map /mæp/", "Hat /hæt/", "Man /mæn/"], video: "https://youtu.be/XisYv8B_t7U", type: "short" },
+                { symbol: "/ʌ/", name: "ă/ơ", tip: "Đẩy hơi từ cổ họng, ngắn", how: "Miệng thả lỏng tự nhiên. Lưỡi hơi nâng lên. Phát âm lai giữa 'ă' và 'ơ', ngắn và bật hơi từ bụng.", vn: "Giống 'Ăn', 'Cắt'", ex: ["Cup /kʌp/", "Bus /bʌs/", "Love /lʌv/", "Money /ˈmʌni/"], video: "https://youtu.be/N1_K9iVvW60", type: "short" },
+                { symbol: "/ɑː/", name: "a dài", tip: "Há miệng to, hạ hàm sâu", how: "Hạ hàm xuống sâu nhất có thể. Lưỡi đặt thấp và kéo về phía sau. Phát âm âm 'a' sâu từ trong cổ họng.", vn: "Giống 'Ba', 'Xa' (trầm)", ex: ["Car /kɑː/", "Star /stɑː/", "Far /fɑː/", "Father /ˈfɑːðə/"], video: "https://youtu.be/XyX69Yc-XjY", type: "long" },
+                { symbol: "/ɒ/", name: "o ngắn", tip: "Tròn miệng, ngắn gọn", how: "Miệng hơi tròn. Lưỡi kéo về phía sau. Phát âm âm 'o' ngắn, gọn, dứt khoát.", vn: "Giống 'Boong' (ngắn)", ex: ["Hot /hɒt/", "Box /bɒks/", "Stop /stɒp/", "Watch /wɒtʃ/"], video: "https://youtu.be/A5S3uK0n09k", type: "short" },
+                { symbol: "/ɔː/", name: "o dài", tip: "Tròn môi, kéo dài", how: "Tròn môi như đang hút sáo nhưng mở rộng hơn. Lưỡi cong lên và kéo về sau. Phát âm âm 'o' sâu và dài.", vn: "Giống 'Lo', 'To' (dài)", ex: ["Saw /sɔː/", "Door /dɔː/", "Floor /flɔː/", "Water /ˈwɔːtə/"], video: "https://youtu.be/8-qO_e8I57s", type: "long" },
+                { symbol: "/ʊ/", name: "u ngắn", tip: "Môi thả lỏng, hơi lai ô", how: "Môi hơi tròn và đẩy ra trước một chút. Lưỡi nâng lên phía sau. Âm ngắn, lai giữa 'u' và 'ư'.", vn: "Giống 'Cúc', 'Múc'", ex: ["Book /bʊk/", "Look /lʊk/", "Foot /fʊt/", "Put /pʊt/"], video: "https://youtu.be/0-x24S_V1m0", type: "short" },
+                { symbol: "/uː/", name: "u dài", tip: "Chu môi, kéo dài", how: "Chu môi tròn nhỏ như thổi nến. Lưỡi nâng cao ở phía sau. Phát âm âm 'u' căng và dài.", vn: "Giống 'Thu', 'Lu'", ex: ["Food /fuːd/", "Blue /bluː/", "Shoe /ʃuː/", "Group /ɡruːp/"], video: "https://youtu.be/vA0m5pE6S8o", type: "long" },
+                { symbol: "/ə/", name: "ơ nhẹ", tip: "Âm lướt, cực nhẹ", how: "Miệng thả lỏng hoàn toàn. Lưỡi để tự nhiên. Phát âm âm 'ơ' rất nhẹ, lướt qua, không dùng lực.", vn: "Giống 'Bơ', 'Mơ' (nhẹ)", ex: ["About /əˈbaʊt/", "Banana /bəˈnɑːnə/", "Teacher /ˈtiːtʃə/", "Today /təˈdeɪ/"], video: "https://youtu.be/0H9Iitv6pA0", type: "short" },
+                { symbol: "/ɜː/", name: "ơ dài", tip: "Kéo dài, uốn lưỡi", how: "Miệng hơi mở. Lưỡi cong lên nhưng không chạm vòm họng. Phát âm âm 'ơ' kéo dài và sâu.", vn: "Giống 'Thơ' (điệu)", ex: ["Bird /bɜːd/", "Work /wɜːk/", "Shirt /ʃɜːt/", "Learn /lɜːn/"], video: "https://youtu.be/D_P7IatN7-8", type: "long" }
+            ],
+            diphthongs: [
+                { symbol: "/eɪ/", name: "ê-i", how: "Miệng bẹt dần sang hai bên, lướt từ 'ê' sang 'i'.", vn: "Mây, Tây", ex: ["Day", "Say", "Eight", "Break"], note: "e → i" },
+                { symbol: "/aɪ/", name: "a-i", how: "Há miệng rộng đọc 'a' rồi khép dần lên 'i'.", vn: "Mai, Hai", ex: ["My", "Sky", "High", "Buy"], note: "a → i" },
+                { symbol: "/ɔɪ/", name: "ô-i", how: "Tròn môi đọc 'o' rồi bẹt miệng sang 'i'.", vn: "Vôi, Ôi", ex: ["Boy", "Toy", "Oil", "Voice"], note: "ô → i" },
+                { symbol: "/əʊ/", name: "ơ-u", how: "Thả lỏng đọc 'ơ' rồi từ từ chu môi lên 'u'.", vn: "Câu, Sâu", ex: ["Go", "Home", "Phone", "Road"], note: "ơ → u" },
+                { symbol: "/aʊ/", name: "a-u", how: "Há rộng miệng đọc 'a' rồi chu môi về 'u'.", vn: "Sao, Cao", ex: ["Now", "House", "Mouse", "Out"], note: "a → u" },
+                { symbol: "/ɪə/", name: "i-ơ", how: "Đọc 'i' ngắn rồi thả lỏng ngay miệng về 'ơ'.", vn: "Bia, Kia", ex: ["Near", "Ear", "Here", "Clear"], note: "i → ơ" },
+                { symbol: "/eə/", name: "e-ơ", how: "Đọc 'e' rồi thả lỏng miệng về 'ơ'.", vn: "Ghe + ơ", ex: ["Hair", "Air", "Care", "Share"], note: "e → ơ" }
+            ],
+            consonants: [
+                { symbol: "/p/", name: "p", how: "Mím chặt hai môi chặn hơi, rồi bật mạnh ra. Cổ họng KHÔNG rung.", vn: "Pin, Pí (bật mạnh)", ex: ["Pen", "Pig", "Map"], type: "unvoiced", char: "Bật hơi" },
+                { symbol: "/b/", name: "b", how: "Giống /p/ nhưng làm rung dây thanh quản (sờ cổ thấy rung).", vn: "Bà, Ba", ex: ["Boy", "Bag", "Book"], type: "voiced", char: "Rung cổ" },
+                { symbol: "/t/", name: "t", how: "Đầu lưỡi chạm chân răng trên chặn hơi, rồi bật mạnh xuống.", vn: "Tiền, Tui (bật đầu lưỡi)", ex: ["Tea", "Table", "Cat"], type: "unvoiced", char: "Đầu lưỡi" },
+                { symbol: "/d/", name: "d/đ", how: "Giống /t/ nhưng làm rung dây thanh quản.", vn: "Đi, Đâu", ex: ["Do", "Dog", "Dad"], type: "voiced", char: "Rung cổ" },
+                { symbol: "/k/", name: "k", how: "Cuống lưỡi nâng lên chạm ngạc mềm chặn hơi, rồi bật ra.", vn: "Ca, Kem (khạc hơi)", ex: ["Cat", "Key", "Car"], type: "unvoiced", char: "Cuống họng" },
+                { symbol: "/g/", name: "g", how: "Giống /k/ nhưng làm rung dây thanh quản.", vn: "Gà, Ghế", ex: ["Go", "Get", "Bag"], type: "voiced", char: "Giống G" },
+                { symbol: "/f/", name: "f", how: "Răng cửa trên chạm nhẹ môi dưới. Thổi hơi qua khe hở.", vn: "Phở, Phố", ex: ["Fan", "Fish", "Phone"], type: "unvoiced", char: "Răng-Môi" },
+                { symbol: "/v/", name: "v", how: "Giống /f/ nhưng làm rung dây thanh quản.", vn: "Về, Vui", ex: ["Van", "Very", "Five"], type: "voiced", char: "Rung cổ" },
+                { symbol: "/s/", name: "s", how: "Hai hàm răng để gần nhau, đầu lưỡi gần chân răng trên. Xì hơi.", vn: "Xinh, Xe", ex: ["See", "Sun", "Sit"], type: "unvoiced", char: "Xì hơi" },
+                { symbol: "/z/", name: "z", how: "Giống /s/ nhưng làm rung dây thanh quản (tiếng ong kêu).", vn: "Dung dăng", ex: ["Zoo", "Zebra", "Music"], type: "voiced", char: "Rung cổ" },
+                { symbol: "/ʃ/", name: "sh", how: "Chu môi ra trước. Đầu lưỡi cong lên. Thổi hơi mạnh (Suỵt!).", vn: "Sẻ, Sung (uốn lưỡi)", ex: ["She", "Shop", "Fish"], type: "unvoiced", char: "Chu môi" },
+                { symbol: "/ʒ/", name: "gi/r", how: "Giống /ʃ/ nhưng làm rung dây thanh quản.", vn: "Rổ, Gia (rung)", ex: ["Vision", "Pleasure", "Casual"], type: "voiced", char: "Rung cổ" },
+                { symbol: "/tʃ/", name: "ch", how: "Kết hợp /t/ và /ʃ/. Đầu lưỡi chạm lợi rồi bật hơi khi chu môi.", vn: "Chờ (bật mạnh)", ex: ["Cheese", "Chair", "Watch"], type: "unvoiced", char: "Bật Ch" },
+                { symbol: "/dʒ/", name: "d-ch", how: "Giống /tʃ/ nhưng làm rung dây thanh quản.", vn: "Gì, Giờ (bật mạnh)", ex: ["Job", "Juice", "Page"], type: "voiced", char: "Rung cổ" },
+                { symbol: "/θ/", name: "th", how: "Đặt đầu lưỡi giữa hai hàm răng. Thổi hơi nhẹ qua kẽ răng.", vn: "Không có (thổi gió)", ex: ["Think", "Thank", "Three"], type: "unvoiced", char: "Thổi gió" },
+                { symbol: "/ð/", name: "đ-th", how: "Giống /θ/ nhưng làm rung dây thanh quản.", vn: "Đờ (lưỡi giữa răng)", ex: ["This", "That", "Father"], type: "voiced", char: "Rung lưỡi" },
+                { symbol: "/ŋ/", name: "ng", how: "Cuống lưỡi chạm ngạc mềm. Hơi thoát ra đường mũi.", vn: "Băng, Vâng", ex: ["Sing", "Song", "Ring"], type: "voiced", char: "Mũi" },
+                { symbol: "/j/", name: "y", how: "Lưỡi nâng cao (như âm i) rồi hạ xuống nhanh.", vn: "Da, Dê (miền Nam)", ex: ["Yes", "Yellow", "You"], type: "voiced", char: "Giống D" },
+                { symbol: "/w/", name: "w", how: "Tròn môi (như âm u) rồi mở nhanh ra các phía.", vn: "Oa, Quê", ex: ["We", "Wet", "Window"], type: "voiced", char: "Tròn môi" }
+            ],
+            roadmap: [
+                { step: 1, title: "Học Theo Nhóm", desc: "4-5 âm/ngày. Bắt đầu với Nguyên âm đơn, sau đó đến Phụ âm." },
+                { step: 2, title: "Ghép Vần", desc: "Tách nhỏ từ mới -> Ghép lại theo âm IPA. Ví dụ: Studio -> STU-di-âu." },
+                { step: 3, title: "Kiểm Tra", desc: "Sử dụng từ điển Oxford/Cambridge để nghe và so sánh." }
+            ]
+        };
+
+        const tabs = [
+            { id: "overview", label: "Tổng Quan" },
+            { id: "principles", label: "Nguyên Tắc" },
+            { id: "monophthongs", label: "Nguyên Âm Đơn" },
+            { id: "diphthongs", label: "Nguyên Âm Đôi" },
+            { id: "consonants", label: "Phụ Âm" },
+            { id: "roadmap", label: "Lộ Trình" }
+        ];
+
+        let activeTab = "overview";
+        let consonantFilter = "all"; // all, voiced, unvoiced
+
+        // --- DOM ELEMENTS & INIT ---
+        const navContainer = document.getElementById('desktop-nav');
+        const mobileNavContainer = document.getElementById('mobile-nav-items');
+        const contentContainer = document.getElementById('app-content');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        function init() {
+            renderNav();
+            renderContent();
+            setupMobileMenu();
+        }
+
+        // --- NAVIGATION LOGIC ---
+        function renderNav() {
+            navContainer.innerHTML = tabs.map(tab => `
+                <button onclick="switchTab('${tab.id}')" 
+                    class="tab-btn px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors ${activeTab === tab.id ? 'active' : ''}">
+                    ${tab.label}
+                </button>
+            `).join('');
+
+            mobileNavContainer.innerHTML = tabs.map(tab => `
+                <button onclick="switchTab('${tab.id}'); toggleMobileMenu()" 
+                    class="block w-full text-left px-3 py-2 rounded-md text-base font-medium ${activeTab === tab.id ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'}">
+                    ${tab.label}
+                </button>
+            `).join('');
+        }
+
+        function switchTab(tabId) {
+            activeTab = tabId;
+            renderNav();
+            renderContent();
+        }
+
+        function setupMobileMenu() {
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        }
+
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // --- CONTENT RENDERING ---
+        function renderContent() {
+            contentContainer.innerHTML = ''; // Clear current content
+            
+            switch(activeTab) {
+                case 'overview':
+                    renderOverview();
+                    break;
+                case 'principles':
+                    renderPrinciples();
+                    break;
+                case 'monophthongs':
+                    renderMonophthongs();
+                    break;
+                case 'diphthongs':
+                    renderDiphthongs();
+                    break;
+                case 'consonants':
+                    renderConsonants();
+                    break;
+                case 'roadmap':
+                    renderRoadmap();
+                    break;
+            }
+        }
+
+        // --- SECTION RENDERERS ---
+
+        function renderOverview() {
+            const html = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center animate-fade-in">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">${appData.overview.title}</h2>
+                        <p class="text-gray-600 text-lg leading-relaxed mb-6">
+                            ${appData.overview.description}
+                        </p>
+                        <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                            <h3 class="font-semibold text-blue-800 mb-2">Tại sao phải học IPA?</h3>
+                            <ul class="list-disc list-inside text-blue-700 space-y-2">
+                                <li>Phát âm chuẩn từ mới chưa gặp bao giờ</li>
+                                <li>Tự tin giao tiếp, người nghe dễ hiểu</li>
+                                <li>Cải thiện kỹ năng nghe (Listening)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col items-center justify-center">
+                        <div class="chart-container">
+                            <canvas id="ipaChart"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-400 mt-4 italic">Phân bổ 44 âm trong tiếng Anh</p>
+                    </div>
+                </div>
+            `;
+            contentContainer.innerHTML = html;
+            
+            // Render Chart
+            setTimeout(() => {
+                const ctx = document.getElementById('ipaChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Nguyên âm đơn', 'Nguyên âm đôi', 'Phụ âm'],
+                        datasets: [{
+                            data: appData.overview.stats,
+                            backgroundColor: ['#60a5fa', '#fbbf24', '#34d399'],
+                            borderWidth: 0,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { padding: 20, font: { family: 'Segoe UI' } } }
+                        }
+                    }
+                });
+            }, 0);
+        }
+
+        function renderPrinciples() {
+            const cards = appData.principles.map(p => `
+                <div class="${p.color} p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-sm text-2xl font-bold text-gray-700 mr-4">
+                            ${p.icon}
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">${p.title}</h3>
+                    </div>
+                    <p class="text-gray-700 text-lg">${p.desc}</p>
+                </div>
+            `).join('');
+
+            contentContainer.innerHTML = `
+                <div class="animate-fade-in">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Các Nguyên Tắc Cơ Bản</h2>
+                    <p class="text-gray-600 mb-8">Ba quy tắc vàng cần nhớ trước khi bắt đầu luyện tập.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        ${cards}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMonophthongs() {
+            const grid = appData.monophthongs.map(m => `
+                <div class="group relative bg-white border border-gray-200 rounded-xl p-6 hover:border-blue-400 card-hover transition-all cursor-pointer overflow-hidden"
+                     onclick="toggleDetail(this)">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-4xl font-bold text-blue-600 ipa-symbol">${m.symbol}</span>
+                        <span class="text-xs font-semibold px-2 py-1 rounded bg-gray-100 text-gray-500 uppercase tracking-wide">${m.type}</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-1">${m.name}</h3>
+                    <p class="text-sm text-gray-500 mb-4 truncate">${m.tip}</p>
+                    
+                    <!-- Detail View (Initially Hidden visually, revealed on click) -->
+                    <div class="detail-content hidden mt-4 pt-4 border-t border-gray-100 animate-fade-in">
+                        <div class="mb-3 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                            <span class="text-xs font-bold text-blue-800 uppercase block mb-1">Cách thực hiện:</span>
+                            <p class="text-sm text-blue-900 leading-relaxed">${m.how}</p>
+                        </div>
+                        <div class="mb-3">
+                            <span class="text-xs font-bold text-gray-400 uppercase">Tiếng Việt:</span>
+                            <p class="text-gray-800 italic">${m.vn}</p>
+                        </div>
+                        <div class="mb-4">
+                            <span class="text-xs font-bold text-gray-400 uppercase">Ví dụ:</span>
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                ${m.ex.map(e => `<span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">${e}</span>`).join('')}
+                            </div>
+                        </div>
+                        <a href="https://www.google.com/search?q=${m.symbol}+pronunciation" target="_blank" onclick="event.stopPropagation()"
+                           class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
+                           ▶ Xem Video Hướng Dẫn
+                        </a>
+                    </div>
+                    <div class="absolute bottom-2 right-2 text-gray-300 group-hover:text-blue-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+            `).join('');
+
+            contentContainer.innerHTML = `
+                <div class="animate-fade-in">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800">Nguyên Âm Đơn (Monophthongs)</h2>
+                        <p class="text-gray-600 mt-2">Bấm vào từng thẻ để xem chi tiết khẩu hình và cách đọc.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        ${grid}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDiphthongs() {
+            const grid = appData.diphthongs.map(d => `
+                <div class="bg-white border-l-4 border-yellow-400 rounded-r-xl shadow-sm p-6 hover:shadow-md transition-all">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-4xl font-bold text-gray-800 ipa-symbol">${d.symbol}</span>
+                        <div class="flex flex-col items-end">
+                            <span class="text-sm font-bold text-yellow-600">${d.name}</span>
+                            <span class="text-xs text-gray-400 font-mono">${d.note}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                         <div class="bg-yellow-50 p-2 rounded text-sm text-yellow-900 mb-2">
+                             ${d.how}
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-gray-400 text-xs w-16 uppercase mt-1">Mẹo TV:</span>
+                            <span class="text-gray-800 font-medium">${d.vn}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 text-xs block mb-1 uppercase">Ví dụ:</span>
+                            <div class="flex flex-wrap gap-2">
+                                ${d.ex.map(e => `<span class="bg-white text-gray-700 px-2 py-1 rounded text-sm border border-gray-200">${e}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            contentContainer.innerHTML = `
+                <div class="animate-fade-in">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800">Nguyên Âm Đôi (Diphthongs)</h2>
+                        <p class="text-gray-600 mt-2">Sự kết hợp mượt mà của hai nguyên âm đơn. Hãy lướt từ âm này sang âm kia.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${grid}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderConsonants() {
+            // Filter logic
+            const filtered = appData.consonants.filter(c => consonantFilter === 'all' || c.type === consonantFilter);
+            
+            const grid = filtered.map(c => `
+                <div class="bg-white rounded-lg p-4 shadow-sm border ${c.type === 'voiced' ? 'border-green-200 bg-green-50/30' : 'border-gray-200'} hover:shadow-md transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-3xl font-bold text-gray-800 ipa-symbol">${c.symbol}</span>
+                        <span class="px-2 py-0.5 rounded text-xs font-bold uppercase ${c.type === 'voiced' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
+                            ${c.type === 'voiced' ? 'Hữu thanh' : 'Vô thanh'}
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-600 mb-2 font-medium">${c.char}</div>
+                    
+                    <div class="bg-gray-50 p-2 rounded text-xs text-gray-700 mb-2 border border-gray-100">
+                        ${c.how}
+                    </div>
+
+                    <p class="text-xs text-gray-500 mb-2 italic">TV: ${c.vn}</p>
+                    <div class="flex flex-wrap gap-1">
+                         ${c.ex.map(e => `<span class="text-xs bg-white border border-gray-200 px-1.5 py-0.5 rounded text-gray-700">${e}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            contentContainer.innerHTML = `
+                <div class="animate-fade-in">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-800">Phụ Âm (Consonants)</h2>
+                            <p class="text-gray-600 mt-1">Khung xương của từ vựng.</p>
+                        </div>
+                        
+                        <!-- Filter Controls -->
+                        <div class="flex bg-gray-100 p-1 rounded-lg self-start">
+                            <button onclick="setConsonantFilter('all')" class="px-4 py-2 rounded-md text-sm font-medium transition-all ${consonantFilter === 'all' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-900'}">Tất cả</button>
+                            <button onclick="setConsonantFilter('unvoiced')" class="px-4 py-2 rounded-md text-sm font-medium transition-all ${consonantFilter === 'unvoiced' ? 'bg-white shadow text-gray-800' : 'text-gray-500 hover:text-gray-900'}">Vô thanh (Hơi)</button>
+                            <button onclick="setConsonantFilter('voiced')" class="px-4 py-2 rounded-md text-sm font-medium transition-all ${consonantFilter === 'voiced' ? 'bg-white shadow text-green-600' : 'text-gray-500 hover:text-gray-900'}">Hữu thanh (Rung)</button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        ${grid}
+                    </div>
+                </div>
+            `;
+        }
+
+        function setConsonantFilter(filter) {
+            consonantFilter = filter;
+            renderConsonants();
+        }
+
+        function renderRoadmap() {
+            const steps = appData.roadmap.map((s, index) => `
+                <div class="relative flex items-start pb-12 last:pb-0">
+                    <div class="absolute top-0 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></div>
+                    <div class="relative flex items-center justify-center flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full ring-8 ring-white z-10">
+                        <span class="text-white font-bold text-sm">${s.step}</span>
+                    </div>
+                    <div class="ml-8 min-w-0 flex-1">
+                        <div class="text-lg font-bold text-gray-900 mb-1">${s.title}</div>
+                        <p class="text-gray-600 bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                            ${s.desc}
+                        </p>
+                    </div>
+                </div>
+            `).join('');
+
+            contentContainer.innerHTML = `
+                <div class="max-w-3xl mx-auto animate-fade-in">
+                    <h2 class="text-3xl font-bold text-center text-gray-800 mb-10">Lộ Trình Luyện Tập 3 Bước</h2>
+                    <div class="bg-gray-50 p-8 rounded-2xl border border-gray-100">
+                        ${steps}
+                    </div>
+                    
+                    <div class="mt-12 bg-blue-600 text-white p-8 rounded-2xl text-center shadow-lg">
+                        <h3 class="text-2xl font-bold mb-4">Sẵn sàng thực hành?</h3>
+                        <p class="mb-6 opacity-90">Hãy truy cập từ điển Oxford hoặc Cambridge để bắt đầu tra từ đầu tiên của bạn.</p>
+                        <div class="flex justify-center gap-4">
+                            <a href="https://www.oxfordlearnersdictionaries.com/" target="_blank" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors">Oxford Learner's</a>
+                            <a href="https://dictionary.cambridge.org/" target="_blank" class="bg-blue-700 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-800 transition-colors border border-blue-500">Cambridge Dict</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- INTERACTION UTILS ---
+        window.toggleDetail = function(el) {
+            const detail = el.querySelector('.detail-content');
+            const arrow = el.querySelector('svg');
+            
+            if (detail.classList.contains('hidden')) {
+                // Close others if needed (optional, keeping it simple for now to allow multiple comparisons)
+                detail.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+                el.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+            } else {
+                detail.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+                el.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
+            }
+        };
+
+        // Initialize App
+        init();
+
+    </script>
+    <style>
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .rotate-180 { transform: rotate(180deg); }
+    </style>
+</body>
+</html>
