@@ -1,0 +1,262 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.0 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.3.0">
+  <diagram id="cD9c7Z9kLvg9kIePHz4f" name="Page-1">
+    <mxGraphModel dx="1019" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=16;fontColor=#CC0000;" value="VÍ DỤ MINH HỌA: BÁO CÁO TỶ LỆ ĐƠN HÀNG THEO TỈNH THÀNH" vertex="1">
+          <mxGeometry height="30" width="800" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=2;fontSize=12;fontColor=#666666;" value="Yêu cầu: Báo cáo tỷ lệ đơn hàng thành công theo Tỉnh thành (Map Chart)" vertex="1">
+          <mxGeometry height="25" width="800" x="40" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;fontStyle=1;fontSize=12;align=center;" value="Bước 1: BA &amp; User" vertex="1">
+          <mxGeometry height="50" width="180" x="40" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step1-detail" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;fontSize=10;align=left;spacingLeft=10;" value="✓ Chốt xem biểu đồ Bản đồ (Map Chart)&lt;br&gt;✓ Design: Map Chart Bản đồ Việt Nam với số đơn hàng" vertex="1">
+          <mxGeometry height="60" width="300" x="240" y="95" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex1-2" edge="1" parent="1" source="ex-step1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;" target="ex-step2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;fontStyle=1;fontSize=12;align=center;" value="Bước 2: BA Check Gold" vertex="1">
+          <mxGeometry height="50" width="180" x="40" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step2-detail" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9E6;strokeColor=#F9A825;fontSize=10;align=left;spacingLeft=10;" value="✓ Bảng Fact_Orders có cột: CityID&lt;div&gt;✗ Chưa có: CityName (Tên tỉnh thành)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="300" x="240" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step2-note" parent="1" style="text;html=1;strokeColor=#CC0000;fillColor=#FFEBEE;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontStyle=1;fontSize=11;fontColor=#CC0000;" value="⚠️ Phát hiện CHƯA CÓ dữ liệu!" vertex="1">
+          <mxGeometry height="40" width="240" x="560" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex2-3" edge="1" parent="1" source="ex-step2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#CC0000;endArrow=classic;endFill=1;fontStyle=1;fontSize=11;fontColor=#CC0000;" target="ex-step3" value="CHƯA CÓ">
+          <mxGeometry relative="1" x="0.0526" y="30" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ex-step3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontColor=#ffffff;fontStyle=1;fontSize=12;align=center;" value="Bước 3b: Thu thập dữ liệu" vertex="1">
+          <mxGeometry height="50" width="180" x="40" y="297" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step3-ba" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;fontSize=10;fontStyle=1;" value="BA gửi Ticket" vertex="1">
+          <mxGeometry height="30" width="120" x="240" y="307" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step3-khdl" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontColor=#ffffff;fontSize=10;fontStyle=1;" value="KHDL bổ sung bảng&#xa;Dim_Cities&#xa;(Map ID → Name)" vertex="1">
+          <mxGeometry height="60" width="160" x="448" y="292" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step3-result" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;fontSize=10;fontStyle=1;" value="✓ Gold đã có&#xa;Dim_Cities" vertex="1">
+          <mxGeometry height="50" width="120" x="680" y="297" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex3-ba-khdl" edge="1" parent="1" source="ex-step3-ba" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;endArrow=classic;" target="ex-step3-khdl" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex3-khdl-result" edge="1" parent="1" source="ex-step3-khdl" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;endArrow=classic;" target="ex-step3-result" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex3-4" edge="1" parent="1" source="ex-step3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;" target="ex-step4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;fontStyle=1;fontSize=12;align=center;" value="Bước 4: BA Viết Spec" vertex="1">
+          <mxGeometry height="50" width="180" x="40" y="387" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step4-detail" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;fontSize=10;align=center;fontStyle=1;" value="BA tạo Mapping Specification (xem bảng chi tiết bên dưới)" vertex="1">
+          <mxGeometry height="50" width="560" x="240" y="387" as="geometry" />
+        </mxCell>
+        <mxCell id="spec-title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;fontColor=#0066CC;" value="BẢNG MAPPING SPECIFICATION CHI TIẾT (BA cung cấp cho SWE)" vertex="1">
+          <mxGeometry height="30" width="800" x="40" y="456" as="geometry" />
+        </mxCell>
+        <mxCell id="table-header" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1976D2;strokeColor=#1976D2;" value="" vertex="1">
+          <mxGeometry height="40" width="800" x="41" y="496" as="geometry" />
+        </mxCell>
+        <mxCell id="th-stt" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=11;fontColor=#ffffff;" value="STT" vertex="1">
+          <mxGeometry height="30" width="40" x="41" y="501" as="geometry" />
+        </mxCell>
+        <mxCell id="th-nguon" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=11;fontColor=#ffffff;" value="Nguồn (Gold Layer)" vertex="1">
+          <mxGeometry height="30" width="200" x="81" y="501" as="geometry" />
+        </mxCell>
+        <mxCell id="th-logic" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=11;fontColor=#ffffff;" value="Logic Tính Toán" vertex="1">
+          <mxGeometry height="30" width="280" x="281" y="501" as="geometry" />
+        </mxCell>
+        <mxCell id="th-dich" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=11;fontColor=#ffffff;" value="Đích (ClickHouse)" vertex="1">
+          <mxGeometry height="30" width="180" x="561" y="501" as="geometry" />
+        </mxCell>
+        <mxCell id="th-type" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=11;fontColor=#ffffff;" value="Kiểu DL" vertex="1">
+          <mxGeometry height="30" width="100" x="741" y="501" as="geometry" />
+        </mxCell>
+        <mxCell id="row1-bg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#BBDEFB;" value="" vertex="1">
+          <mxGeometry height="50" width="800" x="41" y="536" as="geometry" />
+        </mxCell>
+        <mxCell id="r1-stt" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="1" vertex="1">
+          <mxGeometry height="40" width="40" x="41" y="541" as="geometry" />
+        </mxCell>
+        <mxCell id="r1-nguon" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;" value="Dim_Cities.CityName" vertex="1">
+          <mxGeometry height="40" width="200" x="81" y="541" as="geometry" />
+        </mxCell>
+        <mxCell id="r1-logic" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;spacingLeft=5;" value="Lấy trực tiếp (No Transform)" vertex="1">
+          <mxGeometry height="40" width="280" x="281" y="541" as="geometry" />
+        </mxCell>
+        <mxCell id="r1-dich" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;" value="city_name" vertex="1">
+          <mxGeometry height="40" width="180" x="561" y="541" as="geometry" />
+        </mxCell>
+        <mxCell id="r1-type" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="String" vertex="1">
+          <mxGeometry height="40" width="100" x="741" y="541" as="geometry" />
+        </mxCell>
+        <mxCell id="row2-bg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#BBDEFB;" value="" vertex="1">
+          <mxGeometry height="70" width="800" x="41" y="586" as="geometry" />
+        </mxCell>
+        <mxCell id="r2-stt" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="2" vertex="1">
+          <mxGeometry height="60" width="40" x="41" y="591" as="geometry" />
+        </mxCell>
+        <mxCell id="r2-nguon" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;" value="Fact_Orders.OrderID&#xa;Fact_Orders.CityID&#xa;Dim_Cities.CityID" vertex="1">
+          <mxGeometry height="60" width="200" x="81" y="591" as="geometry" />
+        </mxCell>
+        <mxCell id="r2-logic" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontFamily=Courier New;spacingLeft=5;" value="COUNT(DISTINCT Fact_Orders.OrderID)&#xa;WHERE Fact_Orders.CityID = Dim_Cities.CityID&#xa;GROUP BY Dim_Cities.CityName" vertex="1">
+          <mxGeometry height="60" width="280" x="281" y="591" as="geometry" />
+        </mxCell>
+        <mxCell id="r2-dich" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;" value="order_count" vertex="1">
+          <mxGeometry height="60" width="180" x="561" y="591" as="geometry" />
+        </mxCell>
+        <mxCell id="r2-type" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="Int64" vertex="1">
+          <mxGeometry height="60" width="100" x="741" y="591" as="geometry" />
+        </mxCell>
+        <mxCell id="row3-bg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#BBDEFB;" value="" vertex="1">
+          <mxGeometry height="50" width="800" x="41" y="656" as="geometry" />
+        </mxCell>
+        <mxCell id="r3-stt" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="3" vertex="1">
+          <mxGeometry height="40" width="40" x="41" y="661" as="geometry" />
+        </mxCell>
+        <mxCell id="r3-nguon" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;" value="Fact_Orders.OrderDate" vertex="1">
+          <mxGeometry height="40" width="200" x="81" y="661" as="geometry" />
+        </mxCell>
+        <mxCell id="r3-logic" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;" value="MAX(OrderDate)" vertex="1">
+          <mxGeometry height="40" width="280" x="281" y="661" as="geometry" />
+        </mxCell>
+        <mxCell id="r3-dich" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontFamily=Courier New;spacingLeft=5;" value="last_updated" vertex="1">
+          <mxGeometry height="40" width="180" x="561" y="661" as="geometry" />
+        </mxCell>
+        <mxCell id="r3-type" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="DateTime" vertex="1">
+          <mxGeometry height="40" width="100" x="741" y="661" as="geometry" />
+        </mxCell>
+        <mxCell id="table-info" parent="1" style="text;html=1;strokeColor=#388E3C;fillColor=#E8F5E9;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=1;spacingLeft=10;" value="Bảng đích: clickhouse.analytics.sum_order_by_city" vertex="1">
+          <mxGeometry height="30" width="353" x="40" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="table-schedule" parent="1" style="text;html=1;strokeColor=#1976D2;fillColor=#E3F2FD;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=1;spacingLeft=10;" value="Lịch chạy: Daily 02:00 AM (Airflow DAG)" vertex="1">
+          <mxGeometry height="30" width="300" x="540" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex4-5" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;fontStyle=1;fontSize=11;" target="ex-step5" value="BA gửi Spec">
+          <mxGeometry relative="1" x="0.0476" y="40" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="130" y="750" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ex-step5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;fontStyle=1;fontSize=12;align=center;" value="Bước 5: SWE Code Pipeline" vertex="1">
+          <mxGeometry height="50" width="180" x="40" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step5-airflow" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;fontSize=10;fontStyle=1;" value="Airflow DAG" vertex="1">
+          <mxGeometry height="30" width="100" x="240" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step5-sql" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9E6;strokeColor=#F9A825;fontSize=9;align=left;spacingLeft=5;fontFamily=Courier New;" value="SQL (theo Spec):&#xa;SELECT c.CityName,&#xa;  COUNT(DISTINCT o.OrderID),&#xa;  MAX(o.OrderDate)&#xa;FROM Fact_Orders o&#xa;JOIN Dim_Cities c&#xa;  ON o.CityID = c.CityID&#xa;GROUP BY c.CityName" vertex="1">
+          <mxGeometry height="105" width="240" x="400" y="762.5" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step5-ch" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;fontSize=10;fontStyle=1;" value="ClickHouse&#xa;sum_order_by_city" vertex="1">
+          <mxGeometry height="80" width="120" x="680" y="775" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex5-airflow-sql" edge="1" parent="1" source="ex-step5-airflow" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;endArrow=classic;" target="ex-step5-sql" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex5-sql-ch" edge="1" parent="1" source="ex-step5-sql" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;endArrow=classic;" target="ex-step5-ch" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex5-6" edge="1" parent="1" source="ex-step5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;" target="ex-step6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;fontStyle=1;fontSize=12;align=center;" value="Bước 6: SWE Config Superset" vertex="1">
+          <mxGeometry height="50" width="180" x="40" y="930" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step6-dataset" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;fontSize=10;fontStyle=1;" value="Dataset:&#xa;sum_order_by_city" vertex="1">
+          <mxGeometry height="60" width="130" x="240" y="925" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step6-chart" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;fontSize=10;fontStyle=1;align=left;spacingLeft=10;" value="Map Chart&#xa;Location: city_name&#xa;Metric: order_count" vertex="1">
+          <mxGeometry height="60" width="240" x="400" y="925" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step6-preview" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;fontSize=10;fontStyle=1;" value="🗺️ Bản đồ VN&#xa;với số đơn hàng" vertex="1">
+          <mxGeometry height="50" width="130" x="670" y="930" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex6-dataset-chart" edge="1" parent="1" source="ex-step6-dataset" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;endArrow=classic;" target="ex-step6-chart" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex6-chart-preview" edge="1" parent="1" source="ex-step6-chart" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;endArrow=classic;" target="ex-step6-preview" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex6-7" edge="1" parent="1" source="ex-step6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;" target="ex-step7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e51400;strokeColor=#B20000;fontColor=#ffffff;fontStyle=1;fontSize=12;align=center;" value="Bước 7: QC Kiểm thử" vertex="1">
+          <mxGeometry height="50" width="180" x="40" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step7-test" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;fontSize=10;align=left;spacingLeft=10;" value="Test Case: Hà Nội&#xa;• Gold: 50 đơn hàng&#xa;• ClickHouse: 50 đơn hàng&#xa;• Map Chart: Hiển thị số 50&#xa;✓ PASS" vertex="1">
+          <mxGeometry height="80" width="400" x="240" y="1005" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step7-result" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;fontSize=11;fontStyle=1;" value="✓ Confirm Pass&#xa;Không có Bug" vertex="1">
+          <mxGeometry height="50" width="130" x="670" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex7-8" edge="1" parent="1" source="ex-step7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;" target="ex-step8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;fontStyle=1;fontSize=12;align=center;" value="Bước 8: Nghiệm thu nội bộ" vertex="1">
+          <mxGeometry height="50" width="180" x="40" y="1120" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step8-detail" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;fontSize=10;align=left;spacingLeft=10;" value="BA/PM dùng thử Dashboard&#xa;✓ Kiểm tra tính năng OK&#xa;✓ Dữ liệu chính xác&#xa;✓ Giao diện đúng Mockup" vertex="1">
+          <mxGeometry height="70" width="220" x="240" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step8-approve" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#388E3C;fontSize=10;fontStyle=1;" value="✓ BA/PM&#xa;Xác nhận OK" vertex="1">
+          <mxGeometry height="50" width="120" x="500" y="1120" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex8-9" edge="1" parent="1" source="ex-step8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="00au5Uvw5XPHL0bLKBkw-4" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="1210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ex-step9-uat" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;fontSize=10;fontStyle=1;" value="Nghiệm thu cùng ĐẠI DIỆN KHÁCH HÀNG" vertex="1">
+          <mxGeometry height="60" width="260" x="240" y="1226" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step9-publish" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;fontSize=10;fontStyle=1;" value="SWE Publish&#xa;lên Production" vertex="1">
+          <mxGeometry height="60" width="130" x="670" y="1115" as="geometry" />
+        </mxCell>
+        <mxCell id="ex-step9-live" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;fontColor=#ffffff;fontSize=11;fontStyle=1;" value="🎉 Dashboard LIVE&lt;br&gt;Ban Giám đốc/Kinh doanh có thể xem&lt;br&gt;báo cáo theo tỉnh thành" vertex="1">
+          <mxGeometry height="60" width="240" x="560" y="1226" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex9-uat-publish" edge="1" parent="1" source="ex-step8-approve" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;endArrow=classic;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="ex-step9-publish" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ex9-publish-live" edge="1" parent="1" source="ex-step9-uat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;endArrow=classic;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="ex-step9-live" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="560" y="1256" />
+              <mxPoint x="560" y="1256" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sample-title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;fontColor=#009900;" value="DỮ LIỆU MẪU TRONG CLICKHOUSE" vertex="1">
+          <mxGeometry height="30" width="800" x="40" y="1310" as="geometry" />
+        </mxCell>
+        <mxCell id="sample-table" parent="1" style="text;html=1;strokeColor=#388E3C;fillColor=#E8F5E9;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fontSize=10;fontFamily=Courier New;spacingLeft=10;spacingTop=10;" value="sum_order_by_city (ClickHouse)&lt;br&gt;┌──────────────┬─────────────┬─────────────────────┐&lt;br&gt;│ city_name&amp;nbsp; &amp;nbsp; │ order_count │ last_updated&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; │&lt;br&gt;├──────────────┼─────────────┼─────────────────────┤&lt;br&gt;│ Hà Nội&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;│     50&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; │ 2026-02-03 00:00:00 │&lt;br&gt;│ TP.HCM&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;│     85 &lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp;│ 2026-02-03 00:00:00 │&lt;br&gt;│ Đà Nẵng&amp;nbsp; &amp;nbsp; &amp;nbsp; │     32&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; │ 2026-02-03 00:00:00 │&lt;br&gt;│ Cần Thơ&amp;nbsp; &amp;nbsp; &amp;nbsp; │     18&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; │ 2026-02-03 00:00:00 │&lt;br&gt;└──────────────┴─────────────┴─────────────────────┘" vertex="1">
+          <mxGeometry height="160" width="340" x="40" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="sample-map" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;fontSize=11;align=left;spacingLeft=15;spacingTop=10;" value="🗺️ Map Chart Visualization trên Superset&#xa;&#xa;Bản đồ Việt Nam hiển thị:&#xa;• Hà Nội: 50 đơn hàng&#xa;• TP.HCM: 85 đơn hàng (màu đậm nhất)&#xa;• Đà Nẵng: 32 đơn hàng&#xa;• Cần Thơ: 18 đơn hàng&#xa;&#xa;Màu sắc gradient theo số lượng đơn hàng&#xa;Tooltip hiển thị chi tiết khi hover" vertex="1">
+          <mxGeometry height="160" width="320" x="480" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="00au5Uvw5XPHL0bLKBkw-2" edge="1" parent="1" source="ex-step8-detail" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;endArrow=classic;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="ex-step8-approve" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="640" y="1140" as="sourcePoint" />
+            <mxPoint x="690" y="1140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="00au5Uvw5XPHL0bLKBkw-4" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#008a00;strokeColor=#005700;fontColor=#ffffff;" value="&lt;span style=&quot;color: rgb(255, 255, 255); font-weight: 700;&quot;&gt;Bước 9: Nghiệm thu&lt;/span&gt;&lt;br style=&quot;color: rgb(255, 255, 255); font-weight: 700;&quot;&gt;&lt;span style=&quot;color: rgb(255, 255, 255); font-weight: 700;&quot;&gt;với Khách hàng&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="125" x="67.5" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="00au5Uvw5XPHL0bLKBkw-6" parent="1" style="html=1;shadow=0;dashed=0;align=center;verticalAlign=middle;shape=mxgraph.arrows2.arrow;dy=0;dx=30;notch=30;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#006EAF;" value="" vertex="1">
+          <mxGeometry height="60" width="50" x="410" y="1400" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

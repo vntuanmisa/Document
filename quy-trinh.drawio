@@ -1,0 +1,237 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.0 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.3.0">
+  <diagram id="dGvepquf5u10C147SUC6" name="Page-1">
+    <mxGraphModel dx="1426" dy="849" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=16;fontColor=#0066CC;" value="QUY TRÌNH XÂY DỰNG DASHBOARD SUPERSET" vertex="1">
+          <mxGeometry height="30" width="480" x="150" y="18" as="geometry" />
+        </mxCell>
+        <mxCell id="phase1-header" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0066CC;strokeColor=#0066CC;fontColor=#ffffff;fontStyle=1;fontSize=13;" value="GIAI ĐOẠN 1: CHUẨN BỊ (PREPARATION)" vertex="1">
+          <mxGeometry height="40" width="760" x="40" y="57" as="geometry" />
+        </mxCell>
+        <mxCell id="step1-container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;dashed=1;dashPattern=3 3;" value="" vertex="1">
+          <mxGeometry height="120" width="680" x="80" y="121" as="geometry" />
+        </mxCell>
+        <mxCell id="step1-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=12;fontColor=#1976D2;" value="Bước 1: Tiếp nhận &amp; Phân tích (Define)" vertex="1">
+          <mxGeometry height="20" width="300" x="100" y="131" as="geometry" />
+        </mxCell>
+        <mxCell id="step1-actor" parent="1" style="text;html=1;strokeColor=none;fillColor=#BBDEFB;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;" value="Actor: BA, User" vertex="1">
+          <mxGeometry height="25" width="120" x="100" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="step1-action" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="• Phỏng vấn làm rõ chỉ số (Metric)&#xa;• Thống nhất giao diện (Mockup)" vertex="1">
+          <mxGeometry height="40" width="280" x="240" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="step1-output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;fontStyle=1;fontSize=10;" value="Output: BRD &amp; Mockup" vertex="1">
+          <mxGeometry height="40" width="140" x="570" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1-2" edge="1" parent="1" source="step1-container" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;" target="step2-container" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="step2-container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;dashed=1;dashPattern=3 3;" value="" vertex="1">
+          <mxGeometry height="120" width="680" x="80" y="281" as="geometry" />
+        </mxCell>
+        <mxCell id="step2-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=12;fontColor=#1976D2;" value="Bước 2: Đánh giá dữ liệu (Gap Analysis)" vertex="1">
+          <mxGeometry height="20" width="300" x="100" y="291" as="geometry" />
+        </mxCell>
+        <mxCell id="step2-actor" parent="1" style="text;html=1;strokeColor=none;fillColor=#BBDEFB;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;" value="Actor: BA" vertex="1">
+          <mxGeometry height="25" width="120" x="100" y="316" as="geometry" />
+        </mxCell>
+        <mxCell id="step2-action" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="• So sánh trường cần thiết với Gold&#xa;• Kiểm tra Data Catalog" vertex="1">
+          <mxGeometry height="40" width="280" x="240" y="316" as="geometry" />
+        </mxCell>
+        <mxCell id="step2-decision" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=11;" value="Đủ dữ liệu?" vertex="1">
+          <mxGeometry height="90" width="120" x="580" y="292" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2-3a" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#009900;endArrow=classic;endFill=1;fontStyle=1;fontSize=11;fontColor=#009900;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" value="ĐÃ CÓ">
+          <mxGeometry relative="1" x="-0.7241" y="30" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="640" y="408" />
+            </Array>
+            <mxPoint x="640" y="382" as="sourcePoint" />
+            <mxPoint x="640" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow2-3b" edge="1" parent="1" source="step2-decision" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#CC0000;endArrow=classic;endFill=1;fontStyle=1;fontSize=11;fontColor=#CC0000;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="step3b-container" value="CHƯA CÓ">
+          <mxGeometry relative="1" x="-0.2812" y="-10" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="430" y="337" />
+            </Array>
+            <mxPoint x="580" y="363" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="step3b-container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9E6;strokeColor=#F9A825;dashed=1;dashPattern=3 3;" value="" vertex="1">
+          <mxGeometry height="140" width="400" x="80" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="step3b-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=12;fontColor=#F57F17;" value="Bước 3b: Thu thập dữ liệu bổ sung (CHƯA CÓ)" vertex="1">
+          <mxGeometry height="20" width="350" x="100" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="step3b-ba" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;fontStyle=1;fontSize=10;" value="BA gửi Ticket" vertex="1">
+          <mxGeometry height="50" width="100" x="100" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="step3b-khdl" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontColor=#ffffff;fontStyle=1;fontSize=10;" value="KHDL bổ sung&#xa;App→Raw→&#xa;Silver→Gold" vertex="1">
+          <mxGeometry height="50" width="120" x="220" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="step3b-output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontColor=#ffffff;fontStyle=1;fontSize=10;" value="Output:&#xa;Dữ liệu Gold&#xa;đã cập nhật" vertex="1">
+          <mxGeometry height="50" width="100" x="360" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow3b-ba-khdl" edge="1" parent="1" source="step3b-ba" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;endArrow=classic;" target="step3b-khdl" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow3b-khdl-out" edge="1" parent="1" source="step3b-khdl" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;endArrow=classic;" target="step3b-output" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="step3a-container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;dashed=1;dashPattern=3 3;" value="" vertex="1">
+          <mxGeometry height="140" width="240" x="520" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="step3a-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=12;fontColor=#2E7D32;" value="Bước 3a: Xác nhận dữ liệu (ĐÃ CÓ)" vertex="1">
+          <mxGeometry height="20" width="210" x="537" y="453" as="geometry" />
+        </mxCell>
+        <mxCell id="step3a-action" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="• BA xác nhận dữ liệu Gold đầy đủ&#xa;• Không cần yêu cầu KHDL bổ sung" vertex="1">
+          <mxGeometry height="40" width="210" x="540" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="step3a-output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;fontStyle=1;fontSize=10;" value="✓ Sẵn sàng&#xa;thiết kế" vertex="1">
+          <mxGeometry height="40" width="200" x="540" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow3b-4" edge="1" parent="1" source="step3b-container" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="phase2-header" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="180" y="600" />
+              <mxPoint x="420" y="600" />
+            </Array>
+            <mxPoint x="460" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow3a-4" edge="1" parent="1" source="step3a-container" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="phase2-header" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="600" />
+              <mxPoint x="420" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="phase2-header" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#009900;strokeColor=#009900;fontColor=#ffffff;fontStyle=1;fontSize=13;" value="GIAI ĐOẠN 2: KỸ THUẬT (ENGINEERING)" vertex="1">
+          <mxGeometry height="40" width="760" x="40" y="624" as="geometry" />
+        </mxCell>
+        <mxCell id="step4-container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;dashed=1;dashPattern=3 3;" value="" vertex="1">
+          <mxGeometry height="120" width="680" x="80" y="681" as="geometry" />
+        </mxCell>
+        <mxCell id="step4-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=12;fontColor=#1976D2;" value="Bước 4: Thiết kế kỹ thuật (Technical Design)" vertex="1">
+          <mxGeometry height="20" width="350" x="100" y="691" as="geometry" />
+        </mxCell>
+        <mxCell id="step4-actor" parent="1" style="text;html=1;strokeColor=none;fillColor=#BBDEFB;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;" value="Actor: BA" vertex="1">
+          <mxGeometry height="25" width="120" x="100" y="716" as="geometry" />
+        </mxCell>
+        <mxCell id="step4-action" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="• Tạo Mapping Spec (Nguồn→Đích→Logic)&#xa;• Định nghĩa công thức tính toán" vertex="1">
+          <mxGeometry height="40" width="300" x="240" y="716" as="geometry" />
+        </mxCell>
+        <mxCell id="step4-output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;fontStyle=1;fontSize=10;" value="Output: Mapping&#xa;Specification" vertex="1">
+          <mxGeometry height="40" width="140" x="570" y="716" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow4-5" edge="1" parent="1" source="step4-container" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;" target="step5-container" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="step5-container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;dashed=1;dashPattern=3 3;" value="" vertex="1">
+          <mxGeometry height="120" width="680" x="80" y="843" as="geometry" />
+        </mxCell>
+        <mxCell id="step5-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=12;fontColor=#2E7D32;" value="Bước 5: Xây dựng Pipeline &amp; Kho dữ liệu (Data Engineering)" vertex="1">
+          <mxGeometry height="20" width="450" x="100" y="853" as="geometry" />
+        </mxCell>
+        <mxCell id="step5-actor" parent="1" style="text;html=1;strokeColor=none;fillColor=#C8E6C9;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;" value="Actor: SWE" vertex="1">
+          <mxGeometry height="25" width="120" x="100" y="878" as="geometry" />
+        </mxCell>
+        <mxCell id="step5-action" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="• Tạo Schema trên ClickHouse&#xa;• Viết DAG Airflow (Gold→ClickHouse)" vertex="1">
+          <mxGeometry height="40" width="300" x="240" y="878" as="geometry" />
+        </mxCell>
+        <mxCell id="step5-output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;fontStyle=1;fontSize=10;" value="Output: Bảng Summary&#xa;trên ClickHouse" vertex="1">
+          <mxGeometry height="40" width="140" x="570" y="873" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow5-6" edge="1" parent="1" source="step5-container" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;" target="step6-container" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="step6-container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;dashed=1;dashPattern=3 3;" value="" vertex="1">
+          <mxGeometry height="120" width="675" x="82.5" y="1003" as="geometry" />
+        </mxCell>
+        <mxCell id="step6-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=12;fontColor=#2E7D32;" value="Bước 6: Cấu hình Dashboard (Visualization)" vertex="1">
+          <mxGeometry height="20" width="350" x="100" y="1013" as="geometry" />
+        </mxCell>
+        <mxCell id="step6-actor" parent="1" style="text;html=1;strokeColor=none;fillColor=#C8E6C9;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;" value="Actor: SWE" vertex="1">
+          <mxGeometry height="25" width="120" x="100" y="1038" as="geometry" />
+        </mxCell>
+        <mxCell id="step6-action" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="• Tạo Dataset trên Superset&#xa;• Kéo thả Chart, format, tối ưu cache" vertex="1">
+          <mxGeometry height="40" width="300" x="240" y="1038" as="geometry" />
+        </mxCell>
+        <mxCell id="step6-output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;fontStyle=1;fontSize=10;" value="Output: Dashboard&#xa;Draft (Staging)" vertex="1">
+          <mxGeometry height="40" width="140" x="570" y="1038" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow6-7" edge="1" parent="1" source="step6-container" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="phase3-header" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="1179" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="phase3-header" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CC0000;strokeColor=#CC0000;fontColor=#ffffff;fontStyle=1;fontSize=13;" value="GIAI ĐOẠN 3: HOÀN THIỆN (DELIVERY)" vertex="1">
+          <mxGeometry height="40" width="760" x="40" y="1161" as="geometry" />
+        </mxCell>
+        <mxCell id="step7-container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;dashed=1;dashPattern=3 3;" value="" vertex="1">
+          <mxGeometry height="120" width="680" x="80" y="1225" as="geometry" />
+        </mxCell>
+        <mxCell id="step7-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=12;fontColor=#B71C1C;" value="Bước 7: Kiểm thử (Quality Control)" vertex="1">
+          <mxGeometry height="20" width="300" x="100" y="1235" as="geometry" />
+        </mxCell>
+        <mxCell id="step7-actor" parent="1" style="text;html=1;strokeColor=none;fillColor=#FFCDD2;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;" value="Actor: QC" vertex="1">
+          <mxGeometry height="25" width="120" x="100" y="1260" as="geometry" />
+        </mxCell>
+        <mxCell id="step7-action" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="• Data Test: So sánh Gold vs ClickHouse vs Dashboard&#xa;• Performance Test: Đo thời gian load" vertex="1">
+          <mxGeometry height="40" width="380" x="240" y="1260" as="geometry" />
+        </mxCell>
+        <mxCell id="step7-output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e51400;strokeColor=#B20000;fontColor=#ffffff;fontStyle=1;fontSize=10;" value="Output: Bug Report&#xa;hoặc Confirm Pass" vertex="1">
+          <mxGeometry height="40" width="140" x="570" y="1260" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow7-8" edge="1" parent="1" source="step7-container" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;" target="step8-container" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="step8-container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;dashed=1;dashPattern=3 3;" value="" vertex="1">
+          <mxGeometry height="120" width="680" x="80" y="1387" as="geometry" />
+        </mxCell>
+        <mxCell id="step8-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=12;fontColor=#1976D2;" value="Bước 8: Nghiệm thu nội bộ (Internal UAT)" vertex="1">
+          <mxGeometry height="20" width="350" x="100" y="1397" as="geometry" />
+        </mxCell>
+        <mxCell id="step8-actor" parent="1" style="text;html=1;strokeColor=none;fillColor=#BBDEFB;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;" value="Actor: BA, PM" vertex="1">
+          <mxGeometry height="25" width="120" x="100" y="1422" as="geometry" />
+        </mxCell>
+        <mxCell id="step8-action" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="• BA/PM dùng thử Dashboard&lt;br&gt;• Kiểm tra tính năng, dữ liệu, giao diện&lt;div&gt;• SWE publish lên Production&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="300" x="239" y="1424" as="geometry" />
+        </mxCell>
+        <mxCell id="step8-output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;fontStyle=1;fontSize=10;" value="Output: Xác nhận&#xa;nội bộ OK" vertex="1">
+          <mxGeometry height="40" width="140" x="570" y="1422" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow8-9" edge="1" parent="1" source="step8-container" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;endArrow=classic;endFill=1;" target="step9-container" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="step9-container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;dashed=1;dashPattern=3 3;" value="" vertex="1">
+          <mxGeometry height="120" width="680" x="80" y="1551" as="geometry" />
+        </mxCell>
+        <mxCell id="step9-label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=12;fontColor=#1976D2;" value="Bước 9: Nghiệm thu với người yêu cầu (Client UAT)" vertex="1">
+          <mxGeometry height="20" width="400" x="100" y="1561" as="geometry" />
+        </mxCell>
+        <mxCell id="step9-actor" parent="1" style="text;html=1;strokeColor=none;fillColor=#BBDEFB;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;" value="Actor: Khách hàng" vertex="1">
+          <mxGeometry height="25" width="140" x="100" y="1586" as="geometry" />
+        </mxCell>
+        <mxCell id="step9-action" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="• Đại diện người dùng kiểm tra và xác nhận&lt;div&gt;• Chính thức đưa vào sử dụng&lt;br&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="280" x="259" y="1586" as="geometry" />
+        </mxCell>
+        <mxCell id="step9-output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;fontStyle=1;fontSize=10;" value="Output: Live Dashboard&#xa;hoạt động" vertex="1">
+          <mxGeometry height="40" width="140" x="570" y="1586" as="geometry" />
+        </mxCell>
+        <mxCell id="success" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#00CC00;strokeColor=#009900;fontColor=#ffffff;fontStyle=1;fontSize=14;" value="✓ HOÀN THÀNH" vertex="1">
+          <mxGeometry height="150" width="150" x="345" y="1701" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow9-success" edge="1" parent="1" source="step9-container" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#009900;endArrow=classic;endFill=1;" target="success" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
