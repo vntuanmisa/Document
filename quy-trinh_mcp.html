@@ -203,6 +203,46 @@
                     <p class="text-sm text-gray-500 mt-4 italic text-center">Biểu đồ Radar thể hiện trọng tâm trách nhiệm của từng vai trò</p>
                 </div>
             </div>
+
+            <!-- New Explainer Block: Why BA doesn't config Superset -->
+            <div class="mt-12 border-t pt-8 border-gray-100">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                    <span class="text-2xl mr-2">💡</span>
+                    Tại Sao BA Không Cấu Hình Trực Tiếp Trên Superset?
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Reason 1 -->
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-100 transition-transform hover:-translate-y-1">
+                        <h4 class="font-bold text-red-700 mb-2 flex items-center">
+                            <span class="bg-red-200 rounded-full w-6 h-6 flex items-center justify-center mr-2 text-xs">1</span>
+                            Rủi Ro Hiệu Năng
+                        </h4>
+                        <p class="text-sm text-gray-600">
+                            Superset sinh ra SQL query. SWE hiểu rõ về <strong>Index/Partition</strong> của DB để tối ưu, tránh tạo ra các dashboard load chậm hoặc làm treo hệ thống.
+                        </p>
+                    </div>
+                    <!-- Reason 2 -->
+                    <div class="bg-orange-50 p-4 rounded-lg border border-orange-100 transition-transform hover:-translate-y-1">
+                        <h4 class="font-bold text-orange-700 mb-2 flex items-center">
+                            <span class="bg-orange-200 rounded-full w-6 h-6 flex items-center justify-center mr-2 text-xs">2</span>
+                            Quản Lý Phiên Bản
+                        </h4>
+                        <p class="text-sm text-gray-600">
+                            Dashboard thực chất là code (JSON/YAML). SWE quản lý version, deploy và backup chuyên nghiệp qua <strong>Git</strong>, tránh lỗi xóa nhầm hay xung đột.
+                        </p>
+                    </div>
+                    <!-- Reason 3 -->
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 transition-transform hover:-translate-y-1">
+                        <h4 class="font-bold text-blue-700 mb-2 flex items-center">
+                            <span class="bg-blue-200 rounded-full w-6 h-6 flex items-center justify-center mr-2 text-xs">3</span>
+                            Trách Nhiệm Nhất Quán
+                        </h4>
+                        <p class="text-sm text-gray-600">
+                            SWE chịu trách nhiệm <strong>End-to-End</strong>. Nếu sai số liệu, SWE tự fix từ Pipeline đến UI. Tách BA làm UI dễ dẫn đến tình trạng đổ lỗi qua lại.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Section 3: The 9-Step Workflow (Process Flow) -->
@@ -679,3 +719,4 @@
 </body>
 
 </html>
+
