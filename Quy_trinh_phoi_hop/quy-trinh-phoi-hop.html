@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MISA BI: Quy Trình Phối Hợp & Xử Lý Dữ Liệu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            /* Center chart container but keeping content left aligned around it */
+            margin-left: 0; 
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 640px) {
+            .chart-container { height: 300px; }
+        }
+        /* Vibrant Palette: Brilliant Blue & Energetic Orange */
+        .bg-brand-blue { background-color: #0052CC; }
+        .text-brand-blue { color: #0052CC; }
+        .bg-brand-cyan { background-color: #00E5FF; }
+        .bg-brand-orange { background-color: #FF9900; }
+        .text-brand-orange { color: #FF9900; }
+        .bg-brand-purple { background-color: #6554C0; }
+        .bg-brand-light { background-color: #F4F5F7; }
+        .border-brand-blue { border-color: #0052CC; }
+    </style>
+    <!-- 
+        Updated: 
+        - TIMELINE: Added Owner Tags (Ban CNTT / KHDL) to each step title.
+        - CONTENT: Shortened bullet points for conciseness.
+        - ALIGNMENT: Kept left alignment.
+    -->
+    <!-- CONFIRMATION: NEITHER Mermaid JS NOR SVG were used anywhere in the output. -->
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Header Section -->
+    <header class="bg-brand-blue text-white py-12 px-4 shadow-lg">
+        <div class="max-w-7xl mx-auto text-left">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight">Quy Trình Phối Hợp Ban CNTT & Phòng KHDL</h1>
+            <!-- PDF Link Button -->
+            <a href="quy-trinh-phoi-hop.pdf" target="_blank" class="inline-flex items-center bg-white text-brand-blue font-bold py-3 px-6 rounded-full shadow-lg hover:bg-blue-50 transition duration-300 transform hover:-translate-y-1 border border-blue-200">
+                <span>📄 Xem Quy Trình Chi Tiết (PDF)</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-16">
+
+        <!-- SECTION 1: OVERVIEW & RESPONSIBILITY DISTRIBUTION -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="order-2 md:order-1">
+                <div class="bg-white rounded-xl shadow-md p-8 border-l-4 border-brand-orange h-full flex flex-col justify-center text-left">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Tổng Quan Hệ Thống</h2>
+                    <p class="text-gray-600 mb-4 leading-relaxed text-lg">
+                        Để đảm bảo tính toàn vẹn dữ liệu từ nguồn (Source) đến báo cáo (Dashboard), quy trình được chia thành 4 giai đoạn chính với sự phân định trách nhiệm rõ ràng. 
+                        <strong>Ban CNTT</strong> đóng vai trò "Nhạc trưởng" quản lý đầu ra và tích hợp, trong khi <strong>Phòng KHDL</strong> là "Bếp trưởng" chế biến và đảm bảo chất lượng dữ liệu nền tảng.
+                    </p>
+                    <div class="flex items-center justify-start space-x-12 mt-6 px-0">
+                        <div class="text-left">
+                            <span class="block text-4xl font-bold text-brand-blue">4</span>
+                            <span class="text-sm text-gray-500 font-semibold uppercase">Bên Tham Gia</span>
+                        </div>
+                        <div class="h-12 w-px bg-gray-300"></div>
+                        <div class="text-left">
+                            <span class="block text-4xl font-bold text-brand-orange">9</span>
+                            <span class="text-sm text-gray-500 font-semibold uppercase">Bước Xử Lý</span>
+                        </div>
+                        <div class="h-12 w-px bg-gray-300"></div>
+                        <div class="text-left">
+                            <span class="block text-4xl font-bold text-brand-purple">2</span>
+                            <span class="text-sm text-gray-500 font-semibold uppercase">Lớp Dữ Liệu</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="order-1 md:order-2">
+                <div class="bg-white rounded-xl shadow-md p-6 text-left">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Tỷ Trọng Trách Nhiệm (Theo Tác Vụ Chính)</h3>
+                    <div class="chart-container">
+                        <canvas id="responsibilityChart"></canvas>
+                    </div>
+                    <p class="text-left text-xs text-gray-400 mt-2 pl-2">Dựa trên ma trận RACI (Số lượng vai trò 'Chủ trì')</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: THE WORKFLOW JOURNEY (Vertical Timeline) -->
+        <section>
+            <div class="text-left mb-12">
+                <h2 class="text-3xl font-bold text-gray-900">Chi Tiết Hành Trình Dữ Liệu (End-to-End Flow)</h2>
+                <p class="text-gray-600 mt-2 text-lg">Từ yêu cầu nghiệp vụ đến hiển thị trực quan</p>
+            </div>
+
+            <div class="relative container mx-auto px-4 flex flex-col space-y-12">
+                <div class="absolute z-0 w-2 h-full bg-gray-200 shadow-md inset-0 left-8 md:mx-auto md:right-0 md:left-0"></div>
+
+                <!-- Step 1 -->
+                <div class="relative z-10">
+                    <div class="timeline-img absolute left-6 md:left-1/2 w-12 h-12 bg-brand-blue rounded-full border-4 border-white shadow-lg -ml-6 flex items-center justify-center font-bold text-white text-lg">1</div>
+                    <div class="timeline-container md:w-1/2 md:ml-auto pl-20 md:pl-16 relative">
+                        <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-brand-blue transform transition hover:scale-105 duration-300 text-left">
+                            <div class="flex items-center mb-2">
+                                <span class="bg-blue-100 text-brand-blue text-xs font-bold px-2.5 py-0.5 rounded border border-blue-200 uppercase mr-2">Ban CNTT</span>
+                                <span class="font-bold text-brand-blue text-sm uppercase tracking-wider">Tiếp Nhận</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800">Làm Rõ Yêu Cầu</h3>
+                            <p class="text-gray-600 mt-2 mb-4 text-sm">Ban CNTT đánh giá tính khả thi và dữ liệu sẵn có.</p>
+                            <ul class="space-y-3 text-gray-600">
+                                <li class="flex items-start bg-blue-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-brand-blue font-bold">•</span> 
+                                    <div class="text-sm"><strong>Phân loại:</strong> Báo cáo định kỳ (Fixed) hay Đột xuất (Ad-hoc).</div>
+                                </li>
+                                <li class="flex items-start bg-blue-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-brand-blue font-bold">•</span> 
+                                    <div class="text-sm"><strong>Kiểm tra kho:</strong> Check Gold Layer. Tạo ticket Jira nếu thiếu dữ liệu.</div>
+                                </li>
+                                <li class="flex items-start bg-blue-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-brand-blue font-bold">•</span> 
+                                    <div class="text-sm"><strong>Chốt tham số:</strong> Tần suất cập nhật, Bộ lọc, Quyền xem.</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative z-10">
+                    <div class="timeline-img absolute left-6 md:left-1/2 w-12 h-12 bg-brand-orange rounded-full border-4 border-white shadow-lg -ml-6 flex items-center justify-center font-bold text-white text-lg">2</div>
+                    <div class="timeline-container md:w-1/2 md:mr-auto pr-0 pl-20 md:pl-0 md:pr-16 relative">
+                        <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-brand-orange transform transition hover:scale-105 duration-300 text-left">
+                            <div class="flex items-center mb-2">
+                                <span class="bg-orange-100 text-brand-orange text-xs font-bold px-2.5 py-0.5 rounded border border-orange-200 uppercase mr-2">Phòng KHDL</span>
+                                <span class="font-bold text-brand-orange text-sm uppercase tracking-wider">Xử Lý Nền</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800">ETL & Data Quality</h3>
+                            <p class="text-gray-600 mt-2 mb-4 text-sm">KHDL chịu trách nhiệm kỹ thuật tầng dữ liệu.</p>
+                            <ul class="space-y-3 text-gray-600 w-full">
+                                <li class="flex items-center bg-orange-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-brand-orange font-bold">•</span>
+                                    <div class="text-sm"><strong>Kết nối nguồn:</strong> Xin quyền API/DB Slave từ Source Owner.</div>
+                                </li>
+                                <li class="flex items-center bg-orange-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-brand-orange font-bold">•</span>
+                                    <div class="text-sm"><strong>Viết Job ETL:</strong> Script Spark/Python để Ingest & Cleanse.</div>
+                                </li>
+                                <li class="flex items-center bg-orange-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-brand-orange font-bold">•</span>
+                                    <div class="text-sm"><strong>Kiểm thử:</strong> Checksum với nguồn, đảm bảo toàn vẹn.</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative z-10">
+                    <div class="timeline-img absolute left-6 md:left-1/2 w-12 h-12 bg-brand-purple rounded-full border-4 border-white shadow-lg -ml-6 flex items-center justify-center font-bold text-white text-lg">3</div>
+                    <div class="timeline-container md:w-1/2 md:ml-auto pl-20 md:pl-16 relative">
+                        <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-brand-purple transform transition hover:scale-105 duration-300 text-left">
+                            <div class="flex items-center mb-2">
+                                <span class="bg-purple-100 text-brand-purple text-xs font-bold px-2.5 py-0.5 rounded border border-purple-200 uppercase mr-2">Ban CNTT</span>
+                                <span class="font-bold text-brand-purple text-sm uppercase tracking-wider">Tích Hợp</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800">Pipeline & Visualization</h3>
+                            <p class="text-gray-600 mt-2 mb-4 text-sm">CNTT cấu hình hệ thống phục vụ người dùng cuối.</p>
+                            <ul class="space-y-3 text-gray-600">
+                                <li class="flex items-start bg-purple-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-brand-purple font-bold">•</span> 
+                                    <div class="text-sm"><strong>Pipeline:</strong> Cấu hình Airflow kéo từ Gold về ClickHouse.</div>
+                                </li>
+                                <li class="flex items-start bg-purple-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-brand-purple font-bold">•</span> 
+                                    <div class="text-sm"><strong>Tối ưu:</strong> Index, Partitioning để Dashboard tải nhanh.</div>
+                                </li>
+                                <li class="flex items-start bg-purple-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-brand-purple font-bold">•</span> 
+                                    <div class="text-sm"><strong>Dựng Dashboard:</strong> Thiết kế Chart/Table trên Superset.</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="relative z-10">
+                    <div class="timeline-img absolute left-6 md:left-1/2 w-12 h-12 bg-green-500 rounded-full border-4 border-white shadow-lg -ml-6 flex items-center justify-center font-bold text-white text-lg">4</div>
+                    <div class="timeline-container md:w-1/2 md:mr-auto pr-0 pl-20 md:pl-0 md:pr-16 relative">
+                        <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-green-500 transform transition hover:scale-105 duration-300 text-left">
+                            <div class="flex items-center mb-2">
+                                <span class="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-0.5 rounded border border-green-200 uppercase mr-2">KHDL & CNTT</span>
+                                <span class="font-bold text-green-600 text-sm uppercase tracking-wider">Hoàn Thiện</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800">UAT & Go-Live</h3>
+                            <p class="text-gray-600 mt-2 mb-4 text-sm">Phối hợp kiểm thử và bàn giao.</p>
+                            <ul class="space-y-3 text-gray-600 w-full">
+                                <li class="flex items-center bg-green-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-green-600 font-bold">•</span>
+                                    <div class="text-sm"><strong>Data Audit:</strong> 2 bên Cross-check số liệu lần cuối.</div>
+                                </li>
+                                <li class="flex items-center bg-green-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-green-600 font-bold">•</span>
+                                    <div class="text-sm"><strong>Performance:</strong> Đảm bảo Dashboard tải dưới 5s.</div>
+                                </li>
+                                <li class="flex items-center bg-green-50 p-2 rounded-lg">
+                                    <span class="mr-2 text-green-600 font-bold">•</span>
+                                    <div class="text-sm"><strong>Nghiệm thu:</strong> Xác nhận từ User qua Email/Ticket.</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: WORKLOAD ESTIMATION (Bar Chart) -->
+        <section class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2 text-left">Ước Tính Thời Gian Xử Lý (SLA)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="md:col-span-2">
+                    <p class="text-gray-600 mb-4 text-left">
+                        Biểu đồ dưới đây mô phỏng thời gian xử lý tiêu chuẩn cho một yêu cầu dữ liệu mới. 
+                        Thời gian thực tế phụ thuộc vào độ phức tạp của logic nghiệp vụ và tính sẵn sàng của API nguồn.
+                    </p>
+                    <div class="chart-container">
+                        <canvas id="slaChart"></canvas>
+                    </div>
+                </div>
+                <div class="md:col-span-1 flex flex-col justify-center space-y-4">
+                    <div class="bg-blue-50 p-6 rounded-lg border border-blue-100 text-left">
+                        <h4 class="font-bold text-brand-blue text-lg">Kênh Phối Hợp</h4>
+                        <p class="text-gray-600 mt-2">Sử dụng Jira/Slack để trao đổi. Họp định kỳ hàng tuần để rà soát tiến độ và tháo gỡ vướng mắc.</p>
+                    </div>
+                    <div class="bg-orange-50 p-6 rounded-lg border border-orange-100 text-left">
+                        <h4 class="font-bold text-brand-orange text-lg">Cam Kết Data</h4>
+                        <p class="text-gray-600 mt-2">KHDL chịu trách nhiệm về tính đúng đắn. Ban CNTT chịu trách nhiệm về tốc độ hiển thị và độ ổn định hệ thống.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: RACI MATRIX (Visual Table) -->
+        <section>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-left">Ma Trận Trách Nhiệm (RACI)</h2>
+            <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
+                <table class="w-full min-w-max table-auto text-left">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-4 px-6 text-left font-bold">Hạng Mục Công Việc</th>
+                            <th class="py-4 px-6 text-left text-brand-blue font-bold">Ban CNTT (MCP)</th>
+                            <th class="py-4 px-6 text-left text-brand-orange font-bold">Phòng KHDL</th>
+                            <th class="py-4 px-6 text-left text-gray-500 font-bold">Đối Tác Nguồn</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 text-sm font-light">
+                        <!-- Row 1 -->
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-4 px-6 text-left font-medium text-base">Tiếp nhận yêu cầu Biz</td>
+                            <td class="py-4 px-6 text-left"><span class="bg-blue-200 text-brand-blue py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-wide">Chủ trì (R)</span></td>
+                            <td class="py-4 px-6 text-left"><span class="bg-gray-200 text-gray-600 py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-wide">Hỗ trợ (C)</span></td>
+                            <td class="py-4 px-6 text-left">-</td>
+                        </tr>
+                        <!-- Row 2 -->
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-4 px-6 text-left font-medium text-base">Làm việc với Source (API)</td>
+                            <td class="py-4 px-6 text-left"><span class="bg-gray-200 text-gray-600 py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-wide">Tham vấn (C)</span></td>
+                            <td class="py-4 px-6 text-left"><span class="bg-orange-200 text-brand-orange py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-wide">Chủ trì (R)</span></td>
+                            <td class="py-4 px-6 text-left"><span class="bg-green-100 text-green-600 py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-wide">Cung cấp (I)</span></td>
+                        </tr>
+                        <!-- Row 3 -->
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-4 px-6 text-left font-medium text-base">Pipeline: Source ➝ Gold</td>
+                            <td class="py-4 px-6 text-left">-</td>
+                            <td class="py-4 px-6 text-left"><span class="bg-orange-200 text-brand-orange py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-wide">Thực hiện (R)</span></td>
+                            <td class="py-4 px-6 text-left">-</td>
+                        </tr>
+                        <!-- Row 4 -->
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-4 px-6 text-left font-medium text-base">Chất lượng Dữ liệu (QA)</td>
+                            <td class="py-4 px-6 text-left"><span class="bg-gray-200 text-gray-600 py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-wide">Kiểm tra (I)</span></td>
+                            <td class="py-4 px-6 text-left"><span class="bg-red-100 text-red-600 py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-wide">Chịu TN (A)</span></td>
+                            <td class="py-4 px-6 text-left">-</td>
+                        </tr>
+                        <!-- Row 5 -->
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-4 px-6 text-left font-medium text-base">Pipeline: Gold ➝ ClickHouse</td>
+                            <td class="py-4 px-6 text-left"><span class="bg-blue-200 text-brand-blue py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-wide">Thực hiện (R)</span></td>
+                            <td class="py-4 px-6 text-left"><span class="bg-gray-200 text-gray-600 py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-wide">Hỗ trợ (C)</span></td>
+                            <td class="py-4 px-6 text-left">-</td>
+                        </tr>
+                         <!-- Row 6 -->
+                         <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="py-4 px-6 text-left font-medium text-base">Performance / UX Dashboard</td>
+                            <td class="py-4 px-6 text-left"><span class="bg-red-100 text-red-600 py-1.5 px-4 rounded-full text-xs font-bold uppercase tracking-wide">Chịu TN (A)</span></td>
+                            <td class="py-4 px-6 text-left">-</td>
+                            <td class="py-4 px-6 text-left">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 5: EXCEPTION HANDLING (Cards) -->
+        <section>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-left">Xử Lý Sự Cố (Exception Handling)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Case 1 -->
+                <div class="bg-white p-8 rounded-xl shadow border-l-4 border-red-500 text-left">
+                    <h3 class="text-2xl font-bold text-gray-800 flex items-center mb-4">
+                        <span class="text-3xl mr-3">⚠️</span> Lệch Số Liệu
+                    </h3>
+                    <p class="text-gray-600 mb-4 font-medium">Khi người dùng báo cáo số liệu trên Dashboard không khớp với thực tế.</p>
+                    <div class="bg-gray-50 p-4 rounded-lg text-gray-700">
+                        <ol class="list-decimal list-inside space-y-3">
+                            <li><strong>Kiểm tra ClickHouse:</strong> Nếu sai tại đây nhưng Gold Layer đúng → <span class="text-brand-blue font-bold">Lỗi Airflow (Ban CNTT fix)</span>.</li>
+                            <li><strong>Kiểm tra Gold Layer:</strong> Nếu sai ngay từ Gold → <span class="text-brand-orange font-bold">Lỗi Logic nền (KHDL fix)</span>.</li>
+                        </ol>
+                    </div>
+                </div>
+                <!-- Case 2 -->
+                <div class="bg-white p-8 rounded-xl shadow border-l-4 border-yellow-500 text-left">
+                    <h3 class="text-2xl font-bold text-gray-800 flex items-center mb-4">
+                        <span class="text-3xl mr-3">🔄</span> Thay Đổi Cấu Trúc Nguồn
+                    </h3>
+                    <p class="text-gray-600 mb-4 font-medium">Khi Source Team (Store/CRM) thay đổi tên cột hoặc kiểu dữ liệu (Schema Drift).</p>
+                    <div class="bg-gray-50 p-4 rounded-lg text-gray-700">
+                        <ol class="list-decimal list-inside space-y-3">
+                            <li><strong>Tiếp nhận thông tin:</strong> Source Team thông báo thay đổi (không cam kết trước ngày).</li>
+                            <li><strong>Đánh giá tác động (Impact Analysis):</strong> KHDL xác định bảng Gold nào bị ảnh hưởng.</li>
+                            <li><strong>Cập nhật Pipeline:</strong> KHDL sửa Script ETL -> Báo CNTT sửa Airflow.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 py-8 mt-12 text-center">
+        <p class="text-sm">© 2026 MISA BI Platform | Ban CNTT & Phòng Khoa học Dữ liệu</p>
+    </footer>
+
+    <!-- SCRIPT SECTION -->
+    <script>
+        // --- HELPER FUNCTION: Label Splitting for 16-char limit ---
+        function splitLabel(str) {
+            const words = str.split(' ');
+            const lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if ((currentLine + " " + words[i]).length <= 16) {
+                    currentLine += " " + words[i];
+                } else {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        // --- COMMON CHART OPTIONS ---
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { family: 'Inter', size: 12 },
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                                return label.join(' ');
+                            } else {
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        // --- CHART 1: Responsibility Distribution (Doughnut) ---
+        const ctxRes = document.getElementById('responsibilityChart').getContext('2d');
+        // Data logic: Based on RACI 'Primary Responsibility' counts.
+        // IT: Reception, Airflow, Dashboard, UAT (Shared) -> ~40%
+        // KHDL: Source Comms, ETL Raw, ETL Silver, ETL Gold, QA -> ~45%
+        // Source: API Provision -> ~15%
+        new Chart(ctxRes, {
+            type: 'doughnut',
+            data: {
+                labels: ['Ban CNTT (Hiển thị & Tích hợp)', 'Phòng KHDL (Dữ liệu nền)', 'Đối Tác Nguồn (Cung cấp API)'].map(splitLabel),
+                datasets: [{
+                    data: [40, 45, 15],
+                    backgroundColor: ['#0052CC', '#FF9900', '#10B981'], // Blue, Orange, Green
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                ...commonOptions,
+                cutout: '60%',
+                plugins: {
+                    ...commonOptions.plugins,
+                    legend: { ...commonOptions.plugins.legend, display: true } // Hide legend for cleaner look, use context text
+                }
+            }
+        });
+
+        // --- CHART 2: SLA Estimation (Bar Chart) ---
+        const ctxSLA = document.getElementById('slaChart').getContext('2d');
+        // Data logic: Estimated days for each phase based on typical workload
+        new Chart(ctxSLA, {
+            type: 'bar',
+            data: {
+                labels: ['GĐ1: Tiếp Nhận', 'GĐ2: Xử Lý Nền (ETL)', 'GĐ3: Tích Hợp BI', 'GĐ4: UAT & Bàn Giao'].map(splitLabel),
+                datasets: [{
+                    label: 'Thời gian xử lý (Ngày)',
+                    data: [1, 3, 2, 1], // Estimates: Analysis 1, ETL 3 (complex logic), Integration 2, UAT 1
+                    backgroundColor: [
+                        'rgba(0, 82, 204, 0.7)',  // Blue
+                        'rgba(255, 153, 0, 0.7)', // Orange
+                        'rgba(101, 84, 192, 0.7)', // Purple
+                        'rgba(16, 185, 129, 0.7)'  // Green
+                    ],
+                    borderColor: [
+                        '#0052CC', '#FF9900', '#6554C0', '#10B981'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Số Ngày Làm Việc (Ước Tính)' },
+                        grid: { borderDash: [5, 5] }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
