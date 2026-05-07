@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>So Sánh Kiến Trúc Tổng Hợp Dữ Liệu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .gold-gradient {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm py-6 mb-8 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h1 class="text-3xl font-bold text-slate-800">Kiến Trúc Tổng Hợp Tình Hình Sử Dụng</h1>
+            <p class="text-slate-500 mt-2">Mô tả Luồng Logic và Data Pipeline: Giải pháp Cũ vs Giải pháp Mới</p>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-[1400px] mx-auto px-4 w-full flex flex-col gap-12 pb-12">
+
+        <!-- ========================================== -->
+        <!-- PHẦN 1: GIẢI PHÁP CŨ (HIỆN TRẠNG)          -->
+        <!-- ========================================== -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative pt-10">
+            <div class="absolute top-0 left-6 -mt-4 bg-slate-600 text-white px-5 py-1.5 rounded-full text-sm font-bold shadow-md uppercase tracking-wide flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                MÔ HÌNH HIỆN TRẠNG (GIẢI PHÁP CŨ)
+            </div>
+
+            <div class="flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-4 lg:gap-2">
+                <!-- LỚP 1: CÁC SẢN PHẨM -->
+                <div class="flex flex-col w-full lg:w-[25%] bg-blue-50/50 rounded-2xl p-5 border border-blue-200 shadow-sm relative z-10 card-hover">
+                    <h2 class="text-center font-bold text-blue-800 mb-4 uppercase tracking-wider text-sm border-b border-blue-200 pb-2 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        1. Nguồn Dữ Liệu
+                    </h2>
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 text-center font-semibold text-slate-700 text-xs">AMIS Kế toán</div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 text-center font-semibold text-slate-700 text-xs">MeInvoice</div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 text-center font-semibold text-slate-700 text-xs">Eshop</div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 border-dashed text-center font-medium text-slate-400 text-xs">Các SP khác...</div>
+                    </div>
+                    
+                    <div class="bg-violet-50 p-2 rounded-lg border border-violet-200 text-center mb-3">
+                        <span class="text-[10px] font-bold text-violet-700 uppercase tracking-wide">Cung cấp API Đối chiếu</span>
+                    </div>
+
+                    <div class="bg-blue-100 p-3 rounded-xl border border-blue-200 text-blue-800 mt-auto">
+                        <div class="font-bold text-sm mb-1 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Logic tại Sản phẩm:
+                        </div>
+                        <p class="text-xs">
+                            Các sản phẩm chỉ thực hiện thu thập và xả <strong>nhật ký sử dụng (raw logs)</strong> theo từng sự kiện/nghiệp vụ cụ thể.
+                        </p>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span class="inline-block bg-blue-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-md uppercase tracking-wider">Sản sinh dữ liệu</span>
+                    </div>
+                </div>
+
+                <!-- MŨI TÊN & TRANSPORT -->
+                <div class="flex flex-col items-center justify-center w-full lg:w-[15%] relative z-0 py-6 lg:py-0 gap-6">
+                    <!-- Luồng Đẩy Data (Push) -->
+                    <div class="flex flex-col lg:flex-row items-center justify-center w-full gap-2 relative">
+                        <svg class="w-8 h-8 text-blue-500 rotate-90 lg:rotate-0 z-10 bg-white rounded-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        
+                        <div class="bg-slate-800 text-white p-3 rounded-xl border-2 border-slate-600 shadow-lg text-center z-20 w-36 transform hover:scale-105 transition-transform">
+                            <div class="flex justify-center mb-1"><svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg></div>
+                            <div class="font-bold text-[10px] uppercase tracking-wide text-blue-300">Data Transport</div>
+                            <div class="text-[11px] text-slate-300 mt-1 font-mono bg-slate-900 rounded py-1">Apache Kafka <br> REST API (Push)</div>
+                        </div>
+
+                        <svg class="w-8 h-8 text-emerald-500 rotate-90 lg:rotate-0 z-10 bg-white rounded-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+
+                    <!-- Luồng Đối Chiếu (API Pull) -->
+                    <div class="flex flex-col lg:flex-row items-center justify-center w-full gap-1 relative opacity-90">
+                        
+                        <svg class="w-6 h-6 text-violet-500 -rotate-90 lg:rotate-180 z-10 bg-white rounded-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+
+                        <div class="bg-white p-1.5 rounded-lg border-2 border-violet-300 shadow-sm text-center z-20 w-28">
+                            <div class="font-bold text-[9px] uppercase tracking-wide text-violet-700">Gọi API Đối Chiếu</div>
+                        </div>
+
+                        <svg class="w-6 h-6 text-violet-500 -rotate-90 lg:rotate-180 z-10 bg-white rounded-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                </div>
+
+                <!-- LỚP 2: KHDL -->
+                <div class="flex flex-col w-full lg:w-[30%] bg-emerald-50/50 rounded-2xl p-5 border border-emerald-200 shadow-sm relative z-10 card-hover">
+                    <h2 class="text-center font-bold text-emerald-800 mb-4 uppercase tracking-wider text-sm border-b border-emerald-200 pb-2 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                        2. Xử Lý (Phòng KHDL)
+                    </h2>
+                    <div class="flex flex-col gap-2 h-full">
+                        <div class="bg-white p-3 rounded-xl border border-emerald-200 text-center text-sm">
+                            <div class="font-bold text-slate-700">Raw Data (Logs)</div>
+                            <div class="text-xs text-slate-500">Khu vực tiếp nhận log đổ về</div>
+                        </div>
+                        
+                        <div class="flex justify-center my-[-2px] relative z-10"><div class="bg-white rounded-full p-0.5 border border-emerald-200"><svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg></div></div>
+
+                        <div class="bg-emerald-100 p-4 rounded-xl border border-emerald-300 relative">
+                            <div class="absolute -right-2 -top-2 bg-emerald-500 text-white p-1.5 rounded-full shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></div>
+                            <div class="font-bold text-emerald-800 text-sm mb-3">Bộ Xử Lý (Data Engine)</div>
+                            
+                            <div class="text-[11px] text-emerald-900 flex flex-col gap-1.5 font-medium">
+                                <div class="bg-white/70 px-2 py-2 rounded border border-emerald-200 shadow-sm text-center">
+                                    Tổng hợp theo Rule SP ra <strong>Tình trạng sử dụng</strong>
+                                </div>
+                                <div class="flex justify-center"><svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg></div>
+                                <div class="bg-white/70 px-2 py-2 rounded border border-emerald-200 shadow-sm text-center">
+                                    <strong>Khử trùng</strong> dữ liệu
+                                </div>
+                                <div class="flex justify-center"><svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg></div>
+                                <div class="bg-white/70 px-2 py-2 rounded border border-emerald-200 shadow-sm text-center">
+                                    Tổng hợp <strong>theo thuê bao</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KHỐI ĐỐI CHIẾU DỮ LIỆU -->
+                        <div class="flex justify-center my-[-2px] relative z-10"><div class="bg-white rounded-full p-0.5 border border-violet-200"><svg class="w-3 h-3 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg></div></div>
+                        <div class="bg-violet-50 p-2.5 rounded-xl border border-violet-300 text-center text-[11px] text-violet-800 shadow-inner">
+                            <strong>Kiểm tra chéo:</strong> Gọi API Sản phẩm để đối chiếu Gold Data.
+                        </div>
+
+                        <div class="flex justify-center my-[-2px] relative z-10"><div class="bg-white rounded-full p-0.5 border border-emerald-200"><svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg></div></div>
+
+                        <div class="gold-gradient p-4 rounded-xl shadow-md border border-amber-400 text-center text-white mt-auto">
+                            <div class="font-black text-lg flex items-center justify-center gap-1">
+                                <svg class="w-5 h-5 text-yellow-200" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"></path></svg>
+                                GOLD DATA
+                            </div>
+                            <div class="text-[11px] font-medium opacity-90">Dữ liệu sạch, thống nhất & sẵn sàng truy vấn</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MŨI TÊN VÀO CNTT -->
+                <div class="flex flex-col items-center justify-center py-4 lg:py-0 w-full lg:w-[10%] shrink-0 relative z-0">
+                    <svg class="w-8 h-8 text-indigo-500 rotate-90 lg:rotate-0 bg-slate-50 lg:bg-transparent rounded-full z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    <span class="text-[10px] uppercase font-bold text-indigo-500 absolute top-[48%] -mt-6 bg-slate-50 px-1 hidden lg:block z-20">Truy vấn</span>
+                </div>
+
+                <!-- LỚP 3: BAN CNTT -->
+                <div class="flex flex-col w-full lg:w-[25%] bg-indigo-50/50 rounded-2xl p-5 border border-indigo-200 shadow-sm relative z-10 card-hover">
+                    <h2 class="text-center font-bold text-indigo-800 mb-4 uppercase tracking-wider text-sm border-b border-indigo-200 pb-2 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        3. Hiển thị & Ứng dụng
+                    </h2>
+                    <div class="space-y-3 h-full flex flex-col justify-center">
+                        <div class="bg-indigo-600 text-white p-3.5 rounded-xl shadow-md flex items-center gap-3">
+                            <div class="bg-indigo-500/50 p-1.5 rounded"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path></svg></div>
+                            <div>
+                                <div class="font-bold text-sm">MISABI</div>
+                                <div class="text-[10px] text-indigo-200">Hệ thống BI / Dashboard</div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl shadow-sm border border-indigo-200 flex items-center gap-3">
+                            <div class="bg-indigo-100 text-indigo-600 p-1.5 rounded"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></div>
+                            <div>
+                                <div class="font-bold text-sm text-slate-800">Hệ thống CRM</div>
+                                <div class="text-[10px] text-slate-500">Khai thác Data chăm sóc KH</div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl shadow-sm border border-indigo-200 flex items-center gap-3">
+                            <div class="bg-indigo-100 text-indigo-600 p-1.5 rounded"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div>
+                            <div>
+                                <div class="font-bold text-sm text-slate-800">Hệ thống Báo cáo</div>
+                                <div class="text-[10px] text-slate-500">Các báo cáo tùy biến khác</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- PHẦN 2: GIẢI PHÁP MỚI (ĐỀ XUẤT)            -->
+        <!-- ========================================== -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative mt-6 pt-10">
+            <div class="absolute top-0 left-6 -mt-4 bg-emerald-600 text-white px-5 py-1.5 rounded-full text-sm font-bold shadow-md uppercase tracking-wide flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                MÔ HÌNH MỤC TIÊU (GIẢI PHÁP MỚI)
+            </div>
+
+            <div class="flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-4 lg:gap-2">
+                <!-- LỚP 1: CÁC SẢN PHẨM -->
+                <div class="flex flex-col w-full lg:w-[25%] bg-blue-50/50 rounded-2xl p-5 border border-blue-200 shadow-sm relative z-10 card-hover">
+                    <h2 class="text-center font-bold text-blue-800 mb-4 uppercase tracking-wider text-sm border-b border-blue-200 pb-2 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        1. Nguồn Dữ Liệu
+                    </h2>
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 text-center font-semibold text-slate-700 text-xs">AMIS Kế toán</div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 text-center font-semibold text-slate-700 text-xs">MeInvoice</div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 text-center font-semibold text-slate-700 text-xs">Eshop</div>
+                        <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 border-dashed text-center font-medium text-slate-400 text-xs">Các SP khác...</div>
+                    </div>
+                    
+                    <div class="bg-violet-50 p-2 rounded-lg border border-violet-200 text-center mb-3">
+                        <span class="text-[10px] font-bold text-violet-700 uppercase tracking-wide">Cung cấp API Đối chiếu</span>
+                    </div>
+
+					<div class="bg-violet-50 p-2 rounded-lg border border-blue-200 text-center mb-3">
+                        <span class="text-[10px] font-bold text-violet-700 uppercase tracking-wide">Tổng hợp theo Rule SP ra Tình trạng sử dụng</span>
+                    </div>
+					
+                    <div class="bg-blue-100 p-3 rounded-xl border border-blue-200 text-blue-800 mt-auto">
+                        <div class="font-bold text-sm mb-1 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Logic tại Sản phẩm:
+                        </div>
+                        <p class="text-xs">
+                            Các sản phẩm chủ động <strong>tính toán và xác định tình trạng</strong> sử dụng của khách hàng, tên miền, mã thuê bao từ DB gốc.
+                        </p>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span class="inline-block bg-blue-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-md uppercase tracking-wider">Sản sinh dữ liệu</span>
+                    </div>
+                </div>
+
+                <!-- MŨI TÊN & TRANSPORT -->
+                <div class="flex flex-col items-center justify-center w-full lg:w-[15%] relative z-0 py-6 lg:py-0 gap-6">
+                    <!-- Luồng Đẩy Data (Push) -->
+                    <div class="flex flex-col lg:flex-row items-center justify-center w-full gap-2 relative">
+                        <svg class="w-8 h-8 text-blue-500 rotate-90 lg:rotate-0 z-10 bg-white rounded-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        
+                        <div class="bg-slate-800 text-white p-3 rounded-xl border-2 border-slate-600 shadow-lg text-center z-20 w-36 transform hover:scale-105 transition-transform">
+                            <div class="flex justify-center mb-1"><svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg></div>
+                            <div class="font-bold text-[10px] uppercase tracking-wide text-blue-300">Data Transport</div>
+                            <div class="text-[11px] text-slate-300 mt-1 font-mono bg-slate-900 rounded py-1">Apache Kafka <br> REST API (Push)</div>
+                        </div>
+
+                        <svg class="w-8 h-8 text-emerald-500 rotate-90 lg:rotate-0 z-10 bg-white rounded-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+
+                    <!-- Luồng Đối Chiếu (API Pull) -->
+                    <div class="flex flex-col lg:flex-row items-center justify-center w-full gap-1 relative opacity-90">
+                        
+                        <svg class="w-6 h-6 text-violet-500 -rotate-90 lg:rotate-180 z-10 bg-white rounded-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+
+                        <div class="bg-white p-1.5 rounded-lg border-2 border-violet-300 shadow-sm text-center z-20 w-28">
+                            <div class="font-bold text-[9px] uppercase tracking-wide text-violet-700">Gọi API Đối Chiếu</div>
+                        </div>
+
+                        <svg class="w-6 h-6 text-violet-500 -rotate-90 lg:rotate-180 z-10 bg-white rounded-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                </div>
+
+                <!-- LỚP 2: KHDL -->
+                <div class="flex flex-col w-full lg:w-[30%] bg-emerald-50/50 rounded-2xl p-5 border border-emerald-200 shadow-sm relative z-10 card-hover">
+                    <h2 class="text-center font-bold text-emerald-800 mb-4 uppercase tracking-wider text-sm border-b border-emerald-200 pb-2 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                        2. Xử Lý (Phòng KHDL)
+                    </h2>
+                    <div class="flex flex-col gap-2 h-full">
+                        <div class="bg-white p-3 rounded-xl border border-emerald-200 text-center text-sm">
+                            <div class="font-bold text-slate-700">Raw Data (Trạng thái)</div>
+                            <div class="text-xs text-slate-500">Khu vực tiếp nhận dữ liệu đẩy về</div>
+                        </div>
+
+                        <div class="flex justify-center my-[-2px] relative z-10"><div class="bg-white rounded-full p-0.5 border border-emerald-200"><svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg></div></div>
+
+                        <div class="bg-emerald-100 p-4 rounded-xl border border-emerald-300 relative">
+                            <div class="absolute -right-2 -top-2 bg-emerald-500 text-white p-1.5 rounded-full shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></div>
+                            <div class="font-bold text-emerald-800 text-sm mb-2">Bộ Xử Lý (Data Engine)</div>
+                            <ul class="text-xs text-emerald-700 list-disc pl-4 space-y-1">
+                                <li><strong>Khử trùng</strong> dữ liệu trùng lặp.</li>
+                                <li>Xử lý <strong>quy tắc chung</strong> về thuê bao.</li>
+                                <li class="italic text-emerald-600">(VD: Nếu thuê bao hết hạn &rarr; Cập nhật trạng thái 'Ngừng sử dụng').</li>
+                            </ul>
+                        </div>
+
+                        <!-- KHỐI ĐỐI CHIẾU DỮ LIỆU -->
+                        <div class="flex justify-center my-[-2px] relative z-10"><div class="bg-white rounded-full p-0.5 border border-violet-200"><svg class="w-3 h-3 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg></div></div>
+                        <div class="bg-violet-50 p-2.5 rounded-xl border border-violet-300 text-center text-[11px] text-violet-800 shadow-inner">
+                            <strong>Kiểm tra chéo:</strong> Gọi API Sản phẩm để đối chiếu Gold Data.
+                        </div>
+
+                        <div class="flex justify-center my-[-2px] relative z-10"><div class="bg-white rounded-full p-0.5 border border-emerald-200"><svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg></div></div>
+
+                        <div class="gold-gradient p-4 rounded-xl shadow-md border border-amber-400 text-center text-white mt-auto">
+                            <div class="font-black text-lg flex items-center justify-center gap-1">
+                                <svg class="w-5 h-5 text-yellow-200" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"></path></svg>
+                                GOLD DATA
+                            </div>
+                            <div class="text-[11px] font-medium opacity-90">Dữ liệu sạch, thống nhất & sẵn sàng truy vấn</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MŨI TÊN VÀO CNTT -->
+                <div class="flex flex-col items-center justify-center py-4 lg:py-0 w-full lg:w-[10%] shrink-0 relative z-0">
+                    <svg class="w-8 h-8 text-indigo-500 rotate-90 lg:rotate-0 bg-slate-50 lg:bg-transparent rounded-full z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    <span class="text-[10px] uppercase font-bold text-indigo-500 absolute top-[48%] -mt-6 bg-slate-50 px-1 hidden lg:block z-20">Truy vấn</span>
+                </div>
+
+                <!-- LỚP 3: BAN CNTT -->
+                <div class="flex flex-col w-full lg:w-[25%] bg-indigo-50/50 rounded-2xl p-5 border border-indigo-200 shadow-sm relative z-10 card-hover">
+                    <h2 class="text-center font-bold text-indigo-800 mb-4 uppercase tracking-wider text-sm border-b border-indigo-200 pb-2 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        3. Hiển thị & Ứng dụng
+                    </h2>
+                    <div class="space-y-3 h-full flex flex-col justify-center">
+                        <div class="bg-indigo-600 text-white p-3.5 rounded-xl shadow-md flex items-center gap-3">
+                            <div class="bg-indigo-500/50 p-1.5 rounded"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path></svg></div>
+                            <div>
+                                <div class="font-bold text-sm">MISABI</div>
+                                <div class="text-[10px] text-indigo-200">Hệ thống BI / Dashboard</div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl shadow-sm border border-indigo-200 flex items-center gap-3">
+                            <div class="bg-indigo-100 text-indigo-600 p-1.5 rounded"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></div>
+                            <div>
+                                <div class="font-bold text-sm text-slate-800">Hệ thống CRM</div>
+                                <div class="text-[10px] text-slate-500">Khai thác Data chăm sóc KH</div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl shadow-sm border border-indigo-200 flex items-center gap-3">
+                            <div class="bg-indigo-100 text-indigo-600 p-1.5 rounded"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div>
+                            <div>
+                                <div class="font-bold text-sm text-slate-800">Hệ thống Báo cáo</div>
+                                <div class="text-[10px] text-slate-500">Các báo cáo tùy biến khác</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- PHẦN 3: BẢNG SO SÁNH                       -->
+        <!-- ========================================== -->
+        <section class="max-w-6xl mx-auto w-full mt-8">
+            <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                Phân tích & So sánh 4 Vấn đề Cốt lõi
+            </h3>
+            
+            <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-slate-200">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-5 py-4 text-left text-sm font-bold text-slate-700 uppercase tracking-wider w-[20%]">Vấn đề / Tiêu chí</th>
+                            <th class="px-5 py-4 text-left text-sm font-bold text-slate-700 uppercase tracking-wider w-[40%] bg-slate-100 border-b-2 border-slate-300">Giải pháp Cũ (Hiện Trạng)</th>
+                            <th class="px-5 py-4 text-left text-sm font-bold text-emerald-700 uppercase tracking-wider w-[40%] bg-emerald-50 border-b-2 border-emerald-200">Giải pháp Mới (Đề Xuất)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-200">
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-5 py-4 text-sm font-bold text-slate-800 bg-slate-50/50">1. Tính chính xác của Dữ liệu</td>
+                            <td class="px-5 py-4 text-sm text-slate-700">Các sản phẩm đẩy "nhật ký sử dụng" có thể bị sai hoặc thiếu. Khi log đầu vào sai dẫn đến KHDL tổng hợp tình trạng sai.</td>
+                            <td class="px-5 py-4 text-sm text-slate-700"><span class="text-emerald-600 font-semibold">Chính xác cao:</span> Sản phẩm tự tính toán tình trạng sử dụng chuẩn xác từ DB gốc của mình và đẩy kết quả sang.</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-5 py-4 text-sm font-bold text-slate-800 bg-slate-50/50">2. Đối chiếu Dữ liệu</td>
+                            <td class="px-5 py-4 text-sm text-slate-700">KHDL gọi API của Sản phẩm để đối chiếu. Tuy nhiên KHDL tính toán từ <i>Log</i>, Sản phẩm tính toán từ <i>DB nội bộ</i> &rarr; Chạy từ 2 nguồn khác nhau dẫn đến vênh số liệu.</td>
+                            <td class="px-5 py-4 text-sm text-slate-700"><span class="text-emerald-600 font-semibold">1 Nguồn duy nhất (SSOT):</span> KHDL gọi API đối chiếu. Do dữ liệu đẩy qua Kafka và API đều tính từ cùng 1 DB gốc của sản phẩm &rarr; Luôn khớp số.</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-5 py-4 text-sm font-bold text-slate-800 bg-slate-50/50">3. Quy trình đổi Rule</td>
+                            <td class="px-5 py-4 text-sm text-slate-700">PM sản phẩm quyết định Rule nhưng cần sự tham gia code/sửa của cả 3 bên: <i>KHDL + Ban CNTT + Sản phẩm</i>.</td>
+                            <td class="px-5 py-4 text-sm text-slate-700"><span class="text-emerald-600 font-semibold">Chủ động:</span> PM/Dev sản phẩm chủ động tính toán. KHDL chỉ tham gia <i>Nghiệm thu (UAT)</i>. Giảm thiểu công sức.</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-5 py-4 text-sm font-bold text-slate-800 bg-slate-50/50">4. Khối lượng & Tốc độ</td>
+                            <td class="px-5 py-4 text-sm text-slate-700">Đẩy toàn bộ "nhật ký" (raw logs) dẫn đến số lượng khổng lồ, gây nghẽn cổ chai và làm việc tổng hợp bị chậm.</td>
+                            <td class="px-5 py-4 text-sm text-slate-700"><span class="text-emerald-600 font-semibold">Tối ưu:</span> Số lượng dữ liệu đẩy ít đi rất nhiều (chỉ đẩy trạng thái). Đảm bảo pipeline xử lý tốc độ cao.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</body>
+</html>
