@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Địa chỉ giao hàng — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f5f3ee;
+    --paper-raised:#ffffff;
+    --ink:#1c211e;
+    --ink-soft:#5a6058;
+    --line:#e3dfd4;
+    --teal:#0f6e63;
+    --teal-soft:#e4f0ed;
+    --amber:#dd8b1f;
+    --amber-soft:#faedd7;
+    --danger:#b3452f;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(28,33,30,0.035) 1px, transparent 0);
+    background-size:22px 22px;
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:40px 20px 80px;
+  }
+  .page{
+    width:100%;
+    max-width:620px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--teal);
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:6px;height:6px;
+    background:var(--teal);
+    border-radius:50%;
+    display:inline-block;
+  }
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:1.7rem;
+    font-weight:700;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  .lede{
+    color:var(--ink-soft);
+    font-size:0.95rem;
+    margin:0 0 28px;
+    max-width:46ch;
+  }
+
+  /* ---- Detection strip: shows provenance of the whole form at a glance ---- */
+  .detect-strip{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    margin-bottom:22px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .detect-icon{
+    width:38px;height:38px;
+    border-radius:50%;
+    background:var(--teal-soft);
+    color:var(--teal);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .detect-icon svg{width:18px;height:18px;}
+  .detect-text{flex:1; min-width:180px;}
+  .detect-text .t1{
+    font-size:0.9rem;
+    font-weight:600;
+  }
+  .detect-text .t2{
+    font-size:0.8rem;
+    color:var(--ink-soft);
+    font-family:'JetBrains Mono', monospace;
+  }
+  .btn-gps{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:0.86rem;
+    padding:10px 16px;
+    border-radius:8px;
+    border:1px solid var(--teal);
+    background:var(--teal);
+    color:#fff;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    white-space:nowrap;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .btn-gps:hover{background:#0c5c53; transform:translateY(-1px);}
+  .btn-gps:disabled{opacity:0.55; cursor:progress; transform:none;}
+  .btn-gps svg{width:15px;height:15px;}
+
+  /* ---- Form ---- */
+  .card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px;
+  }
+  .field{
+    margin-bottom:18px;
+  }
+  .field:last-child{margin-bottom:0;}
+  .field-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:7px;
+  }
+  label{
+    font-size:0.83rem;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .badge{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.03em;
+    padding:2px 8px;
+    border-radius:100px;
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    text-transform:uppercase;
+  }
+  .badge.src-ip{background:var(--amber-soft); color:var(--amber);}
+  .badge.src-gps{background:var(--teal-soft); color:var(--teal);}
+  .badge.src-manual{background:#eee; color:var(--ink-soft);}
+  .badge.src-empty{display:none;}
+  .badge::before{
+    content:"";
+    width:5px;height:5px;
+    border-radius:50%;
+    background:currentColor;
+  }
+  input, select{
+    width:100%;
+    font-family:'Inter', sans-serif;
+    font-size:0.95rem;
+    padding:11px 12px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:#fcfbf8;
+    color:var(--ink);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  input:focus, select:focus{
+    outline:none;
+    border-color:var(--teal);
+    background:#fff;
+  }
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  @media (max-width:520px){
+    .grid2{grid-template-columns:1fr;}
+  }
+  .status-line{
+    font-size:0.82rem;
+    margin-top:10px;
+    min-height:1.2em;
+    color:var(--ink-soft);
+  }
+  .status-line.error{color:var(--danger);}
+  .status-line.ok{color:var(--teal);}
+
+  .footer-row{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:24px;
+  }
+  .btn-save{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:0.92rem;
+    padding:12px 22px;
+    border-radius:8px;
+    border:none;
+    background:var(--ink);
+    color:#fff;
+    cursor:pointer;
+  }
+  .btn-save:hover{background:#000;}
+
+  .note{
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    margin-top:14px;
+    line-height:1.5;
+  }
+  .note b{color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="eyebrow">Bước 2 / 3 — Giao hàng</div>
+  <h1>Địa chỉ giao hàng</h1>
+  <p class="lede">Chúng tôi gợi ý tỉnh/thành phố theo địa chỉ IP của bạn. Nhấn "Định vị chính xác" để tự động điền đến số nhà, đường, phường/xã.</p>
+
+  <div class="detect-strip">
+    <div class="detect-icon" id="detectIcon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg>
+    </div>
+    <div class="detect-text">
+      <div class="t1" id="detectTitle">Đang xác định vị trí gợi ý theo IP…</div>
+      <div class="t2" id="detectSub">—</div>
+    </div>
+    <button class="btn-gps" id="btnGps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>
+      Định vị chính xác
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="grid2">
+      <div class="field">
+        <div class="field-head">
+          <label for="province">Tỉnh / Thành phố</label>
+          <span class="badge src-empty" id="badgeProvince">IP</span>
+        </div>
+        <input type="text" id="province" placeholder="VD: Hà Nội" autocomplete="off">
+      </div>
+      <div class="field">
+        <div class="field-head">
+          <label for="district">Quận / Huyện</label>
+          <span class="badge src-empty" id="badgeDistrict">IP</span>
+        </div>
+        <input type="text" id="district" placeholder="VD: Cầu Giấy" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-head">
+        <label for="ward">Phường / Xã</label>
+        <span class="badge src-empty" id="badgeWard">GPS</span>
+      </div>
+      <input type="text" id="ward" placeholder="VD: Dịch Vọng Hậu" autocomplete="off">
+    </div>
+
+    <div class="field">
+      <div class="field-head">
+        <label for="detail">Địa chỉ chi tiết (số nhà, tên đường)</label>
+        <span class="badge src-empty" id="badgeDetail">GPS</span>
+      </div>
+      <input type="text" id="detail" placeholder="VD: Số 12, ngõ 5, đường Xuân Thủy" autocomplete="off">
+    </div>
+
+    <div class="status-line" id="formStatus"></div>
+
+    <div class="note">
+      <b>Lưu ý độ chính xác:</b> vị trí theo IP chỉ mang tính tham khảo ở cấp tỉnh/thành, có thể sai lệch nếu bạn dùng VPN hoặc mạng doanh nghiệp. Nhấn "Định vị chính xác" và cho phép truy cập vị trí để hệ thống điền đến cấp phường/xã, đường, số nhà. Bạn luôn có thể chỉnh sửa thủ công bất kỳ trường nào.
+    </div>
+
+    <div class="footer-row">
+      <button class="btn-save">Lưu địa chỉ</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const els = {
+  province: document.getElementById('province'),
+  district: document.getElementById('district'),
+  ward: document.getElementById('ward'),
+  detail: document.getElementById('detail'),
+};
+const badges = {
+  province: document.getElementById('badgeProvince'),
+  district: document.getElementById('badgeDistrict'),
+  ward: document.getElementById('badgeWard'),
+  detail: document.getElementById('badgeDetail'),
+};
+const detectTitle = document.getElementById('detectTitle');
+const detectSub = document.getElementById('detectSub');
+const detectIcon = document.getElementById('detectIcon');
+const formStatus = document.getElementById('formStatus');
+const btnGps = document.getElementById('btnGps');
+
+function setBadge(key, source){
+  // source: 'ip' | 'gps' | 'manual' | null
+  const el = badges[key];
+  el.classList.remove('src-ip','src-gps','src-manual','src-empty');
+  if(!source){ el.classList.add('src-empty'); return; }
+  el.classList.add('src-' + source);
+  el.textContent = source === 'ip' ? 'Theo IP' : source === 'gps' ? 'Theo GPS' : 'Tự nhập';
+}
+
+function fillField(key, value, source){
+  if(value){
+    els[key].value = value;
+    setBadge(key, source);
+  }
+}
+
+// Khi người dùng tự gõ vào bất kỳ trường nào -> badge chuyển thành "Tự nhập"
+Object.keys(els).forEach(key => {
+  els[key].addEventListener('input', () => setBadge(key, 'manual'));
+});
+
+function setStatus(msg, type){
+  formStatus.textContent = msg || '';
+  formStatus.classList.remove('error','ok');
+  if(type) formStatus.classList.add(type);
+}
+
+// ---------- 1) Gợi ý mặc định theo IP khi vào trang ----------
+const ipProviders = [
+  {
+    name: 'geojs.io',
+    url: 'https://get.geojs.io/v1/ip/geo.json',
+    parse: (d) => ({ province: d.city || d.region, district: null })
+  },
+  {
+    name: 'ipwho.is',
+    url: 'https://ipwho.is/',
+    parse: (d) => {
+      if (d.success === false) throw new Error(d.message || 'ipwho.is lỗi');
+      return { province: d.city || d.region, district: null };
+    }
+  },
+  {
+    name: 'ipapi.co',
+    url: 'https://ipapi.co/json/',
+    parse: (d) => {
+      if (d.error) throw new Error(d.reason || 'ipapi.co lỗi');
+      return { province: d.city || d.region, district: null };
+    }
+  }
+];
+
+async function detectByIp(){
+  for(const provider of ipProviders){
+    try{
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 7000);
+      const res = await fetch(provider.url, { signal: controller.signal });
+      clearTimeout(t);
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const parsed = provider.parse(data);
+      return parsed;
+    }catch(e){ continue; }
+  }
+  return null;
+}
+
+(async () => {
+  const result = await detectByIp();
+  if(result && result.province){
+    fillField('province', result.province, 'ip');
+    detectTitle.textContent = 'Đã gợi ý theo IP — bạn có thể chỉnh sửa hoặc định vị chính xác hơn';
+    detectSub.textContent = `Tỉnh/thành phố gợi ý: ${result.province}`;
+  } else {
+    detectTitle.textContent = 'Không xác định được vị trí theo IP';
+    detectSub.textContent = 'Vui lòng nhập thủ công hoặc dùng định vị GPS';
+  }
+})();
+
+// ---------- 2) Định vị chính xác theo GPS khi người dùng chủ động nhấn ----------
+btnGps.addEventListener('click', () => {
+  if(!('geolocation' in navigator)){
+    setStatus('Trình duyệt không hỗ trợ định vị GPS.', 'error');
+    return;
+  }
+  btnGps.disabled = true;
+  detectTitle.textContent = 'Đang yêu cầu quyền truy cập vị trí…';
+  detectSub.textContent = '—';
+  setStatus('');
+
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const { latitude, longitude, accuracy } = pos.coords;
+    detectTitle.textContent = 'Đã lấy toạ độ, đang tra cứu địa chỉ…';
+    detectSub.textContent = `${latitude.toFixed(5)}, ${longitude.toFixed(5)} · độ chính xác ±${Math.round(accuracy)}m`;
+
+    try{
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'vi' } });
+      const data = await res.json();
+      const a = data.address || {};
+
+      const province = a.city || a.state || a.province || null;
+      const district = a.city_district || a.county || a.district || null;
+      const ward = a.suburb || a.quarter || a.village || a.neighbourhood || null;
+      const road = a.road || null;
+      const houseNumber = a.house_number || null;
+      const detail = [houseNumber, road].filter(Boolean).join(' ') || null;
+
+      fillField('province', province, 'gps');
+      fillField('district', district, 'gps');
+      fillField('ward', ward, 'gps');
+      fillField('detail', detail, 'gps');
+
+      detectTitle.textContent = 'Đã định vị chính xác theo GPS';
+      detectSub.textContent = data.display_name || 'Đã cập nhật địa chỉ';
+      setStatus('Đã điền địa chỉ theo vị trí hiện tại. Vui lòng kiểm tra lại trước khi lưu.', 'ok');
+    }catch(e){
+      detectTitle.textContent = 'Lấy được toạ độ nhưng không tra được địa chỉ';
+      setStatus('Vui lòng nhập tay các trường còn thiếu.', 'error');
+    }finally{
+      btnGps.disabled = false;
+    }
+  }, (err) => {
+    let msg = 'Không thể lấy vị trí GPS.';
+    if(err.code === err.PERMISSION_DENIED) msg = 'Bạn đã từ chối quyền truy cập vị trí. Hãy bật lại trong cài đặt trình duyệt.';
+    else if(err.code === err.POSITION_UNAVAILABLE) msg = 'Không xác định được vị trí hiện tại.';
+    else if(err.code === err.TIMEOUT) msg = 'Yêu cầu định vị hết thời gian, vui lòng thử lại.';
+    detectTitle.textContent = 'Định vị GPS thất bại';
+    detectSub.textContent = '—';
+    setStatus(msg, 'error');
+    btnGps.disabled = false;
+  }, {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0
+  });
+});
+</script>
+</body>
+</html>
