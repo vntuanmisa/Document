@@ -121,7 +121,7 @@
                                 </button>
                                 <button id="btn-trigger-burst" class="w-full px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold rounded-lg text-[11px] transition-colors flex items-center justify-center gap-1.5">
                                     <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                    Bão 5 Requests
+                                    Bão 50 Requests
                                 </button>
                                 <div id="ui-step-1-status" class="py-2 px-2 mt-1 rounded border border-slate-200 text-center font-mono text-[10px] font-bold text-slate-500 shadow-sm flex items-center justify-center bg-slate-50 transition-colors">
                                     Chờ request...
@@ -667,12 +667,12 @@
         });
 
         document.getElementById('btn-trigger-burst').addEventListener('click', async () => {
-            log('⚡ [User Action] Kích hoạt bão 5 requests...', 'system');
-            for (let i = 1; i <= 5; i++) {
-                log(`--- Burst Request ${i} / 5 ---`, 'info');
+            log('⚡ [User Action] Kích hoạt bão 50 requests...', 'system');
+            for (let i = 1; i <= 50; i++) {
+                log(`--- Burst Request ${i} / 50 ---`, 'info');
                 setUIResponse('Đang xử lý bão...', 'info');
                 processSpBackendHealthCheck();
-                await new Promise(r => setTimeout(r, 150)); 
+                await new Promise(r => setTimeout(r, 100)); 
             }
         });
 
