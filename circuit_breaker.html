@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô Hình Full Luồng & Sơ Đồ Ngắt Mạch Circuit Breaker SSO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        @keyframes pulse-border-red {
+            0%, 100% { border-color: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { border-color: #f87171; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15); }
+        }
+        @keyframes pulse-border-yellow {
+            0%, 100% { border-color: #eab308; box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); }
+            50% { border-color: #fde047; box-shadow: 0 0 0 4px rgba(234, 179, 8, 0.15); }
+        }
+
+        .cb-open-pulse { animation: pulse-border-red 2s infinite ease-in-out; }
+        .cb-closed-pulse { border-color: #22c55e; }
+        .cb-half-pulse { animation: pulse-border-yellow 2s infinite ease-in-out; }
+        
+        .status-btn {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            color: white;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .status-btn:active { transform: scale(0.95); }
+        .status-btn.alive { background-color: #10b981; border-color: #059669; }
+        .status-btn.alive:hover { background-color: #059669; }
+        .status-btn.dead { background-color: #ef4444; border-color: #dc2626; }
+        .status-btn.dead:hover { background-color: #dc2626; }
+
+        /* Animation for dot flying */
+        @keyframes ping-fly {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.3); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+
+    <header class="bg-white sticky top-0 z-50 px-4 lg:px-8 py-3 shadow-sm border-b border-slate-200">
+        <div class="max-w-[1400px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20 font-black text-white text-base">CB</div>
+                <div>
+                    <h1 class="font-extrabold text-base md:text-lg tracking-tight text-slate-900 flex items-center gap-2">
+                        Kiến Trúc Circuit Breaker SSO
+                        <span class="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200">MISA ID Spec</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Tích hợp SDK, Lazy Window 30s & Cache Redis Request-based 15s</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button id="btn-reset-sim" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-all border border-slate-200 shadow-sm">Khôi phục mặc định</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1400px] mx-auto w-full p-4 md:p-6 flex flex-col gap-6 flex-1">
+
+        <section class="relative">
+            <div class="flex items-center justify-between mb-4 px-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm"></span>
+                    Sơ Đồ Luồng Tương Tác Cụ Thể (Flow Diagram)
+                </h2>
+                <div class="flex items-center gap-3 text-[10px] font-medium text-slate-600">
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Thành công</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Thăm dò</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span> Lỗi</span>
+                </div>
+            </div>
+
+            <!-- Pipeline Wrapper (4 Columns on XL) -->
+            <div class="flex flex-col xl:flex-row gap-8 relative z-10 w-full mt-6">
+                
+                <!-- Global Line connecting System 1 and System 2 (Step 2 to Step 3) -->
+                <div id="line-2-3" class="hidden xl:block absolute top-[50%] left-[37.5%] w-[25%] h-0.5 bg-slate-200 -translate-y-1/2 z-0"></div>
+
+                <!-- HỆ THỐNG ỨNG DỤNG -->
+                <div class="xl:w-1/2 border-2 border-slate-200 bg-slate-50/50 rounded-2xl p-3 md:p-5 relative pt-7 shadow-sm">
+                    <div class="absolute -top-3.5 left-6 bg-white border border-slate-200 px-3 py-1 rounded-full text-xs font-extrabold text-slate-700 shadow-sm uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> HỆ THỐNG ỨNG DỤNG
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-4 relative h-full">
+                        <!-- Line between Step 1 & 2 -->
+                        <div id="line-1-2" class="hidden md:block absolute top-[50%] left-[25%] w-[50%] h-0.5 bg-slate-200 -translate-y-1/2 z-0"></div>
+
+                        <!-- STEP 1: CLIENT / FE -->
+                        <div id="step-1" class="w-full md:w-1/2 bg-white border border-slate-200 rounded-xl p-3.5 flex flex-col shadow-sm relative z-10 transition-all">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700">BƯỚC 1</span>
+                                <span class="text-[9px] font-mono text-slate-400 font-semibold">Client / FE</span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm mb-1">Frontend Sản Phẩm</h3>
+                            <p class="text-[11px] text-slate-500 leading-relaxed mb-4 flex-1">Người dùng thực hiện đăng nhập trên ứng dụng.</p>
+
+                            <div class="mt-auto flex flex-col gap-2 pt-3 border-t border-slate-100">
+                                <button id="btn-trigger-request" class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-lg text-xs shadow border border-blue-700 transition-colors flex items-center justify-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                    Gửi 1 Request
+                                </button>
+                                <button id="btn-trigger-burst" class="w-full px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold rounded-lg text-[11px] transition-colors flex items-center justify-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                    Bão 5 Requests
+                                </button>
+                                <div id="ui-step-1-status" class="py-2 px-2 mt-1 rounded border border-slate-200 text-center font-mono text-[10px] font-bold text-slate-500 shadow-sm flex items-center justify-center bg-slate-50 transition-colors">
+                                    Chờ request...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2: SP BACKEND (CIRCUIT BREAKER SDK) -->
+                        <div id="step-2" class="w-full md:w-1/2 bg-white border-2 rounded-xl p-3.5 flex flex-col shadow-sm transition-colors duration-300 cb-closed-pulse relative z-10">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">BƯỚC 2 (SDK)</span>
+                                <span id="badge-circuit-state" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-wide">CLOSED</span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm mb-1">Circuit Breaker SDK</h3>
+                            <p class="text-[10px] text-slate-500 mb-3">Kiểm tra Cache Local & Đếm lỗi ngắt mạch.</p>
+                            
+                            <div class="flex-1 flex flex-col gap-2">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div class="bg-white p-2 rounded-md border border-slate-100 shadow-sm text-center">
+                                        <span class="text-slate-500 block text-[9px] font-medium mb-0.5">Lỗi liên tiếp</span>
+                                        <div class="font-mono font-bold text-xs"><span id="val-consecutive" class="text-red-600">0 / 3</span></div>
+                                    </div>
+                                    <div class="bg-white p-2 rounded-md border border-slate-100 shadow-sm text-center">
+                                        <span class="text-slate-500 block text-[9px] font-medium mb-0.5">Lỗi 30s</span>
+                                        <div class="font-mono font-bold text-xs"><span id="val-window" class="text-amber-600">0 / 5</span></div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-slate-50 p-2.5 rounded-md border border-slate-100 shadow-inner flex flex-col gap-2 mt-auto">
+                                    <div>
+                                        <div class="flex justify-between items-center text-[9px] mb-1">
+                                            <span class="text-slate-600 font-medium flex items-center gap-1">Timer Cooldown:</span>
+                                            <span id="txt-cooldown-timer" class="font-mono font-bold text-slate-400">0.0s / 30s</span>
+                                        </div>
+                                        <div class="w-full bg-slate-200 rounded-full h-1 overflow-hidden"><div id="bar-cooldown" class="bg-amber-500 h-1 rounded-full" style="width: 0%"></div></div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between items-center text-[9px] mb-1">
+                                            <span class="text-slate-600 font-medium flex items-center gap-1">Cửa sổ reset (30s):</span>
+                                            <span id="txt-window-timer" class="font-mono font-bold text-blue-600">30.0s</span>
+                                        </div>
+                                        <div class="w-full bg-slate-200 rounded-full h-1 overflow-hidden"><div id="bar-window" class="bg-blue-500 h-1 rounded-full" style="width: 100%"></div></div>
+                                    </div>
+                                    <div class="pt-1.5 border-t border-slate-200/60 mt-1">
+                                        <div class="flex justify-between items-center text-[9px] mb-1">
+                                            <span class="text-slate-600 font-medium">Local Cache (2s):</span>
+                                            <span id="val-sp-cache-state" class="font-mono font-bold text-slate-400">EXPIRED</span>
+                                        </div>
+                                        <div class="w-full bg-slate-200 rounded-full h-1 overflow-hidden"><div id="bar-sp-cache" class="bg-emerald-500 h-1 rounded-full" style="width: 0%"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HỆ THỐNG MISA ID -->
+                <div class="xl:w-1/2 border-2 border-slate-200 bg-slate-50/50 rounded-2xl p-3 md:p-5 relative pt-7 shadow-sm">
+                    <div class="absolute -top-3.5 left-6 bg-white border border-slate-200 px-3 py-1 rounded-full text-xs font-extrabold text-slate-700 shadow-sm uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> MISA ID SSO
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-4 relative h-full">
+                        <!-- Line between Step 3 & 4 -->
+                        <div id="line-3-4" class="hidden md:block absolute top-[50%] left-[25%] w-[50%] h-0.5 bg-slate-200 -translate-y-1/2 z-0"></div>
+
+                        <!-- STEP 3: MISA ID APP & REDIS -->
+                        <div id="step-3" class="w-full md:w-1/2 bg-white border border-slate-200 rounded-xl p-3.5 flex flex-col shadow-sm relative z-10 transition-all">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-700">BƯỚC 3</span>
+                                <span id="badge-misa-app" class="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700">Tầng 1: OK</span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm mb-1">MISA ID (App & Cache)</h3>
+                            <p class="text-[10px] text-slate-500 mb-3 flex-1">Kiểm tra App Gateway và đọc Cache Redis 15s.</p>
+
+                            <!-- TTL Block MOVED TO STEP 3 -->
+                            <div class="bg-slate-50 p-2 rounded-md border border-slate-100 shadow-inner mb-3">
+                                <div class="flex justify-between items-center text-[9px] mb-1">
+                                    <span class="text-slate-600 font-medium">Redis TTL 15s:</span>
+                                    <span id="val-misa-cache-ttl" class="font-mono text-slate-400 font-bold">EXPIRED</span>
+                                </div>
+                                <div class="w-full bg-slate-200 rounded-full h-1 overflow-hidden">
+                                    <div id="bar-misa-cache" class="bg-cyan-500 h-1 rounded-full transition-all duration-75" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Control Toggle -->
+                            <div class="mt-auto pt-2 border-t border-slate-100 flex items-center justify-between">
+                                <span class="text-[10px] font-semibold text-slate-600">Trạng thái App:</span>
+                                <button id="btn-toggle-app" class="status-btn alive">SỐNG</button>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4: CHECK DATABASE -->
+                        <div id="step-4" class="w-full md:w-1/2 bg-white border border-slate-200 rounded-xl p-3.5 flex flex-col shadow-sm relative z-10 transition-all">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-100 text-cyan-800">BƯỚC 4</span>
+                                <span id="badge-misa-db" class="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700">Tầng 2: OK</span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-sm mb-1">Check Database</h3>
+                            <p class="text-[10px] text-slate-500 mb-2 leading-tight flex-1">Truy vấn DB thực tế khi Redis hết hạn. Cập nhật lại Redis sau khi check.</p>
+                            
+                            <!-- Control Toggle -->
+                            <div class="mt-auto pt-2 flex items-center justify-between border-t border-slate-100">
+                                <span class="text-[10px] font-semibold text-slate-600">Thực tế DB Ẩn:</span>
+                                <button id="btn-toggle-db" class="status-btn alive">SỐNG</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="bg-slate-900 rounded-xl shadow-md flex flex-col border border-slate-800 h-[340px] overflow-hidden mt-2">
+            <div class="bg-slate-800 px-4 py-2.5 flex items-center justify-between border-b border-slate-700/50 flex-shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-red-500 border border-red-600"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 border border-amber-600"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 border border-emerald-600"></span>
+                    <span class="text-[11px] font-mono text-slate-400 font-medium ml-2 tracking-wide">circuit-breaker-engine.log</span>
+                </div>
+                <button id="btn-clear-log" class="text-[10px] font-mono font-medium text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-700/50 hover:bg-slate-600 transition-colors border border-slate-600">Clear Log</button>
+            </div>
+            <div id="sim-logs" class="p-4 font-mono text-[11px] leading-relaxed space-y-1.5 overflow-y-auto flex-1 custom-scroll text-slate-300">
+                <div><span class="text-slate-500">[*]</span> Hệ thống đã khởi động thành công. Nhấn "Gửi 1 Request" để bắt đầu.</div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // System State
+        let appSsoAlive = true;
+        let dbSsoAlive = true;
+
+        // Cache State
+        let misaCacheValue = null; 
+        let misaCacheTime = 0; 
+        const MISA_CACHE_TTL = 15000; // 15s request-based Redis
+
+        let localCacheValue = null; 
+        let localCacheTime = 0; 
+        const LOCAL_CACHE_TTL = 2000; // 2s
+
+        // Circuit Breaker State
+        let cbState = 'CLOSED'; 
+        let consecutiveFailures = 0;
+        
+        let cooldownStartTime = 0;
+        const COOLDOWN_DURATION = 30000; // 30s
+        
+        // Cửa sổ đếm lỗi ngắt quãng (Lazy Fixed Window)
+        let windowFailures = 0; 
+        let windowStartTime = Date.now();
+        const WINDOW_DURATION = 30000; // 30s
+        
+        let activeMisaPromise = null;
+
+        // Animation timing configs
+        const ANIM_DURATION = 400; 
+        const TIMEOUT_STEP = 450; 
+
+        // UI Real-time Clock loop (Runs every 50ms for smooth live timer countdowns)
+        setInterval(() => {
+            const now = Date.now();
+            
+            // 1. MISA Redis Cache (15s)
+            const misaCacheEl = document.getElementById('val-misa-cache-ttl');
+            const misaBarEl = document.getElementById('bar-misa-cache');
+            if (misaCacheTime > 0 && (now - misaCacheTime < MISA_CACHE_TTL)) {
+                const remainingSec = ((MISA_CACHE_TTL - (now - misaCacheTime)) / 1000).toFixed(1);
+                const pct = ((MISA_CACHE_TTL - (now - misaCacheTime)) / MISA_CACHE_TTL) * 100;
+                misaCacheEl.innerText = `${misaCacheValue ? 'ALIVE' : 'DOWN'} (${remainingSec}s)`;
+                misaCacheEl.className = misaCacheValue ? "font-mono text-emerald-600 font-bold" : "font-mono text-red-500 font-bold";
+                misaBarEl.style.width = `${pct}%`;
+                misaBarEl.className = misaCacheValue ? "bg-emerald-500 h-1 rounded-full" : "bg-red-500 h-1 rounded-full";
+            } else {
+                misaCacheEl.innerText = `EXPIRED`;
+                misaCacheEl.className = "font-mono text-slate-400 font-bold";
+                misaBarEl.style.width = `0%`;
+            }
+
+            // 2. SP Local Cache (2s)
+            const spCacheEl = document.getElementById('val-sp-cache-state');
+            const spBarEl = document.getElementById('bar-sp-cache');
+            if (localCacheTime > 0 && (now - localCacheTime < LOCAL_CACHE_TTL)) {
+                const remainingSec = ((LOCAL_CACHE_TTL - (now - localCacheTime)) / 1000).toFixed(1);
+                const pct = ((LOCAL_CACHE_TTL - (now - localCacheTime)) / LOCAL_CACHE_TTL) * 100;
+                spCacheEl.innerText = `${localCacheValue ? 'TRUE' : 'FALSE'} (${remainingSec}s)`;
+                spCacheEl.className = localCacheValue ? "font-mono font-bold text-emerald-600" : "font-mono font-bold text-red-500";
+                spBarEl.style.width = `${pct}%`;
+                spBarEl.className = localCacheValue ? "bg-emerald-500 h-1 rounded-full" : "bg-red-500 h-1 rounded-full";
+            } else {
+                spCacheEl.innerText = `EXPIRED`;
+                spCacheEl.className = "font-mono font-bold text-slate-400";
+                spBarEl.style.width = `0%`;
+            }
+
+            // 3. Circuit Breaker Cooldown Countdown & Bar (30s)
+            const cooldownEl = document.getElementById('txt-cooldown-timer');
+            const cooldownBarEl = document.getElementById('bar-cooldown');
+            if (cbState === 'OPEN') {
+                const elapsed = now - cooldownStartTime;
+                if (elapsed < COOLDOWN_DURATION) {
+                    const remainingSec = ((COOLDOWN_DURATION - elapsed) / 1000).toFixed(1);
+                    const pct = ((COOLDOWN_DURATION - elapsed) / COOLDOWN_DURATION) * 100;
+                    cooldownEl.innerText = `${remainingSec}s / 30s`;
+                    cooldownEl.className = "font-mono font-bold text-amber-600 animate-pulse";
+                    cooldownBarEl.style.width = `${pct}%`;
+                    cooldownBarEl.className = "bg-amber-500 h-1 rounded-full transition-all duration-75";
+                } else {
+                    cooldownEl.innerText = `Sẵn sàng Probe`;
+                    cooldownEl.className = "font-mono font-bold text-emerald-600";
+                    cooldownBarEl.style.width = `100%`;
+                    cooldownBarEl.className = "bg-emerald-500 h-1 rounded-full transition-all duration-75";
+                }
+            } else {
+                cooldownEl.innerText = `0.0s / 30s`;
+                cooldownEl.className = "font-mono font-bold text-slate-400";
+                cooldownBarEl.style.width = `0%`;
+            }
+
+            // 4. Lazy Window Maintenance (Visual only)
+            const windowTimerEl = document.getElementById('txt-window-timer');
+            const windowBar = document.getElementById('bar-window');
+            if (windowTimerEl && windowBar) {
+                let remainingWindow = Math.max(0, WINDOW_DURATION - (now - windowStartTime));
+                windowTimerEl.innerText = `${(remainingWindow / 1000).toFixed(1)}s`;
+                const pct = (remainingWindow / WINDOW_DURATION) * 100;
+                windowBar.style.width = `${pct}%`;
+                
+                if (windowFailures >= 4) {
+                    windowBar.className = "bg-red-500 h-1 rounded-full transition-all duration-75";
+                } else if (windowFailures >= 2) {
+                    windowBar.className = "bg-amber-500 h-1 rounded-full transition-all duration-75";
+                } else {
+                    windowBar.className = "bg-blue-500 h-1 rounded-full transition-all duration-75";
+                }
+            }
+
+        }, 50);
+
+        function log(msg, type = 'info') {
+            const logsEl = document.getElementById('sim-logs');
+            const time = new Date().toLocaleTimeString('vi-VN', { hour12: false });
+            const div = document.createElement('div');
+            
+            let color = 'text-slate-300';
+            if (type === 'error') color = 'text-red-400 font-bold';
+            if (type === 'success') color = 'text-emerald-400 font-bold';
+            if (type === 'warn') color = 'text-amber-400 font-bold';
+            if (type === 'system') color = 'text-cyan-400 font-semibold';
+
+            div.innerHTML = `<span class="text-slate-500">[${time}]</span> <span class="${color}">${msg}</span>`;
+            logsEl.appendChild(div);
+            logsEl.scrollTop = logsEl.scrollHeight;
+        }
+
+        function setUIResponse(text, status) {
+            const el = document.getElementById('ui-step-1-status');
+            el.innerText = text;
+            if (status === 'pass') {
+                el.className = "py-2 px-2 mt-1 rounded border text-center font-mono text-[10px] font-bold bg-emerald-50 text-emerald-700 border-emerald-300 shadow-sm flex items-center justify-center transition-colors";
+            } else if (status === 'fail') {
+                el.className = "py-2 px-2 mt-1 rounded border text-center font-mono text-[10px] font-bold bg-red-50 text-red-700 border-red-300 shadow-sm flex items-center justify-center transition-colors";
+            } else {
+                el.className = "py-2 px-2 mt-1 rounded bg-slate-50 border border-slate-200 text-center font-mono text-[10px] font-bold text-slate-500 shadow-sm flex items-center justify-center transition-colors";
+            }
+        }
+
+        function flyDot(fromId, toId, success = null) {
+            return new Promise(resolve => {
+                const fromEl = document.getElementById(fromId);
+                const toEl = document.getElementById(toId);
+                if (!fromEl || !toEl) {
+                    resolve();
+                    return;
+                }
+
+                let startX, startY, endX, endY;
+
+                // Tự động tìm đoạn thẳng nối giữa 2 Node để đi đúng theo đường vạch kẻ
+                const lineIdForward = `line-${fromId.replace('step-','')}-${toId.replace('step-','')}`;
+                const lineIdBackward = `line-${toId.replace('step-','')}-${fromId.replace('step-','')}`;
+                const lineEl = document.getElementById(lineIdForward) || document.getElementById(lineIdBackward);
+                
+                const isLineVisible = lineEl && window.getComputedStyle(lineEl).display !== 'none';
+
+                if (isLineVisible) {
+                    const lineRect = lineEl.getBoundingClientRect();
+                    startY = lineRect.top + lineRect.height / 2;
+                    endY = lineRect.top + lineRect.height / 2;
+                    
+                    if (document.getElementById(lineIdForward)) { 
+                        startX = lineRect.left;
+                        endX = lineRect.right;
+                    } else { 
+                        startX = lineRect.right;
+                        endX = lineRect.left;
+                    }
+                } else {
+                    const fromRect = fromEl.getBoundingClientRect();
+                    const toRect = toEl.getBoundingClientRect();
+                    startX = fromRect.left + fromRect.width / 2;
+                    startY = fromRect.top + fromRect.height / 2;
+                    endX = toRect.left + toRect.width / 2;
+                    endY = toRect.top + toRect.height / 2;
+                }
+                
+                const dot = document.createElement('div');
+                dot.className = 'fixed w-3 h-3 rounded-full z-[100] pointer-events-none shadow-[0_0_8px_rgba(0,0,0,0.4)] flex items-center justify-center';
+                
+                if (success === null) {
+                    dot.classList.add('bg-blue-500'); 
+                } else if (success) {
+                    dot.classList.add('bg-emerald-500'); 
+                } else {
+                    dot.classList.add('bg-red-500'); 
+                }
+
+                dot.style.left = `${startX}px`;
+                dot.style.top = `${startY}px`;
+                // Đảm bảo tâm dot luôn khớp với đường line
+                dot.style.transform = 'translate(-50%, -50%)'; 
+                dot.style.animation = `ping-fly ${ANIM_DURATION}ms infinite ease-in-out`;
+                document.body.appendChild(dot);
+
+                const anim = dot.animate([
+                    { left: `${startX}px`, top: `${startY}px` },
+                    { left: `${endX}px`, top: `${endY}px` }
+                ], {
+                    duration: ANIM_DURATION,
+                    easing: 'ease-in-out'
+                });
+
+                anim.onfinish = () => {
+                    dot.remove();
+                    resolve();
+                };
+            });
+        }
+
+        async function callMisaIdHealthCheck() {
+            // SINGLE FLIGHT PATTERN: Nếu đang có request chạy rồi, thì chờ ké luôn (Coalescing)
+            if (activeMisaPromise) {
+                log('  [SP Backend] 🔄 GOM NHÓM: Đang có request gọi MISA ID, các luồng khác sẽ chờ kết quả chung...', 'system');
+                return activeMisaPromise;
+            }
+
+            // Tạo request thật & khóa lại
+            activeMisaPromise = (async () => {
+                log('  ➔ [MISA ID] Gửi 1 request API Health-Check sang SSO (Bước 3)...', 'info');
+                await flyDot('step-2', 'step-3');
+                
+                if (!appSsoAlive) {
+                    log('  ❌ [MISA ID] App SSO bị sập (Tier 1 Fail) -> Trả về FALSE', 'error');
+                    await flyDot('step-3', 'step-2', false);
+                    return false;
+                }
+
+                const now = Date.now();
+                
+                // Đọc Cache Redis tại Bước 3
+                if (misaCacheTime > 0 && (now - misaCacheTime < MISA_CACHE_TTL)) {
+                    log(`  ✅ [MISA ID] [Tier 2] Đọc từ Redis Cache (còn hạn) -> KHÔNG xuống DB, Trả về ${misaCacheValue ? 'TRUE' : 'FALSE'}`, 'info');
+                    await flyDot('step-3', 'step-2', misaCacheValue);
+                    return misaCacheValue;
+                }
+
+                log('  🔍 [MISA ID] Redis hết hạn. Gọi xuống Bước 4 kiểm tra trực tiếp Database...', 'warn');
+                await flyDot('step-3', 'step-4');
+
+                if (dbSsoAlive) {
+                    misaCacheValue = true;
+                    misaCacheTime = Date.now();
+                    log('  ✅ [MISA ID] DB OK -> Cập nhật Cache Redis = TRUE & Trả về TRUE', 'success');
+                    await flyDot('step-4', 'step-3', true);
+                    await flyDot('step-3', 'step-2', true);
+                    return true;
+                } else {
+                    misaCacheValue = false;
+                    misaCacheTime = Date.now();
+                    log('  ❌ [MISA ID] DB Treo! -> Cập nhật Cache Redis = FALSE & Trả về FALSE', 'error');
+                    await flyDot('step-4', 'step-3', false);
+                    await flyDot('step-3', 'step-2', false);
+                    return false;
+                }
+            })();
+
+            const result = await activeMisaPromise;
+            activeMisaPromise = null;
+            return result;
+        }
+
+        async function processSpBackendHealthCheck() {
+            await flyDot('step-1', 'step-2');
+            
+            const now = Date.now();
+            log('🚀 [SP Backend] Nhận request từ Client. Bắt đầu xử lý...', 'system');
+
+            if (now - windowStartTime >= WINDOW_DURATION) {
+                if (windowFailures > 0) {
+                    log(`⏱️ [SP Backend] Cửa sổ 30s cũ đã hết hạn. Chủ động reset lỗi ngắt quãng (${windowFailures} -> 0).`, 'system');
+                }
+                windowFailures = 0;
+                windowStartTime = now;
+                updateUI();
+            }
+
+            // --- CASE A: MẠCH MỞ (OPEN) ---
+            if (cbState === 'OPEN') {
+                log('⚠️ [SP Backend] MẠCH ĐANG MỞ (OPEN). Kiểm tra time-delay cooldown...', 'warn');
+                
+                if (now - cooldownStartTime < COOLDOWN_DURATION) {
+                    log('🛑 [SP Backend] BỎ QUA Ping MISA ID (Chưa đủ 30s Cooldown) -> Trả show LOGIN LOCAL', 'error');
+                    setUIResponse('SHOW LOGIN LOCAL', 'fail');
+                    await flyDot('step-2', 'step-1', false);
+                    return;
+                }
+
+                log('🔄 [SP Backend] ĐÃ ĐẠT 30s COOLDOWN -> Gọi thử Health-Check MISA ID để thăm dò (Probe)...', 'warn');
+                const isMisaOk = await callMisaIdHealthCheck();
+
+                if (isMisaOk) {
+                    cbState = 'CLOSED';
+                    consecutiveFailures = 0;
+                    windowFailures = 0; 
+                    windowStartTime = Date.now();
+                    cooldownStartTime = 0; 
+                    localCacheValue = true;
+                    localCacheTime = Date.now();
+                    log('🎉 [SP Backend] Probe THÀNH CÔNG -> ĐÓNG MẠCH (CLOSED) & Trả show SSO', 'success');
+                    setUIResponse('SHOW SSO', 'pass');
+                    await flyDot('step-2', 'step-1', true);
+                    updateUI();
+                } else {
+                    cooldownStartTime = Date.now();
+                    log('💥 [SP Backend] Probe THẤT BẠI -> Tiếp tục MẠCH MỞ (OPEN) & Đặt lại 30s Cooldown -> Báo CÓ LỖI', 'error');
+                    setUIResponse('CÓ LỖI XẢY RA', 'fail'); 
+                    await flyDot('step-2', 'step-1', false);
+                    updateUI();
+                }
+                return;
+            }
+
+            // --- CASE B: MẠCH ĐÓNG (CLOSED) ---
+            if (localCacheTime > 0 && (now - localCacheTime < LOCAL_CACHE_TTL)) {
+                log(`⚡ [SP Backend] Đọc từ Local Cache (2s valid) -> KHÔNG gọi sang MISA ID -> Trả ngay ${localCacheValue ? 'SSO' : 'CÓ LỖI XẢY RA'}`, 'info');
+                
+                if (localCacheValue) {
+                    consecutiveFailures = 0;
+                }
+                
+                setUIResponse(localCacheValue ? 'SHOW SSO' : 'CÓ LỖI XẢY RA', localCacheValue ? 'pass' : 'fail');
+                await flyDot('step-2', 'step-1', localCacheValue);
+                return;
+            }
+
+            log('📡 [SP Backend] Local Cache hết hạn -> Gọi API Health-Check MISA ID (Bước 3)...', 'info');
+            
+            const isMisaOk = await callMisaIdHealthCheck();
+            
+            if (isMisaOk) {
+                localCacheValue = true;
+                localCacheTime = Date.now();
+                if (cbState !== 'CLOSED') cbState = 'CLOSED';
+                consecutiveFailures = 0; 
+                
+                log('✅ [SP Backend] MISA ID phản hồi TRUE -> Cập nhật Local Cache -> Trả show SSO', 'success');
+                setUIResponse('SHOW SSO', 'pass');
+                await flyDot('step-2', 'step-1', true);
+                updateUI();
+            } else {
+                consecutiveFailures++;
+                windowFailures++;
+                log(`❌ [SP Backend] MISA ID Lỗi (False) -> Tăng bộ đếm: [Liên tiếp: ${consecutiveFailures}/3], [Lỗi 30s: ${windowFailures}/5]`, 'error');
+
+                if (consecutiveFailures >= 3 || windowFailures >= 5) {
+                    if (cbState !== 'OPEN') {
+                        cbState = 'OPEN';
+                        cooldownStartTime = Date.now();
+                        
+                        const reason = consecutiveFailures >= 3 ? 'Lỗi liên tiếp >= 3' : 'Lỗi trong 30s >= 5';
+                        log(`🚨 [SP Backend] ĐẠT ĐIỀU KIỆN NGẮT MẠCH (${reason}) -> CHUYỂN MẠCH MỞ (OPEN) & Khóa 30s -> Trả show LOGIN LOCAL`, 'error');
+                        
+                        consecutiveFailures = 0;
+                        windowFailures = 0;
+                        windowStartTime = Date.now();
+                    }
+                    setUIResponse('SHOW LOGIN LOCAL', 'fail');
+                    await flyDot('step-2', 'step-1', false);
+                    updateUI();
+                } else {
+                    log('⚠️ [SP Backend] Dưới ngưỡng ngắt mạch -> Vẫn ghi nhận lỗi và trả báo CÓ LỖI XẢY RA', 'warn');
+                    setUIResponse('CÓ LỖI XẢY RA', 'fail');
+                    await flyDot('step-2', 'step-1', false);
+                    updateUI();
+                }
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('val-consecutive').innerText = `${consecutiveFailures} / 3`;
+            document.getElementById('val-window').innerText = `${windowFailures} / 5`;
+
+            const badgeCb = document.getElementById('badge-circuit-state');
+            const nodeCb = document.getElementById('step-2');
+
+            if (cbState === 'CLOSED') {
+                badgeCb.innerText = "CLOSED";
+                badgeCb.className = "text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-wide";
+                nodeCb.className = "w-full md:w-1/2 bg-white border-2 rounded-xl p-3.5 flex flex-col shadow-sm transition-colors duration-300 cb-closed-pulse relative z-10";
+            } else if (cbState === 'OPEN') {
+                badgeCb.innerText = "OPEN";
+                badgeCb.className = "text-[9px] font-black px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200 uppercase tracking-wide";
+                nodeCb.className = "w-full md:w-1/2 bg-white border-2 rounded-xl p-3.5 flex flex-col shadow-sm transition-colors duration-300 cb-open-pulse relative z-10";
+            } else {
+                badgeCb.innerText = "HALF-OPEN";
+                badgeCb.className = "text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 uppercase tracking-wide";
+                nodeCb.className = "w-full md:w-1/2 bg-white border-2 rounded-xl p-3.5 flex flex-col shadow-sm transition-colors duration-300 cb-half-pulse relative z-10";
+            }
+
+            // Sync Toggle Buttons styling
+            const btnApp = document.getElementById('btn-toggle-app');
+            btnApp.innerText = appSsoAlive ? "SỐNG" : "SẬP";
+            btnApp.className = appSsoAlive ? "status-btn alive" : "status-btn dead";
+            document.getElementById('badge-misa-app').innerText = `Tầng 1: ${appSsoAlive ? 'OK' : 'FAIL'}`;
+            document.getElementById('badge-misa-app').className = appSsoAlive ? "text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700" : "text-[9px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-700";
+
+            const btnDb = document.getElementById('btn-toggle-db');
+            btnDb.innerText = dbSsoAlive ? "SỐNG" : "SẬP";
+            btnDb.className = dbSsoAlive ? "status-btn alive" : "status-btn dead";
+            
+            const cacheOk = misaCacheTime === 0 || misaCacheValue === true; 
+            document.getElementById('badge-misa-db').innerText = `Tầng 2: ${cacheOk ? 'OK' : 'FAIL'}`;
+            document.getElementById('badge-misa-db').className = cacheOk ? "text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700" : "text-[9px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-700";
+        }
+
+        document.getElementById('btn-trigger-request').addEventListener('click', () => {
+            setUIResponse('Đang xử lý...', 'info');
+            processSpBackendHealthCheck();
+        });
+
+        document.getElementById('btn-trigger-burst').addEventListener('click', async () => {
+            log('⚡ [User Action] Kích hoạt bão 5 requests...', 'system');
+            for (let i = 1; i <= 5; i++) {
+                log(`--- Burst Request ${i} / 5 ---`, 'info');
+                setUIResponse('Đang xử lý bão...', 'info');
+                processSpBackendHealthCheck();
+                await new Promise(r => setTimeout(r, 150)); 
+            }
+        });
+
+        document.getElementById('btn-toggle-app').addEventListener('click', () => {
+            appSsoAlive = !appSsoAlive;
+            log(`🔧 [Giả lập] Tầng 1 (App SSO MISA) -> ${appSsoAlive ? 'SỐNG' : 'SẬP'}`, 'system');
+            updateUI();
+        });
+
+        document.getElementById('btn-toggle-db').addEventListener('click', () => {
+            dbSsoAlive = !dbSsoAlive;
+            log(`🔧 [Giả lập] Tầng 2 (Thực tế Database) -> ${dbSsoAlive ? 'SỐNG' : 'SẬP'}`, 'system');
+            updateUI();
+        });
+
+        document.getElementById('btn-reset-sim').addEventListener('click', () => {
+            appSsoAlive = true;
+            dbSsoAlive = true;
+            misaCacheValue = null;
+            misaCacheTime = 0;
+            localCacheValue = null;
+            localCacheTime = 0;
+            cbState = 'CLOSED';
+            consecutiveFailures = 0;
+            windowFailures = 0;
+            windowStartTime = Date.now();
+            cooldownStartTime = 0;
+            activeMisaPromise = null;
+            
+            document.getElementById('sim-logs').innerHTML = '';
+            log('🔄 Đã khôi phục hệ thống về mặc định.', 'system');
+            setUIResponse('Chờ request...', 'info');
+            updateUI();
+        });
+
+        document.getElementById('btn-clear-log').addEventListener('click', () => {
+            document.getElementById('sim-logs').innerHTML = '';
+        });
+
+        window.onload = function() {
+            updateUI();
+        };
+    </script>
+</body>
+</html>
