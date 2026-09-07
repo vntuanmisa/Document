@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Workflow: Thu Thập Hội Thoại Zalo qua Chrome Extension",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "full-flow",
+        "label": "Luồng Thu Thập & Gửi Đầy Đủ",
+        "focus": ["open_zalo", "open_popup", "click_sync", "read_dom", "dedup_filter", "send_api", "notify_nvkd"],
+        "note": "NVKD cấu hình token qua Popup, nhấn nút đồng bộ, Extension đọc DOM và gửi hội thoại về Ingestion API."
+      },
+      {
+        "id": "config-view",
+        "label": "Luồng Cấu Hình Token",
+        "focus": ["open_zalo", "open_popup", "click_sync"],
+        "note": "Chỉ cần cấu hình một lần qua Popup Extension trước khi sử dụng lần đầu."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "nvkd_lane",    "label": "NVKD (Trình duyệt)" },
+    { "id": "popup_lane",   "label": "Extension Popup" },
+    { "id": "content_lane", "label": "Content Script DOM" },
+    { "id": "bg_lane",      "label": "Background Worker" },
+    { "id": "server_lane",  "label": "Ingestion API" }
+  ],
+  "phases": [
+    { "id": "p1", "label": "Phase 1: Cấu Hình",          "fromCol": 0, "toCol": 1 },
+    { "id": "p2", "label": "Phase 2: Thu Thập & Lọc",   "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "p3", "label": "Phase 3: Gửi & Xác Nhận",   "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["open_zalo","open_popup","click_sync","read_dom","dedup_filter","send_api","notify_nvkd"],
+  "nodes": [
+    { "id": "open_zalo",     "lane": "nvkd_lane",    "col": 0, "width": 80, "type": "frontend",  "label": "Mở Zalo Web",  "sublabel": "chat.zalo.me" },
+    { "id": "open_popup",    "lane": "popup_lane",   "col": 1, "width": 80, "type": "frontend",  "label": "Cấu Hình",     "sublabel": "Token & Endpoint" },
+    { "id": "click_sync",    "lane": "nvkd_lane",    "col": 2, "width": 80, "type": "frontend",  "label": "Nhấn Đồng Bộ","sublabel": "Chọn khoảng ngày" },
+    { "id": "read_dom",      "lane": "content_lane", "col": 3, "width": 80, "type": "backend",   "label": "Đọc DOM",      "sublabel": "Trích tin nhắn" },
+    { "id": "dedup_filter",  "lane": "bg_lane",      "col": 4, "width": 80, "type": "backend",   "label": "Lọc Trùng",    "sublabel": "SHA-256 Hash" },
+    { "id": "send_api",      "lane": "server_lane",  "col": 5, "width": 80, "type": "security",  "label": "Nhận Batch",   "sublabel": "200 OK / 401" },
+    { "id": "notify_nvkd",   "lane": "popup_lane",   "col": 5, "width": 80, "type": "frontend",  "label": "Thông Báo",    "sublabel": "OK / Lỗi" }
+  ],
+  "edges": [
+    { "from": "open_zalo",    "to": "open_popup",    "variant": "emphasis" },
+    { "from": "open_popup",   "to": "click_sync" },
+    { "from": "click_sync",   "to": "read_dom",      "variant": "emphasis" },
+    { "from": "read_dom",     "to": "dedup_filter" },
+    { "from": "dedup_filter", "to": "send_api",      "variant": "security" },
+    { "from": "send_api",     "to": "notify_nvkd",  "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Cấu Hình Một Lần, Dùng Mãi",
+      "items": [
+        "NVKD hoặc Admin chỉ cần cấu hình API Token và Endpoint một lần qua Popup Extension.",
+        "Token được lưu an toàn trong chrome.storage.local, không bao giờ lộ qua URL hay body."
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Floating Button Nhúng Trực Tiếp Zalo",
+      "items": [
+        "Content Script nhúng nút 'Đồng Bộ' thẳng vào giao diện chat Zalo Web (chat.zalo.me).",
+        "NVKD chọn khoảng thời gian (mặc định: trong ngày) và nhấn để gom toàn bộ tin nhắn đang hiển thị."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Chống Trùng Lặp SHA-256",
+      "items": [
+        "Background Worker hash từng tin nhắn để loại bỏ trùng lặp trước khi gửi lên server.",
+        "Đảm bảo mỗi tin nhắn chỉ được lưu một lần dù NVKD đồng bộ nhiều lần trong ngày."
+      ]
+    }
+  ]
+}

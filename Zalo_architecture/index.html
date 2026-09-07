@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiến Trúc Giải Pháp: AI Khám Phá Khách Hàng từ Zalo — MISA AMIS CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2330;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #7d8590;
+      --accent-blue: #388bfd;
+      --accent-green: #3fb950;
+      --accent-orange: #f0883e;
+      --accent-purple: #bc8cff;
+      --accent-pink: #ff7b72;
+      --accent-cyan: #39c5cf;
+      --badge-bg: #1f2937;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a1f2e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 24px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(56,139,253,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .header-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(56,139,253,0.15);
+      border: 1px solid rgba(56,139,253,0.3);
+      color: var(--accent-blue);
+      font-size: 12px; font-weight: 500; letter-spacing: 0.5px;
+      padding: 4px 12px; border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    header h1 {
+      font-size: clamp(22px, 4vw, 36px);
+      font-weight: 700;
+      background: linear-gradient(135deg, #e6edf3 0%, #388bfd 50%, #39c5cf 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    header p {
+      color: var(--text-muted);
+      font-size: 15px; max-width: 640px; margin: 0 auto;
+    }
+    .domain-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 14px;
+      background: rgba(63,185,80,0.1);
+      border: 1px solid rgba(63,185,80,0.25);
+      color: var(--accent-green);
+      font-size: 12px; font-family: monospace;
+      padding: 4px 14px; border-radius: 20px;
+    }
+
+    /* ─── MAIN ─── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    /* ─── SECTION HEADER ─── */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 18px; margin-top: 40px;
+    }
+    .section-label:first-child { margin-top: 0; }
+    .section-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .section-label h2 {
+      font-size: 18px; font-weight: 600; color: var(--text);
+    }
+    .section-label span.sub {
+      font-size: 13px; color: var(--text-muted); font-weight: 400;
+    }
+
+    /* ─── CARD GRID ─── */
+    .grid { display: grid; gap: 14px; }
+    .grid-2 { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+    /* ─── DIAGRAM CARD ─── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 22px;
+      display: flex; flex-direction: column; gap: 10px;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      text-decoration: none; color: inherit;
+      cursor: pointer;
+    }
+    .card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .card-header { display: flex; align-items: flex-start; gap: 12px; }
+    .card-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .card-meta { flex: 1; min-width: 0; }
+    .card-meta h3 { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+    .card-meta p  { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+    .card-footer {
+      display: flex; align-items: center; gap: 8px;
+      padding-top: 8px; border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+      padding: 2px 9px; border-radius: 12px;
+    }
+    .badge-blue   { background: rgba(56,139,253,0.15); color: #388bfd; border: 1px solid rgba(56,139,253,0.25); }
+    .badge-green  { background: rgba(63,185,80,0.12);  color: #3fb950; border: 1px solid rgba(63,185,80,0.22);  }
+    .badge-orange { background: rgba(240,136,62,0.12); color: #f0883e; border: 1px solid rgba(240,136,62,0.22); }
+    .badge-purple { background: rgba(188,140,255,0.12);color: #bc8cff; border: 1px solid rgba(188,140,255,0.22); }
+    .badge-cyan   { background: rgba(57,197,207,0.12); color: #39c5cf; border: 1px solid rgba(57,197,207,0.22);  }
+    .badge-pink   { background: rgba(255,123,114,0.12);color: #ff7b72; border: 1px solid rgba(255,123,114,0.22);  }
+
+    .open-link {
+      margin-left: auto; font-size: 12px; color: var(--accent-blue);
+      display: flex; align-items: center; gap: 4px;
+      opacity: 0.7; transition: opacity 0.2s;
+    }
+    .card:hover .open-link { opacity: 1; }
+
+    /* icon colors */
+    .icon-blue   { background: rgba(56,139,253,0.15); }
+    .icon-green  { background: rgba(63,185,80,0.12); }
+    .icon-orange { background: rgba(240,136,62,0.12); }
+    .icon-purple { background: rgba(188,140,255,0.12); }
+    .icon-cyan   { background: rgba(57,197,207,0.12); }
+    .icon-red    { background: rgba(255,123,114,0.12); }
+
+    /* ─── DIVIDER ─── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+    /* ─── API CARD ─── */
+    .api-card {
+      background: var(--surface2);
+      border: 1px solid rgba(56,139,253,0.3);
+      border-radius: 12px;
+      padding: 20px 22px;
+      display: flex; align-items: center; gap: 16px;
+      text-decoration: none; color: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .api-card:hover { border-color: #388bfd; box-shadow: 0 4px 16px rgba(56,139,253,0.15); }
+    .api-endpoint {
+      font-family: monospace; font-size: 13px;
+      color: var(--accent-green); word-break: break-all;
+    }
+    .api-label { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .api-sub   { font-size: 13px; color: var(--text-muted); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      text-align: center;
+      color: var(--text-muted); font-size: 13px;
+      padding: 24px;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--accent-blue); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">🤖 AI Customer Discovery System</div>
+  <h1>Kiến Trúc Giải Pháp Toàn Diện<br/>AI Thấu Hiểu Khách Hàng từ Hội Thoại Zalo</h1>
+  <p>Bộ sơ đồ kiến trúc C4 Model (4 cấp độ), Workflow & Quy trình, và Đặc tả Ingestion API tích hợp với MISA AMIS CRM</p>
+  <div class="domain-pill">🔗 https://misajsc.amis.vn/crm</div>
+</header>
+
+<main>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  SECTION 1: TÀI LIỆU CHỦ ĐẠO              -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-label">
+    <div class="section-icon icon-blue">📘</div>
+    <div>
+      <h2>Tài Liệu Báo Cáo Chủ Đạo</h2>
+      <span class="sub">Đọc trước để nắm bức tranh toàn cảnh giải pháp</span>
+    </div>
+  </div>
+
+  <a class="card" href="TOAN_BO_GIAI_PHAP_KIEN_TRUC.md" target="_blank">
+    <div class="card-header">
+      <div class="card-icon icon-blue">📑</div>
+      <div class="card-meta">
+        <h3>Kiến Trúc Giải Pháp Tổng Thể</h3>
+        <p>Tài liệu chủ đạo bao gồm Use Case Diagram, C4 Model 4 cấp độ (kể cả Class Design Level 4), Workflow, Prompt 7 mục khám phá khách hàng, mẫu đầu ra Thẻ Khách Hàng 360.</p>
+      </div>
+    </div>
+    <div class="card-footer">
+      <span class="badge badge-blue">Markdown</span>
+      <span class="badge badge-green">C4 Model</span>
+      <span class="badge badge-orange">Mermaid</span>
+      <span class="open-link">Mở tài liệu →</span>
+    </div>
+  </a>
+
+  <hr/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  SECTION 2: SƠ ĐỒ C4 MODEL (4 CẤP ĐỘ)    -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-label">
+    <div class="section-icon icon-purple">🏛️</div>
+    <div>
+      <h2>Bộ Sơ Đồ C4 Model — 4 Cấp Độ</h2>
+      <span class="sub">Nhấn để mở sơ đồ trực tuyến có thể phóng to / chuyển đổi góc nhìn</span>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+
+    <a class="card" href="c4-level1-context.html" target="_blank">
+      <div class="card-header">
+        <div class="card-icon icon-blue">🌐</div>
+        <div class="card-meta">
+          <h3>C4 Level 1 — System Context</h3>
+          <p>Bối cảnh hệ thống toàn cảnh: NVKD, Khách hàng, Chrome Extension, AI Discovery Core, MISA AMIS CRM, Quản lý.</p>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-blue">Architecture</span>
+        <span class="badge badge-green">9/9 ✓</span>
+        <span class="open-link">Mở sơ đồ →</span>
+      </div>
+    </a>
+
+    <a class="card" href="c4-level2-container.html" target="_blank">
+      <div class="card-header">
+        <div class="card-icon icon-purple">📦</div>
+        <div class="card-meta">
+          <h3>C4 Level 2 — Container Diagram</h3>
+          <p>Phân rã kỹ thuật: Extension → Ingestion API → Kafka → Chat Lake → AI Engine → Local LLM → AMIS CRM.</p>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-blue">Architecture</span>
+        <span class="badge badge-green">9/9 ✓</span>
+        <span class="open-link">Mở sơ đồ →</span>
+      </div>
+    </a>
+
+    <a class="card" href="c4-level3-ai-core.html" target="_blank">
+      <div class="card-header">
+        <div class="card-icon icon-cyan">🧠</div>
+        <div class="card-meta">
+          <h3>C4 Level 3 — AI Core Components</h3>
+          <p>Chi tiết nội bộ AI Summary Engine: Event Consumer, History Aggregator, Entity Recognizer (MST/CCCD), Prompt Builder, LLM Client, Guard & CRM Sync.</p>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-blue">Architecture</span>
+        <span class="badge badge-cyan">AI Engine</span>
+        <span class="badge badge-green">9/9 ✓</span>
+        <span class="open-link">Mở sơ đồ →</span>
+      </div>
+    </a>
+
+    <div class="card" style="cursor:default; opacity: 0.7;">
+      <div class="card-header">
+        <div class="card-icon icon-orange">🔬</div>
+        <div class="card-meta">
+          <h3>C4 Level 4 — Code & Class Design</h3>
+          <p>Class Diagram thiết kế lớp đối tượng: ChatMessage, EntityExtractor, CustomerDiscoveryPrompt, LocalLLMConnector, DiscoveryOutputValidator, AmisCrmCustomerSync.</p>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-orange">Mermaid Class</span>
+        <span class="badge badge-blue">Nằm trong TOAN_BO_GIAI_PHAP.md</span>
+      </div>
+    </div>
+
+  </div>
+
+  <hr/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  SECTION 3: SƠ ĐỒ WORKFLOW & QUY TRÌNH   -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-label">
+    <div class="section-icon icon-orange">🔄</div>
+    <div>
+      <h2>Sơ Đồ Luồng & Quy Trình (Sequence Swimlanes)</h2>
+      <span class="sub">Sequence diagram dạng swimlane chuẩn hóa — hiển thị tương tác lifelines rõ ràng, không đè chữ, hỗ trợ Trace Animation</span>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+
+    <a class="card" href="flow-end-to-end-pipeline.html" target="_blank">
+      <div class="card-header">
+        <div class="card-icon icon-blue">⚡</div>
+        <div class="card-meta">
+          <h3>Luồng End-to-End Pipeline</h3>
+          <p>Sequence Swimlane 8 Lifelines: NVKD → Zalo Web → Extension → Ingest API → Kafka → AI Engine → Local LLM → AMIS CRM.</p>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-blue">Sequence</span>
+        <span class="badge badge-purple">Swimlane</span>
+        <span class="badge badge-green">9/9 ✓</span>
+        <span class="open-link">Mở →</span>
+      </div>
+    </a>
+
+    <a class="card" href="flow-extension-capture.html" target="_blank">
+      <div class="card-header">
+        <div class="card-icon icon-orange">🧩</div>
+        <div class="card-meta">
+          <h3>Quy Trình Thu Thập Extension</h3>
+          <p>Sequence Swimlane 5 Lifelines: NVKD → Extension Popup → Content Script (DOM) → Background Worker → Ingestion API.</p>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-orange">Sequence</span>
+        <span class="badge badge-purple">Swimlane</span>
+        <span class="badge badge-green">9/9 ✓</span>
+        <span class="open-link">Mở →</span>
+      </div>
+    </a>
+
+    <a class="card" href="flow-ai-discovery-process.html" target="_blank">
+      <div class="card-header">
+        <div class="card-icon icon-cyan">🤖</div>
+        <div class="card-meta">
+          <h3>Quy Trình AI 7 Mục Khám Phá</h3>
+          <p>Sequence Swimlane 7 Lifelines: Kafka Queue → Gom Cặp → Bóc Tách MST/CCCD → Lắp Prompt → Chạy Local LLM → Guardrail → AMIS CRM.</p>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="badge badge-cyan">Sequence</span>
+        <span class="badge badge-purple">Swimlane</span>
+        <span class="badge badge-green">9/9 ✓</span>
+        <span class="open-link">Mở →</span>
+      </div>
+    </a>
+	
+  </div>
+
+  <hr/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  SECTION 4: INGESTION API SPECIFICATION    -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-label">
+    <div class="section-icon icon-red">📡</div>
+    <div>
+      <h2>Đặc Tả Ingestion API</h2>
+      <span class="sub">Domain chính thức: https://misajsc.amis.vn/crm — Xác thực qua Header Bearer Token</span>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+
+    <a class="api-card" href="api-ingestion-amis.md" target="_blank">
+      <div style="font-size:28px;">📄</div>
+      <div>
+        <div class="api-label">Tài Liệu Kỹ Thuật Markdown</div>
+        <div class="api-endpoint">POST /crm/api/v1/zalo/sync</div>
+        <div class="api-sub" style="margin-top:6px;">Chi tiết Header, cấu trúc Payload, bảng mã lỗi 400/401/500, mẫu cURL kiểm thử.</div>
+        <div style="margin-top:8px;">
+          <span class="badge badge-blue">Markdown</span>
+          <span class="badge badge-orange">cURL Examples</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="api-card" href="api-ingestion-amis.yaml" target="_blank">
+      <div style="font-size:28px;">📋</div>
+      <div>
+        <div class="api-label">Đặc Tả OpenAPI 3.0</div>
+        <div class="api-endpoint">openapi: 3.0.3</div>
+        <div class="api-sub" style="margin-top:6px;">Schema đầy đủ: ChatMessage, SyncChatRequest, SyncSuccessResponse, ErrorResponse. SecurityScheme BearerAuth.</div>
+        <div style="margin-top:8px;">
+          <span class="badge badge-green">OpenAPI 3.0</span>
+          <span class="badge badge-cyan">YAML</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <hr/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!--  SECTION 5: THÔNG TIN KỸ THUẬT            -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="section-label">
+    <div class="section-icon icon-green">💡</div>
+    <div>
+      <h2>Điểm Mấu Chốt Kiến Trúc</h2>
+      <span class="sub">Những quyết định thiết kế quan trọng cần nắm rõ</span>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card" style="cursor:default;">
+      <div class="card-icon icon-blue">🔐</div>
+      <div class="card-meta" style="margin-top:10px;">
+        <h3>Xác Thực Bearer Token</h3>
+        <p>Token <strong>bắt buộc qua HTTP Header</strong>: <code style="font-size:12px; color:#3fb950;">Authorization: Bearer &lt;token&gt;</code>. Không gửi qua body hoặc query parameter.</p>
+      </div>
+    </div>
+    <div class="card" style="cursor:default;">
+      <div class="card-icon icon-cyan">🧠</div>
+      <div class="card-meta" style="margin-top:10px;">
+        <h3>Local LLM — Bảo Mật Tuyệt Đối</h3>
+        <p>AI chạy hoàn toàn <strong>on-premise / private GPU</strong>. Dữ liệu hội thoại khách hàng <strong>không bao giờ rời khỏi hạ tầng doanh nghiệp</strong>.</p>
+      </div>
+    </div>
+    <div class="card" style="cursor:default;">
+      <div class="card-icon icon-orange">🎯</div>
+      <div class="card-meta" style="margin-top:10px;">
+        <h3>Chống Ảo Giác AI</h3>
+        <p>Chỉ dùng dữ liệu thật trong đoạn chat. Mục nào thiếu ghi rõ <strong>"Chưa rõ"</strong>. temperature = 0.1 để tối đa hóa độ chính xác.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>Bộ hồ sơ kiến trúc dành cho <strong>Hệ Thống AI Khám Phá Khách Hàng từ Hội Thoại Zalo</strong> tích hợp <a href="https://misajsc.amis.vn/crm" target="_blank">MISA AMIS CRM</a>. Tất cả sơ đồ được sinh bằng <strong>Archify</strong> — Showcase Quality 9/9 ✓</p>
+</footer>
+
+</body>
+</html>

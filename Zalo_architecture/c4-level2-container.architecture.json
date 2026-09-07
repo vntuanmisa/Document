@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "C4 Level 2: Toàn bộ Các Container của Giải pháp AI Thấu hiểu Khách hàng",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "ingestion-stream",
+        "label": "Tuyến Thu thập & Lưu kho Lịch sử",
+        "focus": ["chrome_ext", "ingest_api", "kafka_queue", "history_lake"],
+        "note": "Extension gửi dữ liệu qua Header Bearer Token tới Ingestion Gateway vào Kafka và lưu kho thô."
+      },
+      {
+        "id": "ai-intelligence",
+        "label": "Tuyến Phân tích AI & Đồng bộ AMIS CRM",
+        "focus": ["history_lake", "ai_worker", "local_llm", "amis_crm_app"],
+        "note": "AI Engine đọc kho thô, tự nhận diện MST/CCCD, chạy prompt 7 mục qua Local LLM và đẩy vào AMIS CRM."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "chrome_ext",
+      "type": "frontend",
+      "label": "Chrome Extension",
+      "sublabel": "Cầu nối Thu thập",
+      "pos": [40, 140],
+      "size": [130, 60],
+      "tag": "Trình duyệt NVKD"
+    },
+    {
+      "id": "ingest_api",
+      "type": "backend",
+      "label": "Ingestion Gateway",
+      "sublabel": "Cổng tiếp nhận",
+      "pos": [270, 140],
+      "size": [130, 60],
+      "tag": "Header Auth"
+    },
+    {
+      "id": "kafka_queue",
+      "type": "messagebus",
+      "label": "Hàng đợi Kafka",
+      "sublabel": "zalo.messages.raw",
+      "pos": [500, 140],
+      "size": [130, 60],
+      "tag": "Message Buffer"
+    },
+    {
+      "id": "history_lake",
+      "type": "database",
+      "label": "Kho Lịch Sử Chat",
+      "sublabel": "Lưu trữ Hội thoại thô",
+      "pos": [740, 140],
+      "size": [140, 60],
+      "tag": "Raw Storage"
+    },
+    {
+      "id": "ai_worker",
+      "type": "backend",
+      "label": "AI Summary Engine",
+      "sublabel": "Trích xuất 7 mục",
+      "pos": [740, 340],
+      "size": [140, 60],
+      "tag": "Cron Aggregator"
+    },
+    {
+      "id": "local_llm",
+      "type": "security",
+      "label": "Local AI Model",
+      "sublabel": "Self-hosted LLM",
+      "pos": [500, 340],
+      "size": [130, 60],
+      "tag": "Bảo mật On-premise"
+    },
+    {
+      "id": "amis_crm_app",
+      "type": "database",
+      "label": "MISA AMIS CRM",
+      "sublabel": "misajsc.amis.vn/crm",
+      "pos": [270, 340],
+      "size": [130, 60],
+      "tag": "Hồ sơ Khách 360"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "security-group",
+      "label": "Máy Trạm Người Dùng (Chrome Browser)",
+      "wraps": ["chrome_ext"]
+    },
+    {
+      "kind": "region",
+      "label": "Hạ Tầng Backend & Cụm AI On-Premise Doanh Nghiệp",
+      "wraps": ["ingest_api", "kafka_queue", "history_lake", "ai_worker", "local_llm", "amis_crm_app"]
+    }
+  ],
+  "connections": [
+    { "id": "ext-ingest", "from": "chrome_ext", "to": "ingest_api", "label": "Bearer Header", "variant": "emphasis" },
+    { "id": "ingest-kafka", "from": "ingest_api", "to": "kafka_queue", "label": "Produce" },
+    { "id": "kafka-db", "from": "kafka_queue", "to": "history_lake", "label": "Consume & Lưu" },
+    { "id": "db-worker", "from": "history_lake", "to": "ai_worker", "fromSide": "bottom", "toSide": "top" },
+    { "id": "worker-llm", "from": "ai_worker", "to": "local_llm", "label": "Prompt 7 Mục", "variant": "security" },
+    { "id": "worker-crm", "from": "ai_worker", "to": "amis_crm_app", "label": "Đồng bộ Thẻ 360", "variant": "dashed", "fromSide": "bottom", "toSide": "bottom" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Tuyến Thu Thập Dữ Liệu",
+      "items": [
+        "Chrome Extension: Đọc DOM Zalo Web, lọc trùng SHA-256, gửi batch qua Authorization Header.",
+        "Ingestion Gateway: Xác thực Bearer Token, kiểm tra IP, đẩy ngay vào topic zalo.messages.raw."
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Vùng Đệm & Kho Lưu Trữ Thô",
+      "items": [
+        "Kafka: Đảm bảo khả năng chịu tải hàng nghìn cuộc hội thoại đồng thời không làm đơ hệ thống.",
+        "Kho Lịch Sử Chat: Lưu toàn bộ lịch sử thô làm nguồn cấp dữ liệu cho quá trình học và phân tích."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Trí Tuệ Nhân Tạo & Bán Hàng",
+      "items": [
+        "AI Engine: Tự nhận diện MST 10/13 số, CCCD 12 số và tổ chức hội thoại thành transcript hoàn chỉnh.",
+        "Local LLM: Khám phá khách hàng theo 7 mục cốt lõi và điền hồ sơ 360 trên https://misajsc.amis.vn/crm."
+      ]
+    }
+  ]
+}

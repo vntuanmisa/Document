@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Workflow: Quy trình AI Xử lý Tóm tắt 7 Mục Khám Phá Khách Hàng",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "data-prep",
+        "label": "Tuyến 1: Chuẩn Bị & Nhận Diện",
+        "focus": ["group_pair", "sort_time", "regex_entity"],
+        "note": "Gom cặp Sender-Contact, xếp dòng thời gian và tự động trích xuất MST/CCCD."
+      },
+      {
+        "id": "llm-and-sync",
+        "label": "Tuyến 2: Suy Luận & Đồng Bộ CRM",
+        "focus": ["build_ctx", "llm_exec", "guard_out", "amis_sync"],
+        "note": "Local LLM áp dụng prompt 7 mục, kiểm tra chống ảo giác và đồng bộ vào MISA AMIS CRM."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "data_in",      "label": "Nguồn Hội Thoại" },
+    { "id": "sort_lane",    "label": "Sắp Xếp Thời Gian" },
+    { "id": "entity_lane",  "label": "Nhận Diện Thực Thể" },
+    { "id": "prompt_lane",  "label": "Ngữ Cảnh & Prompt" },
+    { "id": "llm_lane",     "label": "Suy Luận Local LLM" },
+    { "id": "guard_lane",   "label": "Kiểm Soát Đầu Ra" },
+    { "id": "crm_lane",     "label": "MISA AMIS CRM" }
+  ],
+  "phases": [
+    { "id": "p1", "label": "Phase 1: Chuẩn Bị",         "fromCol": 0, "toCol": 1 },
+    { "id": "p2", "label": "Phase 2: AI Suy Luận",      "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "p3", "label": "Phase 3: Kiểm Soát & CRM",  "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["group_pair","sort_time","regex_entity","build_ctx","llm_exec","guard_out","amis_sync"],
+  "nodes": [
+    { "id": "group_pair",   "lane": "data_in",     "col": 0, "width": 80, "type": "backend",  "label": "Gom Cặp Chat",  "sublabel": "Sender+Contact" },
+    { "id": "sort_time",    "lane": "sort_lane",   "col": 1, "width": 80, "type": "backend",  "label": "Xếp Lịch Sử",  "sublabel": "Chronological" },
+    { "id": "regex_entity", "lane": "entity_lane", "col": 2, "width": 96, "type": "backend",  "label": "Nhận Diện",   "sublabel": "MST/CCCD 10/12/13" },
+    { "id": "build_ctx",    "lane": "prompt_lane", "col": 3, "width": 80, "type": "backend",  "label": "Lắp Context",  "sublabel": "Prompt 7 Mục" },
+    { "id": "llm_exec",     "lane": "llm_lane",    "col": 4, "width": 80, "type": "security", "label": "Chạy LLM",    "sublabel": "Local Inference" },
+    { "id": "guard_out",    "lane": "guard_lane",  "col": 4, "width": 80, "type": "backend",  "label": "Kiểm Tra",     "sublabel": "Anti-Hallucinate" },
+    { "id": "amis_sync",    "lane": "crm_lane",    "col": 5, "width": 80, "type": "database", "label": "Lưu Thẻ 360", "sublabel": "AMIS CRM" }
+  ],
+  "edges": [
+    { "from": "group_pair",   "to": "sort_time",    "variant": "emphasis" },
+    { "from": "sort_time",    "to": "regex_entity", "variant": "emphasis" },
+    { "from": "regex_entity", "to": "build_ctx" },
+    { "from": "build_ctx",    "to": "llm_exec",    "variant": "security" },
+    { "from": "llm_exec",     "to": "guard_out" },
+    { "from": "guard_out",    "to": "amis_sync",   "variant": "security" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Bóc Tách MST & CCCD Tự Động",
+      "items": [
+        "Thuật toán Regex rà quét ContactName và nội dung tin nhắn để bóc tách MST hoặc CCCD.",
+        "MST doanh nghiệp: 10 số. MST chi nhánh: 13 số. CCCD cá nhân/hộ kinh doanh: 12 số."
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Prompt 7 Mục Cốt Lõi Khám Phá",
+      "items": [
+        "1. Khách hàng | 2. Quy mô nhân sự | 3. Hiện trạng & Khả năng mua trong 45 ngày.",
+        "4. Tiêu chí chọn giải pháp | 5. Người quyết định | 6. Ngân sách | 7. Cam kết/Next step."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Quy Tắc Chống Ảo Giác (Anti-Hallucination)",
+      "items": [
+        "Chỉ dùng dữ liệu có trong hội thoại thật; mục nào chưa có thông tin bắt buộc ghi 'Chưa rõ'.",
+        "Đầu ra chuẩn markdown gạch đầu dòng, hiển thị ngay trên thẻ khách hàng tại MISA AMIS CRM."
+      ]
+    }
+  ]
+}

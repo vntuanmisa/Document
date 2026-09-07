@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Luồng Dữ liệu End-to-End: Zalo Chat → AI Discovery → MISA AMIS CRM",
+    "quality_profile": "showcase",
+    "animation": "trace",
+    "views": [
+      {
+        "id": "capture-path",
+        "label": "Tuyến Thu Thập & Tiếp Nhận",
+        "focus": ["sales", "zalo", "ext", "api", "kafka"],
+        "note": "NVKD nhấn Đồng Bộ → Extension đọc DOM → POST Bearer Token lên Ingestion API → đẩy vào Kafka."
+      },
+      {
+        "id": "ai-path",
+        "label": "Tuyến AI Phân Tích & CRM",
+        "focus": ["kafka", "ai", "llm", "crm", "sales"],
+        "note": "AI Engine nhận diện MST/CCCD, chạy Prompt 7 mục với Local LLM, đồng bộ Thẻ Khách Hàng 360 vào AMIS CRM."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "sales", "type": "external",   "label": "NVKD",        "sublabel": "Sales Rep"      },
+    { "id": "zalo",  "type": "frontend",   "label": "Zalo Web",    "sublabel": "chat.zalo.me"   },
+    { "id": "ext",   "type": "backend",    "label": "Extension",   "sublabel": "Edge Agent"     },
+    { "id": "api",   "type": "security",   "label": "Ingest API",  "sublabel": "Bearer Token"   },
+    { "id": "kafka", "type": "messagebus", "label": "Kafka",       "sublabel": "zalo.raw"       },
+    { "id": "ai",    "type": "backend",    "label": "AI Engine",   "sublabel": "MST + Prompt"   },
+    { "id": "llm",   "type": "backend",    "label": "Local LLM",  "sublabel": "On-Prem GPU"    },
+    { "id": "crm",   "type": "database",   "label": "AMIS CRM",   "sublabel": "Thẻ KH 360"     }
+  ],
+  "segments": [
+    { "from": 155, "to": 290, "label": "Phase 1: Thu Thập Chat" },
+    { "from": 310, "to": 440, "label": "Phase 2: Tiếp Nhận & Kho" },
+    { "from": 460, "to": 670, "label": "Phase 3: AI Phân Tích & Đồng Bộ CRM" }
+  ],
+  "messages": [
+    { "id": "m01", "from": "sales", "to": "zalo",  "y": 185, "label": "Nhắn tin tư vấn khách hàng",               "variant": "default"  },
+    { "id": "m02", "from": "sales", "to": "ext",   "y": 230, "label": "Bấm Đồng Bộ Hội Thoại",                   "variant": "emphasis" },
+    { "id": "m03", "from": "ext",   "to": "zalo",  "y": 265, "label": "Đọc DOM: tin nhắn & tiêu đề hội thoại",   "variant": "default"  },
+    { "id": "m04", "from": "zalo",  "to": "ext",   "y": 295, "label": "Danh sách tin nhắn (lọc SHA-256)",         "variant": "return"   },
+    { "id": "m05", "from": "ext",   "to": "api",   "y": 340, "label": "POST /zalo/sync  (Authorization: Bearer <token>)", "variant": "security" },
+    { "id": "m06", "from": "api",   "to": "ext",   "y": 375, "label": "200 OK — batchId nhận thành công",         "variant": "return"   },
+    { "id": "m07", "from": "api",   "to": "kafka", "y": 415, "label": "Produce → zalo.messages.raw",              "variant": "dashed"   },
+    { "id": "m08", "from": "kafka", "to": "ai",    "y": 455, "label": "Consume: chuyển hội thoại cho AI Worker",  "variant": "dashed"   },
+    { "id": "m09", "from": "ai",    "to": "llm",   "y": 505, "label": "Gom cặp chat, nhận diện MST/CCCD, lắp Prompt 7 mục", "variant": "emphasis" },
+    { "id": "m10", "from": "llm",   "to": "ai",    "y": 570, "label": "Kết quả tóm tắt gạch đầu dòng (7 mục)",   "variant": "return"   },
+    { "id": "m11", "from": "ai",    "to": "crm",   "y": 625, "label": "Cập nhật Thẻ Khách Hàng 360 trên AMIS CRM", "variant": "security" },
+    { "id": "m12", "from": "sales", "to": "crm",   "y": 668, "label": "Mở thẻ KH — xem Insights & Next Step",    "variant": "emphasis" }
+  ],
+  "activations": [
+    { "participant": "zalo",  "from": 178, "to": 302, "type": "frontend"   },
+    { "participant": "ext",   "from": 222, "to": 382, "type": "backend"    },
+    { "participant": "api",   "from": 333, "to": 422, "type": "security"   },
+    { "participant": "kafka", "from": 408, "to": 462, "type": "messagebus" },
+    { "participant": "ai",    "from": 448, "to": 632, "type": "backend"    },
+    { "participant": "llm",   "from": 498, "to": 577, "type": "backend"    },
+    { "participant": "crm",   "from": 618, "to": 675, "type": "database"   }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Extension — Edge Capture Agent",
+      "items": [
+        "Content Script nhúng nút Đồng Bộ thẳng vào Zalo Web DOM — không qua API Zalo chính thức.",
+        "Background Worker lọc trùng SHA-256 và gửi Bearer Token chỉ qua HTTP Header, không qua body."
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Kafka — Bộ Đệm Bất Đồng Bộ",
+      "items": [
+        "Ingestion API chỉ xác thực và produce message — không xử lý nặng — giữ latency thấp cho Extension.",
+        "Kafka giữ dữ liệu thô bền vững, AI Worker tiêu thụ bất đồng bộ theo tốc độ riêng."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "AI Engine + Local LLM",
+      "items": [
+        "Tự động gom cặp Sender-Contact, nhận diện MST 10/13 số & CCCD 12 số trước khi lắp Prompt.",
+        "Local LLM chạy on-premise GPU — dữ liệu hội thoại kinh doanh không rời hạ tầng nội bộ."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Quy Trình Thu Thập Hội Thoại Zalo qua Chrome Extension",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "animation": "trace",
+    "views": [
+      {
+        "id": "config-flow",
+        "label": "Tuyến Cấu Hình",
+        "focus": ["nvkd", "popup"],
+        "note": "NVKD mở popup cấu hình token và endpoint, lưu trữ an toàn trong chrome.storage.local."
+      },
+      {
+        "id": "capture-flow",
+        "label": "Tuyến Thu Thập & Đẩy Dữ Liệu",
+        "focus": ["nvkd", "content", "bg", "api"],
+        "note": "Content script đọc DOM Zalo Web, background worker lọc trùng SHA-256 và POST Ingestion API."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "nvkd",    "type": "external", "label": "NVKD",           "sublabel": "Trình duyệt"       },
+    { "id": "popup",   "type": "frontend", "label": "Extension Popup", "sublabel": "Cấu hình Token"    },
+    { "id": "content", "type": "frontend", "label": "Content Script",  "sublabel": "chat.zalo.me DOM"   },
+    { "id": "bg",      "type": "backend",  "label": "Background",      "sublabel": "Service Worker"    },
+    { "id": "api",     "type": "security", "label": "Ingestion API",   "sublabel": "AMIS CRM Gateway"  }
+  ],
+  "segments": [
+    { "from": 155, "to": 260, "label": "Phase 1: Khởi Tạo & Cấu Hình Token" },
+    { "from": 280, "to": 435, "label": "Phase 2: Đọc DOM Zalo & Trích Xuất Tin Nhắn" },
+    { "from": 455, "to": 665, "label": "Phase 3: Lọc Trùng SHA-256 & Gửi Ingestion API" }
+  ],
+  "messages": [
+    { "id": "m01", "from": "nvkd",    "to": "popup",   "y": 185, "label": "Mở Popup cấu hình Token & Endpoint",           "variant": "default"  },
+    { "id": "m02", "from": "popup",   "to": "bg",      "y": 225, "label": "Lưu API Token an toàn (chrome.storage.local)",  "variant": "security" },
+    { "id": "m03", "from": "nvkd",    "to": "content", "y": 305, "label": "Mở Zalo Web & bấm nút 'Đồng Bộ Hội Thoại'",  "variant": "emphasis" },
+    { "id": "m04", "from": "content", "to": "bg",      "y": 350, "label": "Gửi tin nhắn thô quét từ DOM (message payload)","variant": "default"  },
+    { "id": "m05", "from": "bg",      "to": "content", "y": 395, "label": "Xác nhận nhận batch và hiển thị spinner chờ", "variant": "return"   },
+    { "id": "m06", "from": "bg",      "to": "api",     "y": 485, "label": "POST /zalo/sync  (Header: Bearer <token>)",    "variant": "security" },
+    { "id": "m07", "from": "api",     "to": "bg",      "y": 540, "label": "200 OK — Trả về batchId & số bản ghi nhận",     "variant": "return"   },
+    { "id": "m08", "from": "bg",      "to": "content", "y": 595, "label": "Báo thành công: cập nhật trạng thái đã đồng bộ","variant": "emphasis" },
+    { "id": "m09", "from": "content", "to": "nvkd",    "y": 640, "label": "Hiển thị Toast thông báo: Đồng bộ thành công",  "variant": "emphasis" }
+  ],
+  "activations": [
+    { "participant": "popup",   "from": 180, "to": 235, "type": "frontend" },
+    { "participant": "content", "from": 300, "to": 405, "type": "frontend" },
+    { "participant": "bg",      "from": 345, "to": 605, "type": "backend"  },
+    { "participant": "api",     "from": 480, "to": 548, "type": "security" },
+    { "participant": "content", "from": 590, "to": 648, "type": "frontend" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Bảo Mật Token Một Chiều",
+      "items": [
+        "API Token được lưu an toàn trong chrome.storage.local của trình duyệt người dùng.",
+        "Token chỉ được gắn vào HTTP Header 'Authorization: Bearer <token>', tuyệt đối không truyền qua Body hay URL."
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Floating Button Trên Zalo Web",
+      "items": [
+        "Content script tự động inject nút đồng bộ nổi và date-picker ngay trên giao diện chat Zalo Web.",
+        "NVKD chọn khoảng thời gian (mặc định: trong ngày) và bấm đồng bộ chỉ với 1 click chuột."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Lọc Trùng Lặp SHA-256",
+      "items": [
+        "Background worker tính mã hash SHA-256 cho từng tin nhắn để loại bỏ trùng lặp trước khi gửi.",
+        "Phản hồi trực quan bằng Toast notification giúp NVKD yên tâm dữ liệu đã vào kho an toàn."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+openapi: 3.0.3
+info:
+  title: MISA AMIS CRM - Ingestion API Đồng Bộ Hội Thoại Zalo
+  description: |
+    API tiếp nhận dữ liệu hội thoại chat giữa Nhân viên Kinh doanh (NVKD) và Khách hàng từ Zalo Web (thông qua Chrome Extension hoặc các công cụ thu thập).
+    Dữ liệu sau khi tiếp nhận sẽ được đẩy vào message bus (Kafka) để lưu trữ tại Data Lake và làm nguyên liệu cho Engine AI phân tích, tóm tắt chân dung & hành vi khách hàng theo 7 tiêu chí khám phá.
+  version: 1.1.0
+  contact:
+    name: Ban Công Nghệ & AI - MISA AMIS CRM
+    url: https://misajsc.amis.vn/crm
+
+servers:
+  - url: https://misajsc.amis.vn/crm/api/v1
+    description: MISA AMIS CRM Production Gateway
+
+security:
+  - BearerAuth: []
+
+paths:
+  /zalo/sync:
+    post:
+      summary: Đẩy danh sách hội thoại Zalo vào hệ thống AI & CRM
+      description: |
+        Nhận mảng các tin nhắn được trích xuất từ phiên chat Zalo Web.
+        **Lưu ý quan trọng**:
+        - Xác thực bắt buộc qua HTTP Header: `Authorization: Bearer <API_TOKEN>`.
+        - Không gửi token qua body.
+      operationId: syncZaloMessages
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        description: Danh sách tin nhắn hội thoại kèm ngữ cảnh người gửi và khách hàng
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncChatRequest'
+            example:
+              - Sender: "Nguyễn Văn Kinh Doanh"
+                ContactName: "Công ty Cổ phần ABC (MST: 0101234567)"
+                IP: "118.70.12.34"
+                Time: "14:32:00 07/09/2026"
+                Content: "Dạ em chào anh, hiện tại bên mình đang có khoảng bao nhiêu nhân sự sử dụng phần mềm CRM ạ?"
+              - Sender: "Công ty Cổ phần ABC (MST: 0101234567)"
+                ContactName: "Công ty Cổ phần ABC (MST: 0101234567)"
+                IP: "118.70.12.34"
+                Time: "14:33:15 07/09/2026"
+                Content: "Bên anh quy mô 120 nhân sự, có 3 chi nhánh Hà Nội, Đà Nẵng và TP.HCM. Đang dùng file Excel theo dõi khách hàng nên rất hay bị trùng lặp."
+      responses:
+        '200':
+          description: Tiếp nhận thành công, dữ liệu đã được đẩy vào hàng đợi xử lý AI.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncSuccessResponse'
+              example:
+                success: true
+                code: 200
+                message: "Đã tiếp nhận 2 tin nhắn vào hàng đợi AI Discovery Engine."
+                data:
+                  batchId: "batch-20260907-8912"
+                  processedCount: 2
+                  receivedAt: "2026-09-07T15:30:00+07:00"
+        '400':
+          description: Dữ liệu gửi lên không hợp lệ (thiếu trường bắt buộc hoặc mảng rỗng).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                code: 400
+                error: "BAD_REQUEST"
+                message: "Payload phải là mảng chứa ít nhất một tin nhắn hợp lệ."
+        '401':
+          description: Chưa xác thực hoặc Token không hợp lệ.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                code: 401
+                error: "UNAUTHORIZED"
+                message: "Header 'Authorization: Bearer <token>' bị thiếu hoặc token hết hạn."
+        '500':
+          description: Lỗi máy chủ hoặc hàng đợi Kafka không phản hồi.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                code: 500
+                error: "INTERNAL_SERVER_ERROR"
+                message: "Không thể đưa thông điệp vào hàng đợi tin nhắn. Vui lòng thử lại sau."
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Token định danh NVKD/Tenant được cấp từ hệ thống quản trị MISA AMIS CRM.
+        Ví dụ: `Authorization: Bearer eyJhbGciOiJIUzI1Ni...`
+
+  schemas:
+    ChatMessage:
+      type: object
+      required:
+        - Sender
+        - ContactName
+        - Time
+        - Content
+      properties:
+        Sender:
+          type: string
+          description: Tên người gửi tin nhắn (Tên NVKD hoặc Tên Khách hàng).
+          example: "Nguyễn Văn Kinh Doanh"
+        ContactName:
+          type: string
+          description: |
+            Tiêu đề hội thoại / Tên khách hàng hiển thị trên Zalo. Có thể chứa MST (10 hoặc 13 chữ số) hoặc CCCD (12 chữ số).
+          example: "Anh Tuấn - Giám Đốc (MST: 0101234567)"
+        IP:
+          type: string
+          description: Địa chỉ IP của máy trạm người gửi hoặc NVKD tại thời điểm đồng bộ.
+          example: "118.70.12.34"
+        Time:
+          type: string
+          description: Thời gian gửi tin nhắn hiển thị tại khung chat Zalo.
+          example: "14:32:00 07/09/2026"
+        Content:
+          type: string
+          description: Nội dung chi tiết của tin nhắn.
+          example: "Bên mình đang dùng phần mềm gì để quản lý chăm sóc khách hàng vậy anh?"
+
+    SyncChatRequest:
+      type: array
+      items:
+        $ref: '#/components/schemas/ChatMessage'
+      minItems: 1
+      description: Danh sách các tin nhắn cần đồng bộ về kho dữ liệu.
+
+    SyncSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Đã tiếp nhận 2 tin nhắn vào hàng đợi AI Discovery Engine."
+        data:
+          type: object
+          properties:
+            batchId:
+              type: string
+              example: "batch-20260907-8912"
+            processedCount:
+              type: integer
+              example: 2
+            receivedAt:
+              type: string
+              format: date-time
+              example: "2026-09-07T15:30:00+07:00"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        code:
+          type: integer
+          example: 401
+        error:
+          type: string
+          example: "UNAUTHORIZED"
+        message:
+          type: string
+          example: "Header 'Authorization: Bearer <token>' bị thiếu hoặc token không hợp lệ."

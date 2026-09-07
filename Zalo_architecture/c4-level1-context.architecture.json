@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "C4 Level 1: Bối cảnh Hệ thống AI Thấu hiểu Khách hàng từ Zalo Bán hàng",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "business-context",
+        "label": "Góc nhìn Nghiệp vụ Toàn cảnh",
+        "focus": ["sales_agent", "customer", "zalo_platform", "chrome_ext", "ai_discovery_system", "amis_crm", "sales_manager"],
+        "note": "Giải pháp thu thập hội thoại Zalo bán hàng và ứng dụng AI tự động thấu hiểu khách hàng đồng bộ MISA AMIS CRM."
+      },
+      {
+        "id": "capture-focus",
+        "label": "Góc nhìn Thu Thập Dữ Liệu",
+        "focus": ["sales_agent", "zalo_platform", "chrome_ext", "ai_discovery_system"],
+        "note": "Chrome Extension đóng vai trò Edge Capture Agent: đọc DOM Zalo Web và gửi dữ liệu chat về Ingestion API."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "customer",
+      "type": "external",
+      "label": "Khách hàng",
+      "sublabel": "Đối tác chat Zalo",
+      "pos": [60, 100],
+      "size": [140, 60]
+    },
+    {
+      "id": "sales_agent",
+      "type": "external",
+      "label": "NVKD Bán hàng",
+      "sublabel": "Tư vấn qua Zalo",
+      "pos": [60, 320],
+      "size": [140, 60]
+    },
+    {
+      "id": "zalo_platform",
+      "type": "external",
+      "label": "Zalo Web",
+      "sublabel": "chat.zalo.me",
+      "pos": [310, 100],
+      "size": [140, 60]
+    },
+    {
+      "id": "chrome_ext",
+      "type": "frontend",
+      "label": "Chrome Extension",
+      "sublabel": "Edge Capture Agent",
+      "pos": [310, 240],
+      "size": [140, 60],
+      "tag": "Thu Thập Trung Gian"
+    },
+    {
+      "id": "ai_discovery_system",
+      "type": "backend",
+      "label": "AI Discovery Core",
+      "sublabel": "Ingestion & AI Insights",
+      "pos": [560, 240],
+      "size": [160, 60],
+      "tag": "Hệ Thống Trọng Tâm"
+    },
+    {
+      "id": "amis_crm",
+      "type": "security",
+      "label": "MISA AMIS CRM",
+      "sublabel": "misajsc.amis.vn/crm",
+      "pos": [560, 380],
+      "size": [160, 60],
+      "tag": "Kho Insights Đích"
+    },
+    {
+      "id": "sales_manager",
+      "type": "external",
+      "label": "Quản lý Kinh doanh",
+      "sublabel": "Trưởng phòng / GĐ",
+      "pos": [760, 100],
+      "size": [150, 60]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Phạm vi Doanh nghiệp & Hạ tầng Nội bộ",
+      "wraps": ["sales_agent", "chrome_ext", "ai_discovery_system", "amis_crm", "sales_manager"]
+    },
+    {
+      "kind": "security-group",
+      "label": "Kênh Giao tiếp Ngoài (Zalo Platform)",
+      "wraps": ["customer", "zalo_platform"]
+    }
+  ],
+  "connections": [
+    { "id": "cust-zalo",    "from": "customer",          "to": "zalo_platform",      "label": "Trao đổi nhu cầu" },
+    { "id": "sales-zalo",   "from": "sales_agent",       "to": "zalo_platform",      "label": "Nhắn tin tư vấn",       "fromSide": "top",    "toSide": "bottom" },
+    { "id": "sales-ext",    "from": "sales_agent",       "to": "chrome_ext",         "label": "Kích hoạt đồng bộ",     "variant": "emphasis" },
+    { "id": "ext-zalo",     "from": "chrome_ext",        "to": "zalo_platform",      "label": "Đọc DOM hội thoại",     "fromSide": "top",    "toSide": "bottom" },
+    { "id": "ext-ai",       "from": "chrome_ext",        "to": "ai_discovery_system","label": "POST Header Bearer",    "variant": "emphasis" },
+    { "id": "ai-crm",       "from": "ai_discovery_system","to": "amis_crm",          "label": "Đồng bộ Insights 7 mục","variant": "security", "labelDy": 24 },
+    { "id": "manager-crm",  "from": "sales_manager",     "to": "amis_crm",           "label": "Xem thẻ KH 360",        "fromSide": "bottom", "toSide": "top" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Mục Tiêu Cốt Lõi Nghiệp Vụ",
+      "items": [
+        "Biến toàn bộ lịch sử trò chuyện bán hàng Zalo thành kho tri thức có cấu trúc về khách hàng.",
+        "Chrome Extension chỉ là agent trung gian thu thập; AI bên dưới giải mã nhu cầu & người quyết định."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Hệ Thống Trọng Tâm (AI Discovery Core)",
+      "items": [
+        "Bao gồm Ingestion Gateway, Kafka Queue, Kho lịch sử, Bộ tách MST/CCCD và Cụm Local LLM nội bộ.",
+        "Tự động chuẩn hóa khách hàng theo 7 mục khám phá phục vụ bán hàng B2B."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Giá Trị Bàn Giao Cho Bán Hàng",
+      "items": [
+        "Tự động điền thẻ Khách hàng 360 trên MISA AMIS CRM (https://misajsc.amis.vn/crm).",
+        "NVKD và Quản lý nắm chắc khả năng mua 45 ngày, ngân sách và cam kết bước tiếp theo."
+      ]
+    }
+  ]
+}

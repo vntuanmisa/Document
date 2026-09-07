@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Quy Trình AI Xử Lý Tóm Tắt 7 Mục Khám Phá Khách Hàng",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "animation": "trace",
+    "views": [
+      {
+        "id": "prep-flow",
+        "label": "Tuyến Chuẩn Bị & Bóc Tách",
+        "focus": ["kafka", "prep", "ner", "prompt"],
+        "note": "AI Worker lấy tin nhắn từ Kafka, gom cặp Sender-Contact và nhận diện MST/CCCD."
+      },
+      {
+        "id": "llm-crm-flow",
+        "label": "Tuyến Suy Luận LLM & Đồng Bộ CRM",
+        "focus": ["prompt", "llm", "guard", "crm"],
+        "note": "Local LLM suy luận 7 mục khám phá, Guardrail rà soát chống ảo giác và lưu vào MISA AMIS CRM."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "kafka",  "type": "messagebus", "label": "Kafka",          "sublabel": "zalo.messages.raw"  },
+    { "id": "prep",   "type": "backend",    "label": "Gom Cặp",        "sublabel": "Sort Lịch Sử"       },
+    { "id": "ner",    "type": "backend",    "label": "Bóc Tách",       "sublabel": "MST / CCCD 10/12/13"},
+    { "id": "prompt", "type": "backend",    "label": "Prompt Eng",     "sublabel": "Lắp Prompt 7 Mục"   },
+    { "id": "llm",    "type": "security",   "label": "Local LLM",      "sublabel": "On-Prem GPU"        },
+    { "id": "guard",  "type": "backend",    "label": "Guardrail",      "sublabel": "Anti-Hallucinate"   },
+    { "id": "crm",    "type": "database",   "label": "AMIS CRM",       "sublabel": "Thẻ Khách Hàng 360" }
+  ],
+  "segments": [
+    { "from": 155, "to": 315, "label": "Phase 1: Tiêu Thụ Hàng Đợi & Chuẩn Bị Dữ Liệu" },
+    { "from": 335, "to": 485, "label": "Phase 2: Lắp Context & Suy Luận Local LLM" },
+    { "from": 505, "to": 665, "label": "Phase 3: Kiểm Soát Chống Ảo Giác & Ghi AMIS CRM" }
+  ],
+  "messages": [
+    { "id": "m01", "from": "kafka",  "to": "prep",   "y": 185, "label": "Consume message batch: raw chat + metadata",     "variant": "dashed"   },
+    { "id": "m02", "from": "prep",   "to": "ner",    "y": 230, "label": "Gom cặp Sender-Contact, xếp theo dòng thời gian","variant": "default"  },
+    { "id": "m03", "from": "ner",    "to": "prompt", "y": 280, "label": "Trích xuất MST (10/13 số) hoặc CCCD (12 số)",    "variant": "emphasis" },
+    { "id": "m04", "from": "prompt", "to": "llm",    "y": 360, "label": "Lắp System Prompt 7 mục + Lịch sử hội thoại",    "variant": "emphasis" },
+    { "id": "m05", "from": "llm",    "to": "guard",  "y": 435, "label": "Sinh tóm tắt Markdown: 7 gạch đầu dòng khám phá", "variant": "security" },
+    { "id": "m06", "from": "guard",  "to": "prompt", "y": 525, "label": "Kiểm tra chống bịa đặt (thông tin thiếu ghi 'Chưa rõ')", "variant": "return" },
+    { "id": "m07", "from": "guard",  "to": "crm",    "y": 585, "label": "PUT /customers/{id}/insights  (Cập nhật Thẻ 360)","variant": "security" },
+    { "id": "m08", "from": "crm",    "to": "guard",  "y": 635, "label": "200 OK — Lưu trữ thành công trên MISA AMIS CRM", "variant": "return"   }
+  ],
+  "activations": [
+    { "participant": "prep",   "from": 180, "to": 238, "type": "backend"    },
+    { "participant": "ner",    "from": 225, "to": 288, "type": "backend"    },
+    { "participant": "prompt", "from": 275, "to": 370, "type": "backend"    },
+    { "participant": "llm",    "from": 355, "to": 445, "type": "security"   },
+    { "participant": "guard",  "from": 430, "to": 642, "type": "backend"    },
+    { "participant": "crm",    "from": 580, "to": 642, "type": "database"   }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Bóc Tách Mã Số Thuế & CCCD",
+      "items": [
+        "Thuật toán regex rà quét tiêu đề hội thoại và từng tin nhắn để nhận dạng MST (10 hoặc 13 số) hoặc CCCD (12 số).",
+        "Định danh chính xác pháp nhân doanh nghiệp để map với dữ liệu khách hàng sẵn có trên AMIS CRM."
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Prompt 7 Mục Khám Phá Khách Hàng",
+      "items": [
+        "1. Khách hàng | 2. Quy mô | 3. Hiện trạng & Khả năng chốt 45 ngày | 4. Tiêu chí chọn.",
+        "5. Người quyết định (DM/EB) | 6. Ngân sách | 7. Cam kết hai bên & Next action."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Kiểm Soát Ảo Giác & An Toàn On-Premise",
+      "items": [
+        "Quy tắc nghiêm ngặt: chỉ tóm tắt sự kiện có trong hội thoại, nếu khách chưa đề cập bắt buộc ghi 'Chưa rõ'.",
+        "Mô hình LLM chạy nội bộ trên máy chủ GPU riêng, không gửi bất kỳ dữ liệu khách hàng nào ra Internet."
+      ]
+    }
+  ]
+}

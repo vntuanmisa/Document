@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "C4 Level 3: Cấu trúc Thành phần AI Summary Engine & Xử lý Prompt 7 Mục",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "entity-and-prompt",
+        "label": "Tuyến Trích xuất & Tạo Prompt",
+        "focus": ["scheduler", "conv_aggregator", "entity_detector", "transcript_builder", "prompt_engine"],
+        "note": "Truy vấn hội thoại thô, tự động nhận diện MST/CCCD và đóng gói vào Prompt 7 mục."
+      },
+      {
+        "id": "inference-and-sync",
+        "label": "Tuyến Suy luận AI & Đồng bộ CRM",
+        "focus": ["prompt_engine", "llm_connector", "local_llm", "validator_parser", "crm_sync_adapter", "amis_crm"],
+        "note": "Gọi Local LLM suy luận, kiểm tra tính chuẩn tắc và đẩy hồ sơ 360 vào MISA AMIS CRM."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "history_lake",
+      "type": "database",
+      "label": "Kho Lịch Sử Chat",
+      "sublabel": "Raw Messages DB",
+      "pos": [40, 140],
+      "size": [130, 60],
+      "tag": "Dữ liệu Nguồn"
+    },
+    {
+      "id": "scheduler",
+      "type": "backend",
+      "label": "Bộ Điều Lịch",
+      "sublabel": "Cron Runner",
+      "pos": [270, 140],
+      "size": [130, 60],
+      "tag": "1-2 lần/ngày"
+    },
+    {
+      "id": "conv_aggregator",
+      "type": "backend",
+      "label": "Gom Hội Thoại",
+      "sublabel": "Sender & Contact",
+      "pos": [500, 140],
+      "size": [130, 60],
+      "tag": "Tách Cặp Trao Đổi"
+    },
+    {
+      "id": "entity_detector",
+      "type": "backend",
+      "label": "Nhận Diện MST/CCCD",
+      "sublabel": "Regex 10/12/13 số",
+      "pos": [740, 140],
+      "size": [140, 60],
+      "tag": "Định Danh Khách"
+    },
+    {
+      "id": "transcript_builder",
+      "type": "backend",
+      "label": "Dựng Transcript",
+      "sublabel": "Xếp theo dòng thời gian",
+      "pos": [740, 340],
+      "size": [140, 60],
+      "tag": "Context Dòng Chảy"
+    },
+    {
+      "id": "prompt_engine",
+      "type": "backend",
+      "label": "Prompt Engine",
+      "sublabel": "Template 7 Mục",
+      "pos": [500, 340],
+      "size": [130, 60],
+      "tag": "Chỉ dùng data thật"
+    },
+    {
+      "id": "llm_connector",
+      "type": "backend",
+      "label": "Kết Nối Local LLM",
+      "sublabel": "vLLM Client",
+      "pos": [270, 340],
+      "size": [130, 60],
+      "tag": "OpenAI Compatible"
+    },
+    {
+      "id": "local_llm",
+      "type": "security",
+      "label": "Local AI Model",
+      "sublabel": "Self-hosted LLM",
+      "pos": [40, 340],
+      "size": [130, 60],
+      "tag": "On-premise Private"
+    },
+    {
+      "id": "validator_parser",
+      "type": "backend",
+      "label": "Kiểm Tra & Chuẩn Hóa",
+      "sublabel": "Gạch đầu dòng / Chưa rõ",
+      "pos": [500, 520],
+      "size": [130, 60],
+      "tag": "Quality Guard"
+    },
+    {
+      "id": "crm_sync_adapter",
+      "type": "backend",
+      "label": "Adapter AMIS CRM",
+      "sublabel": "Cập nhật Hồ sơ 360",
+      "pos": [740, 520],
+      "size": [140, 60],
+      "tag": "REST Client"
+    },
+    {
+      "id": "amis_crm",
+      "type": "security",
+      "label": "MISA AMIS CRM",
+      "sublabel": "misajsc.amis.vn/crm",
+      "pos": [960, 520],
+      "size": [140, 60],
+      "tag": "Thẻ Khách 360"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "security-group",
+      "label": "Nội bộ Container: AI Summary Engine",
+      "wraps": ["scheduler", "conv_aggregator", "entity_detector", "transcript_builder", "prompt_engine", "llm_connector", "validator_parser", "crm_sync_adapter"]
+    },
+    {
+      "kind": "region",
+      "label": "Hệ Thống Phối Hợp Xung Quanh",
+      "wraps": ["history_lake", "local_llm", "amis_crm"]
+    }
+  ],
+  "connections": [
+    { "id": "sched-agg", "from": "scheduler", "to": "conv_aggregator", "label": "Kích hoạt" },
+    { "id": "agg-lake", "from": "conv_aggregator", "to": "history_lake", "label": "Truy vấn tin nhắn", "fromSide": "top", "toSide": "top" },
+    { "id": "agg-detect", "from": "conv_aggregator", "to": "entity_detector", "label": "Phân tích cặp chat" },
+    { "id": "detect-trans", "from": "entity_detector", "to": "transcript_builder", "fromSide": "bottom", "toSide": "top" },
+    { "id": "trans-prompt", "from": "transcript_builder", "to": "prompt_engine", "label": "Gắn ngữ cảnh" },
+    { "id": "prompt-llmcon", "from": "prompt_engine", "to": "llm_connector", "label": "Gửi Prompt 7 mục" },
+    { "id": "llmcon-model", "from": "llm_connector", "to": "local_llm", "label": "Suy luận AI", "variant": "security" },
+    { "id": "llmcon-valid", "from": "llm_connector", "to": "validator_parser", "label": "Kết quả tóm tắt", "fromSide": "bottom", "toSide": "left" },
+    { "id": "valid-sync", "from": "validator_parser", "to": "crm_sync_adapter", "label": "7 mục chuẩn hóa" },
+    { "id": "sync-amis", "from": "crm_sync_adapter", "to": "amis_crm", "variant": "security" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Nhận Diện Thực Thể (MST / CCCD)",
+      "items": [
+        "Tự động trích xuất MST (10 hoặc 13 chữ số) và CCCD (12 chữ số) từ ContactName hoặc nội dung hội thoại.",
+        "Định danh chính xác doanh nghiệp/cá nhân để liên kết với dữ liệu khách hàng có sẵn trên AMIS CRM."
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Kỹ Thuật Prompt 7 Mục Khám Phá",
+      "items": [
+        "Khách hàng | Quy mô nhân sự | Hiện trạng & Khả năng mua trong 45 ngày | Tiêu chí chọn giải pháp.",
+        "Người quyết định/đầu mối | Ngân sách & Tình trạng | Cam kết & Next step (Ai tham gia, thời gian dự kiến)."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Chất Lượng & Bảo Mật AI",
+      "items": [
+        "Chỉ trích xuất dữ liệu có trong hội thoại thật, nếu thiếu ghi rõ 'Chưa rõ' tránh AI ảo giác (hallucination).",
+        "Local LLM chạy on-premise nội bộ, hoàn toàn không đẩy bí mật kinh doanh lên cloud công cộng."
+      ]
+    }
+  ]
+}

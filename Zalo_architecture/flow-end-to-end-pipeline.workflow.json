@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Workflow: Luồng Dữ liệu Toàn trình từ Zalo Chat đến MISA AMIS CRM",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "capture-and-ingest",
+        "label": "Tuyến 1: Thu Thập & Tiếp Nhận",
+        "focus": ["user_chat", "ext_capture", "post_gateway", "kafka_stream"],
+        "note": "Hội thoại bán hàng được Extension thu thập và đẩy qua Ingestion Gateway vào Kafka."
+      },
+      {
+        "id": "ai-and-crm",
+        "label": "Tuyến 2: Kho & AI Khám Phá",
+        "focus": ["history_lake", "extract_entity", "llm_summary", "amis_profile"],
+        "note": "Consumer lưu kho lịch sử, AI Engine nhận diện MST/CCCD và chạy Local LLM đồng bộ CRM."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "chat_channel",  "label": "Kênh Chat Zalo" },
+    { "id": "ext_layer",     "label": "Chrome Extension" },
+    { "id": "gateway_layer", "label": "Ingestion Gateway" },
+    { "id": "kafka_layer",   "label": "Kafka Queue" },
+    { "id": "storage_layer", "label": "Kho Lịch Sử" },
+    { "id": "entity_layer",  "label": "Nhận Diện Thực Thể" },
+    { "id": "llm_layer",     "label": "Local LLM" },
+    { "id": "crm_layer",     "label": "MISA AMIS CRM" }
+  ],
+  "phases": [
+    { "id": "p1", "label": "Phase 1: Thu Thập",         "fromCol": 0, "toCol": 1 },
+    { "id": "p2", "label": "Phase 2: Tiếp Nhận & Kho", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "p3", "label": "Phase 3: AI & CRM",         "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["user_chat","ext_capture","post_gateway","kafka_stream","history_lake","extract_entity","llm_summary","amis_profile"],
+  "nodes": [
+    { "id": "user_chat",      "lane": "chat_channel",  "col": 0, "width": 80, "type": "frontend",   "label": "Chat Zalo",   "sublabel": "NVKD & Khách" },
+    { "id": "ext_capture",    "lane": "ext_layer",     "col": 1, "width": 80, "type": "backend",    "label": "Gom Tin",     "sublabel": "DOM SHA-256" },
+    { "id": "post_gateway",   "lane": "gateway_layer", "col": 2, "width": 80, "type": "backend",    "label": "Ingest API",  "sublabel": "Header Token" },
+    { "id": "kafka_stream",   "lane": "kafka_layer",   "col": 3, "width": 80, "type": "messagebus", "label": "Kafka",       "sublabel": "zalo.raw" },
+    { "id": "history_lake",   "lane": "storage_layer", "col": 3, "width": 80, "type": "database",   "label": "Kho Thô",     "sublabel": "Chat Lake" },
+    { "id": "extract_entity", "lane": "entity_layer",  "col": 4, "width": 80, "type": "backend",    "label": "Tách MST",    "sublabel": "10/12/13 số" },
+    { "id": "llm_summary",    "lane": "llm_layer",     "col": 5, "width": 80, "type": "security",   "label": "Local LLM",   "sublabel": "Prompt 7 Mục" },
+    { "id": "amis_profile",   "lane": "crm_layer",     "col": 5, "width": 80, "type": "database",   "label": "AMIS CRM",    "sublabel": "Thẻ KH 360" }
+  ],
+  "edges": [
+    { "from": "user_chat",      "to": "ext_capture",   "variant": "emphasis" },
+    { "from": "ext_capture",    "to": "post_gateway",  "variant": "emphasis" },
+    { "from": "post_gateway",   "to": "kafka_stream" },
+    { "from": "kafka_stream",   "to": "history_lake" },
+    { "from": "history_lake",   "to": "extract_entity" },
+    { "from": "extract_entity", "to": "llm_summary",  "variant": "security" },
+    { "from": "llm_summary",    "to": "amis_profile", "variant": "security" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Thu Thập Trung Gian (Edge Agent)",
+      "items": [
+        "NVKD trao đổi tự nhiên với khách hàng trên Zalo Web.",
+        "Chrome Extension là Edge Agent: thu thập tự động/bán tự động không làm gián đoạn bán hàng."
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Xếp Hàng & Bảo Toàn Dữ Liệu",
+      "items": [
+        "Ingestion API xác thực token qua Header, đẩy tức thì vào Apache Kafka buffer.",
+        "Toàn bộ hội thoại được lưu vết dài hạn trong kho lịch sử phục vụ phân tích lặp lại."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Chuyển Hóa Thành Doanh Thu",
+      "items": [
+        "Local LLM chuyển hội thoại rời rạc thành hồ sơ 7 mục tiêu chuẩn B2B.",
+        "Tự động điền vào MISA AMIS CRM (https://misajsc.amis.vn/crm) giúp NVKD chốt deal nhanh hơn."
+      ]
+    }
+  ]
+}
