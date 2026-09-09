@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bộ Tài Liệu Thiết Kế Kiến Trúc Text-to-SQL CRM Việt Nam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f8f9fa;
+      --paper-card: #ffffff;
+      --ink: #2d3142;
+      --muted: #4f5d75;
+      --soft: #7a8399;
+      --rule: rgba(45, 49, 66, 0.12);
+      --accent: #eb6c36;
+      --accent-tint: rgba(235, 108, 54, 0.08);
+      --link: #2e5aa8;
+      --link-tint: rgba(46, 90, 168, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      padding: 3rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 1160px;
+    }
+    header {
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 1.5rem;
+    }
+    .eyebrow {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+    .lead {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 860px;
+    }
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+    .metric-card {
+      background: var(--paper-card);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 1.2rem;
+    }
+    .metric-val {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.25rem;
+    }
+    .metric-val.accent { color: var(--accent); }
+    .metric-val.link { color: var(--link); }
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .diagram-card {
+      background: var(--paper-card);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .diagram-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(45, 49, 66, 0.08);
+      border-color: var(--accent);
+    }
+    .badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .badge.uml { background: var(--link-tint); color: var(--link); }
+    .badge.arch { background: var(--accent-tint); color: var(--accent); }
+    .badge.flow { background: rgba(79, 93, 117, 0.1); color: var(--muted); }
+    .card-no {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--soft);
+    }
+    .diagram-card h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+      line-height: 1.35;
+    }
+    .diagram-card p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+      flex-grow: 1;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--link);
+      padding-top: 1rem;
+      border-top: 1px solid var(--rule);
+    }
+    .diagram-card:hover .card-footer {
+      color: var(--accent);
+    }
+    footer {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--rule);
+      font-size: 0.8rem;
+      color: var(--soft);
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <p class="eyebrow">ENTERPRISE TEXT-TO-SQL ARCHITECTURE SUITE</p>
+      <h1>Kiến Trúc Text-to-SQL CRM Doanh Nghiệp Việt Nam</h1>
+      <p class="lead">Bộ 8 sơ đồ kiến trúc hoàn chỉnh theo chuẩn <code>diagram-design</code> kết hợp nghiên cứu Arun Shankar và DAIL-SQL: Tối ưu 100% CPU Orchestration, bảo vệ DB qua thẩm định EXPLAIN và tự sửa lỗi thông minh.</p>
+    </header>
+
+    <section class="metrics-bar">
+      <div class="metric-card">
+        <div class="metric-val accent">100% CPU</div>
+        <div class="metric-label">Hạ tầng điều phối (Không cần GPU RAG)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val link">&lt;5 ms</div>
+        <div class="metric-label">Tốc độ bóc tách Intent &amp; Entity (Pattern I)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">88.5%</div>
+        <div class="metric-label">Độ chính xác truy vấn sau tự sửa lỗi</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val link">3000 ms</div>
+        <div class="metric-label">Hard Timeout bảo vệ cơ sở dữ liệu</div>
+      </div>
+    </section>
+
+    <h2 class="section-title">Danh Sách 8 Mô Hình Thiết Kế</h2>
+
+    <div class="grid">
+      <!-- 01 Use Case -->
+      <a class="diagram-card" href="01_use_case_diagram.html">
+        <div>
+          <div class="badge-row">
+            <span class="badge uml">UML USE CASE</span>
+            <span class="card-no">#01</span>
+          </div>
+          <h3>Sơ Đồ Ca Sử Dụng (Use Case Diagram)</h3>
+          <p>Mô tả tương tác của 2 tác tử chính (Sales / CSKH và Quản trị viên dữ liệu) với 6 ca sử dụng cốt lõi: Truy vấn tự nhiên, Thẩm định EXPLAIN, Tự sửa lỗi, và Cắt tỉa lược đồ.</p>
+        </div>
+        <div class="card-footer">
+          <span>Xem sơ đồ chi tiết &rarr;</span>
+          <span>HTML + SVG</span>
+        </div>
+      </a>
+
+      <!-- 02 C4 Model -->
+      <a class="diagram-card" href="02_c4_model_diagram.html">
+        <div>
+          <div class="badge-row">
+            <span class="badge arch">C4 CONTAINER</span>
+            <span class="card-no">#02</span>
+          </div>
+          <h3>Mô Hình C4 (C4 Container Diagram)</h3>
+          <p>Phân tách rõ ràng ranh giới phần cứng giữa Ingress Gateway, CPU Orchestrator thuần CPU, Private LLM Server độc lập và CRM Read-Replica tách rời Master.</p>
+        </div>
+        <div class="card-footer">
+          <span>Xem sơ đồ chi tiết &rarr;</span>
+          <span>HTML + SVG</span>
+        </div>
+      </a>
+
+      <!-- 03 Hybrid Architecture -->
+      <a class="diagram-card" href="03_hybrid_architecture.html">
+        <div>
+          <div class="badge-row">
+            <span class="badge arch">SYSTEM ARCH</span>
+            <span class="card-no">#03</span>
+          </div>
+          <h3>Kiến Trúc Tổng Thể Hybrid Pipeline</h3>
+          <p>Mô hình phối hợp 5 mẫu kiến trúc của Arun Shankar: Pattern I (Intent), Pattern II (Schema RAG), DAIL-SQL Skeleton, Pattern IV (Self-Correction) và Pattern V (Cost Selector).</p>
+        </div>
+        <div class="card-footer">
+          <span>Xem sơ đồ chi tiết &rarr;</span>
+          <span>HTML + SVG</span>
+        </div>
+      </a>
+
+      <!-- 04 Data Flow -->
+      <a class="diagram-card" href="04_data_flow_diagram.html">
+        <div>
+          <div class="badge-row">
+            <span class="badge flow">DATA FLOW</span>
+            <span class="card-no">#04</span>
+          </div>
+          <h3>Sơ Đồ Luồng Dữ Liệu (DFD Cấp 1 &amp; 2)</h3>
+          <p>Đặc tả 7 trạm biến đổi kiểu dữ liệu trung gian: Từ câu hỏi thô $\to$ Token thực thể $\to$ Sub-Schema DDL $\to$ Prompt $\to$ Raw SQL $\to$ Cây AST $\to$ Bảng kết quả sạch.</p>
+        </div>
+        <div class="card-footer">
+          <span>Xem sơ đồ chi tiết &rarr;</span>
+          <span>HTML + SVG</span>
+        </div>
+      </a>
+
+      <!-- 05 UML Sequence -->
+      <a class="diagram-card" href="05_uml_sequence_diagram.html">
+        <div>
+          <div class="badge-row">
+            <span class="badge uml">UML SEQUENCE</span>
+            <span class="card-no">#05</span>
+          </div>
+          <h3>Biểu Đồ Tuần Tự UML (Sequence Diagram)</h3>
+          <p>Chi tiết luồng trao đổi thông điệp qua 5 đường sống (Lifelines) và khối phân nhánh ALT mô phỏng trường hợp DB báo lỗi cú pháp và phản hồi LLM tự sửa lỗi.</p>
+        </div>
+        <div class="card-footer">
+          <span>Xem sơ đồ chi tiết &rarr;</span>
+          <span>HTML + SVG</span>
+        </div>
+      </a>
+
+      <!-- 06 UML Class & ER -->
+      <a class="diagram-card" href="06_uml_class_er_diagram.html">
+        <div>
+          <div class="badge-row">
+            <span class="badge uml">UML CLASS &amp; ER</span>
+            <span class="card-no">#06</span>
+          </div>
+          <h3>Biểu Đồ UML Lớp &amp; Mô Hình Dữ Liệu</h3>
+          <p>Mô tả 4 thực thể CRM (Customer, Order, OrderItem, Product) với các quan hệ Composition, Association và các đối tượng miền xử lý: QueryIntent, BusinessOntology, ExplainDiagnostic.</p>
+        </div>
+        <div class="card-footer">
+          <span>Xem sơ đồ chi tiết &rarr;</span>
+          <span>HTML + SVG</span>
+        </div>
+      </a>
+
+      <!-- 07 Deployment -->
+      <a class="diagram-card" href="07_deployment_infrastructure.html">
+        <div>
+          <div class="badge-row">
+            <span class="badge arch">DEPLOYMENT</span>
+            <span class="card-no">#07</span>
+          </div>
+          <h3>Mô Hình Triển Khai Hạ Tầng &amp; Mạng</h3>
+          <p>Thiết kế topo máy chủ vật lý On-Premise: DMZ Ingress Nginx, App Node 4 vCPU 8GB RAM, Private LLM Enclave và cụm DB Read-Replica chỉ đọc an toàn tuyệt đối.</p>
+        </div>
+        <div class="card-footer">
+          <span>Xem sơ đồ chi tiết &rarr;</span>
+          <span>HTML + SVG</span>
+        </div>
+      </a>
+
+      <!-- 08 State Machine -->
+      <a class="diagram-card" href="08_prompt_flow_state_machine.html">
+        <div>
+          <div class="badge-row">
+            <span class="badge flow">STATE MACHINE</span>
+            <span class="card-no">#08</span>
+          </div>
+          <h3>Vòng Đời Trạng Thái Của Câu Lệnh</h3>
+          <p>Máy trạng thái hữu hạn kiểm soát 12 trạng thái: Từ QueryReceived qua Explaining, RePrompting tới Executed, Completed và rẽ nhánh an toàn FailedSafe khi vi phạm.</p>
+        </div>
+        <div class="card-footer">
+          <span>Xem sơ đồ chi tiết &rarr;</span>
+          <span>HTML + SVG</span>
+        </div>
+      </a>
+    </div>
+
+    <footer>
+      <span>Tài liệu kiến trúc Text-to-SQL CRM Doanh Nghiệp Việt Nam</span>
+      <span>Chuẩn thiết kế Diagram-Design · Font Inter · 4px Grid</span>
+    </footer>
+  </div>
+
+</body>
+</html>

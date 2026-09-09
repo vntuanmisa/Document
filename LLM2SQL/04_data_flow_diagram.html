@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sơ Đồ Luồng Dữ Liệu (Data Flow Diagram - DFD) - Text-to-SQL CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f5f5f5;
+      --paper-2: #ececec;
+      --ink: #2d3142;
+      --muted: #4f5d75;
+      --soft: #7a8399;
+      --rule: rgba(45, 49, 66, 0.12);
+      --rule-solid: #bfc0c0;
+      --accent: #eb6c36;
+      --accent-tint: rgba(235, 108, 54, 0.08);
+      --link: #2e5aa8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .header {
+      width: 100%;
+      max-width: 1140px;
+      margin-bottom: 2rem;
+    }
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Top-Right Floating Export Toolbar */
+    .export-toolbar {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      gap: 8px;
+      z-index: 9999;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 5px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(45, 49, 66, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    .export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink);
+      background: #ffffff;
+      border: 1px solid rgba(45, 49, 66, 0.15);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1;
+    }
+    .export-btn:hover {
+      background: var(--paper);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .export-btn svg {
+      width: 13px;
+      height: 13px;
+      min-width: 13px;
+      stroke: currentColor;
+    }
+    .diagram-container {
+      width: 100%;
+      max-width: 1140px;
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .cards-grid {
+      width: 100%;
+      max-width: 1140px;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr 0.85fr;
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 1.25rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    .card-dot.accent { background: var(--accent); }
+    .card-dot.link { background: var(--link); }
+    .card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .card p, .card li {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .card ul {
+      padding-left: 1.2rem;
+      margin-top: 0.5rem;
+    }
+    .card li { margin-bottom: 0.35rem; }
+    footer {
+      width: 100%;
+      max-width: 1140px;
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--rule);
+      font-size: 0.75rem;
+      color: var(--soft);
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top-Right Floating Export Toolbar -->
+  <div class="export-toolbar">
+    <button class="export-btn" onclick="exportDiagram('png')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Xuất PNG
+    </button>
+    <button class="export-btn" onclick="exportDiagram('svg')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Xuất SVG
+    </button>
+  </div>
+
+  <header class="header">
+    <p class="eyebrow">PIPELINE SPECIFICATION · DATA FLOW DIAGRAM (DFD)</p>
+    <h1>Sơ Đồ Luồng Dữ Liệu (DFD Cấp 1 &amp; 2)</h1>
+    <p class="subtitle">Đặc tả các trạm chuyển hóa dữ liệu từ câu hỏi ngôn ngữ tự nhiên thành JSON ý định, Sub-Schema, Prompt, Raw SQL, và Dữ liệu bảng sạch.</p>
+  </header>
+
+  <main class="diagram-container">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 660" role="img" aria-labelledby="dfd-diag-title dfd-diag-desc">
+      <title id="dfd-diag-title">Data Flow Diagram - Text-to-SQL Pipeline</title>
+      <desc id="dfd-diag-desc">Sơ đồ luồng dữ liệu biểu diễn các gói tin trung gian và các bước chuyển đổi kiểu dữ liệu qua 5 trạm xử lý và vòng lặp tự sửa lỗi.</desc>
+
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+        </marker>
+      </defs>
+
+      <!-- Background -->
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- CONNECTORS (Paint first) -->
+      <!-- Input 1: Sales to P1 -->
+      <line x1="148" y1="120" x2="204" y2="120" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+
+      <!-- P1 to P2 -->
+      <line x1="344" y1="120" x2="396" y2="120" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="348" y="106" width="44" height="12" rx="2" fill="#ffffff"/>
+      <text x="370" y="115" fill="#4f5d75" font-size="7.5" font-weight="600" text-anchor="middle">INTENT</text>
+
+      <!-- Ontology DB (x=274, y=24) to P1 & P2 -->
+      <path d="M 370,48 V 84 Q 370,92 362,92 H 344" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+      <path d="M 370,48 V 84 Q 370,92 378,92 H 396" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+
+      <!-- P2 to P3 -->
+      <line x1="536" y1="120" x2="588" y2="120" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="540" y="106" width="44" height="12" rx="2" fill="#ffffff"/>
+      <text x="562" y="115" fill="#4f5d75" font-size="7.5" font-weight="600" text-anchor="middle">SCHEMA</text>
+
+      <!-- Golden Store to P3 -->
+      <path d="M 660,48 V 84" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <rect x="664" y="60" width="44" height="12" rx="2" fill="#ffffff"/>
+      <text x="686" y="69" fill="#4f5d75" font-size="7" font-weight="500" text-anchor="middle">SKELETON</text>
+
+      <!-- P3 to P4 (Prompt Builder) -->
+      <line x1="732" y1="120" x2="784" y2="120" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="736" y="106" width="44" height="12" rx="2" fill="#ffffff"/>
+      <text x="758" y="115" fill="#4f5d75" font-size="7.5" font-weight="600" text-anchor="middle">FEW-SHOT</text>
+
+      <!-- P4 to Black-Box LLM -->
+      <path d="M 928,120 H 968 Q 976,120 976,128 V 268 Q 976,276 968,276 H 928" fill="none" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <rect x="948" y="192" width="76" height="12" rx="2" fill="#ffffff"/>
+      <text x="986" y="201" fill="#eb6c36" font-size="7.5" font-weight="600" text-anchor="middle">RAW PROMPT</text>
+
+      <!-- Black-Box LLM to P5 (AST Filter) -->
+      <line x1="784" y1="276" x2="732" y2="276" stroke="#eb6c36" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-accent)"/>
+      <rect x="736" y="262" width="44" height="12" rx="2" fill="#ffffff"/>
+      <text x="758" y="271" fill="#eb6c36" font-size="7.5" font-weight="600" text-anchor="middle">RAW SQL</text>
+
+      <!-- P5 to P6 (EXPLAIN Validator) -->
+      <line x1="588" y1="276" x2="536" y2="276" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="540" y="262" width="44" height="12" rx="2" fill="#ffffff"/>
+      <text x="562" y="271" fill="#4f5d75" font-size="7.5" font-weight="600" text-anchor="middle">SELECT OK</text>
+
+      <!-- P6 (EXPLAIN) to CRM Read-Replica DB (Test EXPLAIN) -->
+      <path d="M 466,312 V 380 Q 466,388 474,388 H 784" fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <rect x="580" y="382" width="96" height="12" rx="2" fill="#ffffff"/>
+      <text x="628" y="391" fill="#2e5aa8" font-size="7.5" font-weight="600" text-anchor="middle">EXPLAIN JSON TEST</text>
+
+      <!-- Read-Replica returns DB Error back to P6 -->
+      <path d="M 856,424 V 472 Q 856,480 848,480 H 474 Q 466,480 466,472 V 312" fill="none" stroke="#eb6c36" stroke-width="1" stroke-dasharray="4,3"/>
+      <rect x="620" y="474" width="80" height="12" rx="2" fill="#ffffff"/>
+      <text x="660" y="483" fill="#eb6c36" font-size="7.5" font-weight="600" text-anchor="middle">DB ERROR MSG</text>
+
+      <!-- P6 Self-Correction Loop back to Black-Box LLM -->
+      <path d="M 466,240 V 204 Q 466,196 474,196 H 848 Q 856,196 856,204 V 240" fill="none" stroke="#eb6c36" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-accent)"/>
+      <rect x="612" y="190" width="128" height="12" rx="2" fill="#ffffff"/>
+      <text x="676" y="199" fill="#eb6c36" font-size="7.5" font-weight="600" text-anchor="middle">FEEDBACK RE-PROMPT (≤2 LẦN)</text>
+
+      <!-- P6 (EXPLAIN success) to P7 (Cost Selector) -->
+      <line x1="396" y1="276" x2="344" y2="276" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="350" y="262" width="40" height="12" rx="2" fill="#ffffff"/>
+      <text x="370" y="271" fill="#4f5d75" font-size="7.5" font-weight="600" text-anchor="middle">NO ERR</text>
+
+      <!-- P7 to Read-Replica Execution -->
+      <path d="M 274,312 V 532 Q 274,540 282,540 H 848 Q 856,540 856,532 V 424" fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <rect x="480" y="534" width="168" height="12" rx="2" fill="#ffffff"/>
+      <text x="564" y="543" fill="#2e5aa8" font-size="7.5" font-weight="600" text-anchor="middle">SAFE SQL (LIMIT 100, TIMEOUT 3S)</text>
+
+      <!-- Read-Replica returns Final Result Rows back to Sales User -->
+      <path d="M 784,404 H 88 Q 80,404 80,396 V 160" fill="none" stroke="#2e5aa8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+      <rect x="180" y="398" width="128" height="12" rx="2" fill="#ffffff"/>
+      <text x="244" y="407" fill="#2e5aa8" font-size="7.5" font-weight="600" text-anchor="middle">CLEAN RESULT DATA TABLE</text>
+
+
+      <!-- DATA STORES (TOP) -->
+      <!-- DS-1: Business Ontology -->
+      <g transform="translate(300, 16)">
+        <path d="M 0,0 H 140 M 0,32 H 140" stroke="#4f5d75" stroke-width="1.2"/>
+        <rect x="0" y="0" width="140" height="32" fill="rgba(45,49,66,0.03)"/>
+        <text x="70" y="16" fill="#2d3142" font-size="9" font-weight="600" text-anchor="middle">D1: Từ Điển Nghiệp Vụ</text>
+        <text x="70" y="27" fill="#4f5d75" font-size="7.5" text-anchor="middle">Ánh xạ B2B, HN, Tiền về</text>
+      </g>
+
+      <!-- DS-2: Golden SQL Dataset -->
+      <g transform="translate(590, 16)">
+        <path d="M 0,0 H 140 M 0,32 H 140" stroke="#4f5d75" stroke-width="1.2"/>
+        <rect x="0" y="0" width="140" height="32" fill="rgba(45,49,66,0.03)"/>
+        <text x="70" y="16" fill="#2d3142" font-size="9" font-weight="600" text-anchor="middle">D2: Kho Mẫu Golden SQL</text>
+        <text x="70" y="27" fill="#4f5d75" font-size="7.5" text-anchor="middle">50 cặp Question-SQL</text>
+      </g>
+
+
+      <!-- EXTERNAL ENTITIES -->
+      <!-- E1: Nhân viên Sales / CSKH -->
+      <g transform="translate(24, 88)">
+        <rect x="0" y="0" width="124" height="64" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+        <text x="62" y="26" fill="#2d3142" font-size="10.5" font-weight="600" text-anchor="middle">E1: Sales / CSKH</text>
+        <text x="62" y="42" fill="#4f5d75" font-size="8" text-anchor="middle">Nhập tiếng Việt</text>
+        <text x="62" y="53" fill="#7a8399" font-size="7.5" text-anchor="middle">Nhận bảng kết quả</text>
+      </g>
+
+      <!-- E2: Black-Box LLM (Focal AI) -->
+      <g transform="translate(784, 240)">
+        <rect x="0" y="0" width="144" height="72" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="72" y="26" fill="#2d3142" font-size="10.5" font-weight="600" text-anchor="middle">E2: Black-Box LLM</text>
+        <text x="72" y="42" fill="#eb6c36" font-size="8" font-weight="600" text-anchor="middle">Mô Hình AI Nội Bộ</text>
+        <text x="72" y="56" fill="#4f5d75" font-size="7.5" text-anchor="middle">Sinh câu lệnh SQL thô</text>
+      </g>
+
+      <!-- E3: CRM Read-Replica DB (MySQL/PostgreSQL) -->
+      <g transform="translate(784, 368)">
+        <path d="M 0,0 H 144 M 0,56 H 144" stroke="#2e5aa8" stroke-width="1.4"/>
+        <rect x="0" y="0" width="144" height="56" fill="rgba(46,90,168,0.05)"/>
+        <text x="72" y="24" fill="#2d3142" font-size="10.5" font-weight="600" text-anchor="middle">D3: CRM Read-Replica</text>
+        <text x="72" y="38" fill="#2e5aa8" font-size="8" font-weight="600" text-anchor="middle">Chỉ Đọc (SELECT Only)</text>
+        <text x="72" y="49" fill="#4f5d75" font-size="7.5" text-anchor="middle">PostgreSQL / MySQL</text>
+      </g>
+
+
+      <!-- PROCESS STATIONS (CIRCULAR/ROUNDED BOXES) -->
+      <!-- P1: Trích xuất Ý định & Thực thể (Pattern I) -->
+      <g transform="translate(204, 88)">
+        <rect x="0" y="0" width="140" height="64" rx="32" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="70" y="26" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">1.0: Parse Intent</text>
+        <text x="70" y="40" fill="#4f5d75" font-size="8" text-anchor="middle">Bóc tách ý định &amp; entity</text>
+        <text x="70" y="51" fill="#7a8399" font-size="7.5" text-anchor="middle">Pattern I · CPU &lt;5ms</text>
+      </g>
+
+      <!-- P2: Định vị Lược đồ & Cầu nối FK (Pattern II) -->
+      <g transform="translate(396, 88)">
+        <rect x="0" y="0" width="140" height="64" rx="32" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="70" y="26" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">2.0: Schema RAG</text>
+        <text x="70" y="40" fill="#4f5d75" font-size="8" text-anchor="middle">Cắt tỉa 90% bảng thừa</text>
+        <text x="70" y="51" fill="#7a8399" font-size="7.5" text-anchor="middle">Pattern II · Nối cầu FK</text>
+      </g>
+
+      <!-- P3: Tuyển chọn Few-Shot Skeleton -->
+      <g transform="translate(588, 88)">
+        <rect x="0" y="0" width="144" height="64" rx="32" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="72" y="26" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">3.0: Skeleton Match</text>
+        <text x="72" y="40" fill="#4f5d75" font-size="8" text-anchor="middle">Khớp khung xương cú pháp</text>
+        <text x="72" y="51" fill="#7a8399" font-size="7.5" text-anchor="middle">DAIL-SQL Few-Shot</text>
+      </g>
+
+      <!-- P4: Lắp ráp Prompt (Focal) -->
+      <g transform="translate(784, 88)">
+        <rect x="0" y="0" width="144" height="64" rx="32" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="72" y="26" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">4.0: Assemble Prompt</text>
+        <text x="72" y="40" fill="#eb6c36" font-size="8" font-weight="600" text-anchor="middle">Đóng gói 4 thành phần</text>
+        <text x="72" y="51" fill="#4f5d75" font-size="7.5" text-anchor="middle">Thời gian + Luật + Mẫu</text>
+      </g>
+
+      <!-- P5: Kiểm tra AST An Toàn Tĩnh -->
+      <g transform="translate(588, 244)">
+        <rect x="0" y="0" width="144" height="64" rx="32" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="72" y="26" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">5.0: AST Security</text>
+        <text x="72" y="40" fill="#4f5d75" font-size="8" text-anchor="middle">Kiểm tra cú pháp tĩnh</text>
+        <text x="72" y="51" fill="#7a8399" font-size="7.5" text-anchor="middle">Chặn DML / Cho phép SELECT</text>
+      </g>
+
+      <!-- P6: Thẩm định Ảo EXPLAIN (Pattern IV - Focal) -->
+      <g transform="translate(396, 244)">
+        <rect x="0" y="0" width="140" height="64" rx="32" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="70" y="26" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">6.0: EXPLAIN Validate</text>
+        <text x="70" y="40" fill="#eb6c36" font-size="8" font-weight="600" text-anchor="middle">Pattern IV · Thẩm định ảo</text>
+        <text x="70" y="51" fill="#4f5d75" font-size="7.5" text-anchor="middle">Phản hồi lỗi sửa tự động</text>
+      </g>
+
+      <!-- P7: Đánh giá Chi phí & Thực thi (Pattern V) -->
+      <g transform="translate(204, 244)">
+        <rect x="0" y="0" width="140" height="64" rx="32" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="70" y="26" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">7.0: Cost &amp; Execute</text>
+        <text x="70" y="40" fill="#4f5d75" font-size="8" text-anchor="middle">Pattern V · Chặn quét bảng</text>
+        <text x="70" y="51" fill="#7a8399" font-size="7.5" text-anchor="middle">Hard Timeout 3000ms</text>
+      </g>
+
+
+      <!-- LEGEND -->
+      <line x1="32" y1="620" x2="1048" y2="620" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="32" y="640" fill="#4f5d75" font-size="8" font-weight="600" letter-spacing="0.14em">CHÚ GIẢI DFD</text>
+
+      <rect x="130" y="632" width="20" height="12" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="156" y="642" fill="#2d3142" font-size="8.5">Tiến trình xử lý (Process)</text>
+
+      <line x1="310" y1="638" x2="340" y2="638" stroke="#2e5aa8" stroke-width="1.2"/>
+      <text x="348" y="642" fill="#2d3142" font-size="8.5">Luồng dữ liệu chính (Data Stream)</text>
+
+      <line x1="530" y1="638" x2="560" y2="638" stroke="#eb6c36" stroke-width="1.2" stroke-dasharray="4,3"/>
+      <text x="568" y="642" fill="#2d3142" font-size="8.5">Vòng lặp sửa lỗi phản hồi (Self-Correction Loop)</text>
+
+      <path d="M 800,634 H 824 M 800,644 H 824" stroke="#4f5d75" stroke-width="1"/>
+      <text x="832" y="642" fill="#2d3142" font-size="8.5">Kho lưu trữ dữ liệu (Data Store)</text>
+    </svg>
+  </main>
+
+  <section class="cards-grid">
+    <div class="card">
+      <p class="eyebrow">CHUYỂN HÓA DỮ LIỆU</p>
+      <div class="card-header">
+        <span class="card-dot accent"></span>
+        <h3>7 Trạm Chuyển Hóa</h3>
+      </div>
+      <p>Dữ liệu đi qua chuỗi biến đổi nghiêm ngặt, chuyển dần từ ngôn ngữ tự nhiên không cấu trúc sang cấu trúc SQL chuẩn:</p>
+      <ul>
+        <li><strong>Trạm 1 &amp; 2:</strong> Text thô $\to$ Token thực thể + Sub-Schema rút gọn qua Foreign Key.</li>
+        <li><strong>Trạm 3 &amp; 4:</strong> Sub-Schema + Few-Shot Skeleton $\to$ Prompt chuẩn hóa tối giản.</li>
+        <li><strong>Trạm 5 &amp; 6:</strong> Raw SQL $\to$ Cây phân tích AST $\to$ Thẩm định ảo qua `EXPLAIN`.</li>
+        <li><strong>Trạm 7:</strong> Validated SQL $\to$ Thực thi giới hạn $\to$ Result JSON.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">CƠ CHẾ PHẢN HỒI LỖI</p>
+      <div class="card-header">
+        <span class="card-dot link"></span>
+        <h3>Vòng Lặp Phản Hồi Thông Minh</h3>
+      </div>
+      <p>Nếu DB báo lỗi qua lệnh `EXPLAIN`, hệ thống không trả lỗi cho người dùng mà kích hoạt vòng lặp tự sửa:</p>
+      <ul>
+        <li>Phân loại 4 nhóm lỗi: Unknown column, Table missing, Not in GROUP BY, Type mismatch.</li>
+        <li>Biến đổi thông báo lỗi thô của DB thành chỉ dẫn rõ ràng cho LLM.</li>
+        <li>LLM sửa lại câu truy vấn và thử nghiệm lại (giới hạn tối đa 2 lần).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">HIỆU NĂNG VẬN HÀNH</p>
+      <div class="card-header">
+        <span class="card-dot"></span>
+        <h3>Kiểm Soát Tải DB</h3>
+      </div>
+      <p>Bảo đảm tài nguyên cơ sở dữ liệu CRM không bị nghẽn bởi các truy vấn nặng:</p>
+      <ul>
+        <li>Chặn câu lệnh Full Table Scan trên bảng triệu dòng nếu thiếu điều kiện ngày tháng.</li>
+        <li>Ép buộc mệnh đề `LIMIT 100` trên toàn bộ các câu truy vấn.</li>
+        <li>Timeout cứng 3000ms giúp giải phóng kết nối tức thì.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Text-to-SQL Architecture Documentation · CRM Vietnam Edition</span>
+    <span>Data Flow Diagram Standard · Inter Typography</span>
+  </footer>
+
+  <script>
+    function exportDiagram(format) {
+      const svg = document.querySelector('main svg, .diagram-container svg, svg:not(.export-btn svg)');
+      if (!svg) return alert('Không tìm thấy sơ đồ SVG!');
+      const clone = svg.cloneNode(true);
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      
+      let defs = clone.querySelector('defs');
+      if (!defs) {
+        defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        clone.insertBefore(defs, clone.firstChild);
+      }
+      const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+      style.textContent = "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');";
+      defs.appendChild(style);
+
+      const title = (document.title || 'diagram')
+        .replace(/\s+/g, '_')
+        .replace(/[^\w\u00C0-\u024F\u1EA0-\u1EF9-]/g, '');
+
+      if (format === 'svg') {
+        const serializer = new XMLSerializer();
+        let src = serializer.serializeToString(clone);
+        if (!src.startsWith('<?xml')) {
+          src = '<?xml version="1.0" encoding="UTF-8"?>\n' + src;
+        }
+        const blob = new Blob([src], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${title}.svg`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else if (format === 'png') {
+        const box = svg.viewBox ? svg.viewBox.baseVal : { width: svg.clientWidth || 1080, height: svg.clientHeight || 720 };
+        const width = box.width || 1080;
+        const height = box.height || 720;
+        const scale = 2;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext('2d');
+
+        const serializer = new XMLSerializer();
+        const src = serializer.serializeToString(clone);
+        const blob = new Blob([src], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.onload = function() {
+          ctx.fillStyle = '#f5f5f5';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.scale(scale, scale);
+          ctx.drawImage(img, 0, 0);
+          URL.revokeObjectURL(url);
+          
+          canvas.toBlob(function(pngBlob) {
+            if (!pngBlob) return;
+            const pngUrl = URL.createObjectURL(pngBlob);
+            const a = document.createElement('a');
+            a.href = pngUrl;
+            a.download = `${title}.png`;
+            a.click();
+            URL.revokeObjectURL(pngUrl);
+          }, 'image/png');
+        };
+        img.src = url;
+      }
+    }
+  </script>
+</body>
+</html>

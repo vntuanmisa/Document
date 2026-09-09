@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kiến Trúc Tổng Thể Hybrid Pipeline - Text-to-SQL CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f5f5f5;
+      --paper-2: #ececec;
+      --ink: #2d3142;
+      --muted: #4f5d75;
+      --soft: #7a8399;
+      --rule: rgba(45, 49, 66, 0.12);
+      --rule-solid: #bfc0c0;
+      --accent: #eb6c36;
+      --accent-tint: rgba(235, 108, 54, 0.08);
+      --link: #2e5aa8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .header {
+      width: 100%;
+      max-width: 1140px;
+      margin-bottom: 2rem;
+    }
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Top-Right Floating Export Toolbar */
+    .export-toolbar {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      gap: 8px;
+      z-index: 9999;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 5px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(45, 49, 66, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    .export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink);
+      background: #ffffff;
+      border: 1px solid rgba(45, 49, 66, 0.15);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1;
+    }
+    .export-btn:hover {
+      background: var(--paper);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .export-btn svg {
+      width: 13px;
+      height: 13px;
+      min-width: 13px;
+      stroke: currentColor;
+    }
+    .diagram-container {
+      width: 100%;
+      max-width: 1140px;
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .cards-grid {
+      width: 100%;
+      max-width: 1140px;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr 0.85fr;
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 1.25rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    .card-dot.accent { background: var(--accent); }
+    .card-dot.link { background: var(--link); }
+    .card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .card p, .card li {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .card ul {
+      padding-left: 1.2rem;
+      margin-top: 0.5rem;
+    }
+    .card li { margin-bottom: 0.35rem; }
+    footer {
+      width: 100%;
+      max-width: 1140px;
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--rule);
+      font-size: 0.75rem;
+      color: var(--soft);
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top-Right Floating Export Toolbar -->
+  <div class="export-toolbar">
+    <button class="export-btn" onclick="exportDiagram('png')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Xuất PNG
+    </button>
+    <button class="export-btn" onclick="exportDiagram('svg')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Xuất SVG
+    </button>
+  </div>
+
+  <header class="header">
+    <p class="eyebrow">SYSTEM ARCHITECTURE · ARUN SHANKAR &amp; DAIL-SQL HYBRID</p>
+    <h1>Kiến Trúc Tổng Thể Hybrid Pipeline</h1>
+    <p class="subtitle">Mô hình phối hợp 5 mẫu kiến trúc (Pattern I, II, IV, V) vận hành trên hạ tầng CPU, kết nối Black-Box LLM và CRM Read-Replica.</p>
+  </header>
+
+  <main class="diagram-container">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 720" role="img" aria-labelledby="arch-diag-title arch-diag-desc">
+      <title id="arch-diag-title">Hybrid Pipeline Architecture Diagram</title>
+      <desc id="arch-diag-desc">Sơ đồ kiến trúc chi tiết 5 giai đoạn xử lý thuần CPU kết hợp Black-Box LLM và CRM Database theo chuẩn thiết kế Arun Shankar.</desc>
+
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+        </marker>
+      </defs>
+
+      <!-- Background -->
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ZONE 1: CLIENT & INGRESS (Left) -->
+      <rect x="24" y="36" width="168" height="608" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <rect x="36" y="26" width="140" height="20" rx="2" fill="#f5f5f5"/>
+      <text x="106" y="39" fill="rgba(45,49,66,0.50)" font-size="7.5" font-weight="600" text-anchor="middle" letter-spacing="0.12em">INGRESS &amp; CLIENT TIER</text>
+
+      <!-- ZONE 2: CPU ORCHESTRATOR (Center - 5 Stages) -->
+      <rect x="216" y="36" width="584" height="608" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.14)" stroke-width="0.8"/>
+      <rect x="232" y="26" width="280" height="20" rx="2" fill="#f5f5f5"/>
+      <text x="372" y="39" fill="rgba(45,49,66,0.50)" font-size="7.5" font-weight="600" text-anchor="middle" letter-spacing="0.12em">CPU ORCHESTRATOR · 5-STAGE PIPELINE</text>
+
+      <!-- ZONE 3: EXTERNAL INFRASTRUCTURE (Right) -->
+      <rect x="824" y="36" width="232" height="608" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <rect x="836" y="26" width="204" height="20" rx="2" fill="#f5f5f5"/>
+      <text x="938" y="39" fill="rgba(45,49,66,0.50)" font-size="7.5" font-weight="600" text-anchor="middle" letter-spacing="0.12em">AI &amp; DATA REPOSITORY</text>
+
+      <!-- CONNECTORS -->
+      <!-- User (x=108, y=120) to Gateway (x=108, y=204) -->
+      <line x1="108" y1="120" x2="108" y2="204" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <rect x="68" y="152" width="80" height="14" rx="2" fill="#ffffff" stroke="rgba(46,90,168,0.25)" stroke-width="0.8"/>
+      <text x="108" y="162" fill="#2e5aa8" font-size="7.5" font-weight="600" text-anchor="middle">TIẾNG VIỆT TỰ NHIÊN</text>
+
+      <!-- Gateway (x=176, y=236) to Stage 1 Intent Parser (x=240, y=110) -->
+      <path d="M 176,236 H 202 Q 208,236 208,228 V 118 Q 208,110 216,110 H 240" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- Stage 1 (x=380, y=110) to Stage 2 Schema RAG (x=444, y=110) -->
+      <line x1="380" y1="110" x2="444" y2="110" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="390" y="96" width="44" height="13" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.15)" stroke-width="0.8"/>
+      <text x="412" y="105" fill="#4f5d75" font-size="7.5" font-weight="500" text-anchor="middle">ENTITIES</text>
+
+      <!-- Business Ontology (x=856, y=110) feed into Stage 2 Schema RAG (x=604, y=110) -->
+      <line x1="856" y1="110" x2="604" y2="110" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <rect x="702" y="96" width="60" height="13" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.15)" stroke-width="0.8"/>
+      <text x="732" y="105" fill="#4f5d75" font-size="7.5" font-weight="500" text-anchor="middle">ONTOLOGY</text>
+
+      <!-- Stage 2 Schema RAG (x=512, y=144) to Stage 3 Skeleton (x=512, y=212) -->
+      <line x1="512" y1="144" x2="512" y2="212" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="464" y="171" width="96" height="14" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.15)" stroke-width="0.8"/>
+      <text x="512" y="181" fill="#4f5d75" font-size="7.5" font-weight="500" text-anchor="middle">PRUNED SCHEMA</text>
+
+      <!-- Golden Store (x=856, y=240) to Stage 3 Skeleton Matcher (x=628, y=240) -->
+      <line x1="856" y1="240" x2="628" y2="240" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <rect x="710" y="226" width="76" height="14" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.15)" stroke-width="0.8"/>
+      <text x="748" y="236" fill="#4f5d75" font-size="7.5" font-weight="500" text-anchor="middle">50+ SQL MẪU</text>
+
+      <!-- Stage 3 (x=512, y=268) to Stage 4 Prompt Builder (x=512, y=328) -->
+      <line x1="512" y1="268" x2="512" y2="328" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="480" y="291" width="64" height="14" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.15)" stroke-width="0.8"/>
+      <text x="512" y="301" fill="#4f5d75" font-size="7.5" font-weight="500" text-anchor="middle">FEW-SHOTS</text>
+
+      <!-- Stage 4 Prompt Builder (x=596, y=356) to Black-Box LLM (x=856, y=356) -->
+      <line x1="596" y1="356" x2="856" y2="356" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+      <rect x="680" y="342" width="96" height="14" rx="2" fill="#ffffff" stroke="rgba(235,108,54,0.3)" stroke-width="0.8"/>
+      <text x="728" y="352" fill="#eb6c36" font-size="8" font-weight="600" text-anchor="middle">PROMPT RÚT GỌN</text>
+
+      <!-- Black-Box LLM (x=940, y=396) returns Raw SQL to Stage 5 AST Check (x=768, y=468) -->
+      <path d="M 940,396 V 460 Q 940,468 932,468 H 768" fill="none" stroke="#eb6c36" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-accent)"/>
+      <rect x="814" y="454" width="76" height="14" rx="2" fill="#ffffff" stroke="rgba(235,108,54,0.3)" stroke-width="0.8"/>
+      <text x="852" y="464" fill="#eb6c36" font-size="7.5" font-weight="600" text-anchor="middle">RAW SQL TEXT</text>
+
+      <!-- Stage 5 AST Check (x=620, y=468) to EXPLAIN Validator (x=582, y=468) -->
+      <line x1="620" y1="468" x2="582" y2="468" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="587" y="442" width="40" height="12" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.15)" stroke-width="0.8"/>
+      <text x="607" y="451" fill="#4f5d75" font-size="7" font-weight="600" text-anchor="middle">AST OK</text>
+
+      <!-- Stage 5 EXPLAIN Validator (x=500, y=496) to CRM Read-Replica DB (x=856, y=560) -->
+      <path d="M 500,496 V 552 Q 500,560 508,560 H 856" fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <rect x="626" y="546" width="136" height="14" rx="2" fill="#ffffff" stroke="rgba(46,90,168,0.25)" stroke-width="0.8"/>
+      <text x="694" y="556" fill="#2e5aa8" font-size="7.5" font-weight="600" text-anchor="middle">EXPLAIN (FORMAT JSON)</text>
+
+      <!-- Stage 5 EXPLAIN Validator Self-Correction Retry Loop back up into Stage 4 (Bottom) -->
+      <line x1="500" y1="440" x2="500" y2="384" stroke="#eb6c36" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#arrow-accent)"/>
+      <rect x="424" y="405" width="152" height="14" rx="2" fill="#ffffff" stroke="rgba(235,108,54,0.3)" stroke-width="0.8"/>
+      <text x="500" y="415" fill="#eb6c36" font-size="7.5" font-weight="600" text-anchor="middle">TỰ SỬA LỖI FEEDBACK (≤2 LẦN)</text>
+
+      <!-- Stage 5 EXPLAIN to Cost Selector (x=412, y=468 to x=376, y=468) -->
+      <line x1="412" y1="468" x2="376" y2="468" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="380" y="442" width="34" height="12" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.15)" stroke-width="0.8"/>
+      <text x="397" y="451" fill="#4f5d75" font-size="7" font-weight="600" text-anchor="middle">VALID</text>
+
+      <!-- Stage 5 Cost Selector to Read-Replica Execution (x=310, y=496 to x=856, y=600) -->
+      <path d="M 310,496 V 592 Q 310,600 318,600 H 856" fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+      <rect x="440" y="586" width="168" height="14" rx="2" fill="#ffffff" stroke="rgba(46,90,168,0.25)" stroke-width="0.8"/>
+      <text x="524" y="596" fill="#2e5aa8" font-size="7.5" font-weight="600" text-anchor="middle">EXECUTE SQL (LIMIT 100, 3000MS)</text>
+
+      <!-- Return Final Data Rows from Read-Replica back to Gateway around outer bottom channel -->
+      <path d="M 856,580 H 836 Q 828,580 828,588 V 618 Q 828,626 820,626 H 198 Q 190,626 190,618 V 256 Q 190,248 184,248 H 176" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+      <rect x="430" y="618" width="128" height="14" rx="2" fill="#ffffff" stroke="rgba(45,49,66,0.2)" stroke-width="0.8"/>
+      <text x="494" y="628" fill="#4f5d75" font-size="7.5" font-weight="500" text-anchor="middle">DỮ LIỆU KẾT QUẢ BẢNG</text>
+
+      <!-- Return from Gateway to User -->
+      <line x1="108" y1="204" x2="108" y2="120" stroke="#2e5aa8" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+
+      <!-- NODES: ZONE 1 (CLIENT & INGRESS) -->
+      <!-- Node: Sales / CSKH User -->
+      <g transform="translate(48, 64)">
+        <rect x="0" y="0" width="120" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="120" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="60" y="26" fill="#2d3142" font-size="10.5" font-weight="600" text-anchor="middle">Sales / CSKH</text>
+        <text x="60" y="42" fill="#4f5d75" font-size="8" text-anchor="middle">Giao diện Chat / CRM</text>
+      </g>
+
+      <!-- Node: Gateway / Webhook -->
+      <g transform="translate(48, 204)">
+        <rect x="0" y="0" width="128" height="64" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="128" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="8" y="6" width="48" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="32" y="15" fill="#4f5d75" font-size="7" font-weight="600" text-anchor="middle">GATEWAY</text>
+        <text x="64" y="38" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">Cổng CRM Webhook</text>
+        <text x="64" y="52" fill="#4f5d75" font-size="8" text-anchor="middle">FastAPI / REST Ingress</text>
+      </g>
+
+
+      <!-- NODES: ZONE 2 (CPU ORCHESTRATOR - 5 STAGES) -->
+      <!-- STAGE 1: Intent & Entity Parser (Pattern I) -->
+      <g transform="translate(240, 76)">
+        <rect x="0" y="0" width="140" height="68" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="140" height="68" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="8" y="6" width="56" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="36" y="15" fill="#4f5d75" font-size="7" font-weight="600" text-anchor="middle">GIAI ĐOẠN 1</text>
+        <text x="70" y="36" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">Intent &amp; Entity</text>
+        <text x="70" y="50" fill="#4f5d75" font-size="8" text-anchor="middle">Pattern I · CPU Rule-based</text>
+        <text x="70" y="61" fill="#7a8399" font-size="7.5" text-anchor="middle">Phân loại &amp; trích xuất thực thể</text>
+      </g>
+
+      <!-- STAGE 2: Schema Graph RAG (Pattern II) -->
+      <g transform="translate(444, 76)">
+        <rect x="0" y="0" width="160" height="68" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="160" height="68" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="8" y="6" width="56" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="36" y="15" fill="#4f5d75" font-size="7" font-weight="600" text-anchor="middle">GIAI ĐOẠN 2</text>
+        <text x="80" y="36" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">Schema Graph RAG</text>
+        <text x="80" y="50" fill="#4f5d75" font-size="8" text-anchor="middle">Pattern II · Lọc 90% bảng dư</text>
+        <text x="80" y="61" fill="#7a8399" font-size="7.5" text-anchor="middle">Tìm cầu nối Khóa ngoại (FK)</text>
+      </g>
+
+      <!-- STAGE 3: DAIL-SQL Skeleton Few-Shot Selector -->
+      <g transform="translate(396, 212)">
+        <rect x="0" y="0" width="232" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="232" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="8" y="6" width="56" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="36" y="15" fill="#4f5d75" font-size="7" font-weight="600" text-anchor="middle">GIAI ĐOẠN 3</text>
+        <text x="124" y="32" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">Tuyển Chọn Skeleton (DAIL-SQL)</text>
+        <text x="124" y="46" fill="#4f5d75" font-size="8" text-anchor="middle">Khớp cấu trúc khung xương cú pháp SQL</text>
+      </g>
+
+      <!-- STAGE 4: Prompt Assembly Engine (Focal Core) -->
+      <g transform="translate(428, 328)">
+        <rect x="0" y="0" width="168" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="168" height="56" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <rect x="8" y="6" width="56" height="12" rx="2" fill="transparent" stroke="#eb6c36" stroke-width="0.8"/>
+        <text x="36" y="15" fill="#eb6c36" font-size="7" font-weight="600" text-anchor="middle">GIAI ĐOẠN 4</text>
+        <text x="88" y="32" fill="#2d3142" font-size="10.5" font-weight="600" text-anchor="middle">Lắp Ráp Prompt Chuẩn</text>
+        <text x="88" y="46" fill="#4f5d75" font-size="8" text-anchor="middle">Ngữ cảnh + Lược đồ + Luật CRM</text>
+      </g>
+
+      <!-- STAGE 5: Pattern IV & V Security & Self-Correction -->
+      <g transform="translate(232, 420)">
+        <rect x="0" y="0" width="552" height="96" rx="6" fill="rgba(45,49,66,0.01)" stroke="rgba(45,49,66,0.15)" stroke-width="1" stroke-dasharray="4,4"/>
+        <rect x="12" y="-10" width="180" height="18" rx="2" fill="#f5f5f5" stroke="rgba(45,49,66,0.20)" stroke-width="0.8"/>
+        <text x="102" y="3" fill="#2d3142" font-size="8" font-weight="600" text-anchor="middle">GIAI ĐOẠN 5: TỰ SỬA LỖI &amp; TỐI ƯU</text>
+
+        <!-- Sub-block 1: Cost Selector (Pattern V) -->
+        <g transform="translate(12, 20)">
+          <rect x="0" y="0" width="132" height="56" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+          <text x="66" y="24" fill="#2d3142" font-size="9" font-weight="600" text-anchor="middle">Lớp 3: Cost Selector</text>
+          <text x="66" y="38" fill="#4f5d75" font-size="7.5" text-anchor="middle">Pattern V · Chặn nghẽn đĩa</text>
+          <text x="66" y="49" fill="#7a8399" font-size="7" text-anchor="middle">Hard Timeout 3000ms</text>
+        </g>
+
+        <!-- Sub-block 2: EXPLAIN Validator (Pattern IV - Focal) -->
+        <g transform="translate(180, 20)">
+          <rect x="0" y="0" width="170" height="56" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+          <text x="85" y="24" fill="#2d3142" font-size="9.5" font-weight="600" text-anchor="middle">Lớp 2: EXPLAIN Validator</text>
+          <text x="85" y="38" fill="#eb6c36" font-size="7.5" font-weight="600" text-anchor="middle">Pattern IV · Thẩm định ảo DB</text>
+          <text x="85" y="49" fill="#4f5d75" font-size="7" text-anchor="middle">Tự sửa lỗi (Self-Correction ≤2)</text>
+        </g>
+
+        <!-- Sub-block 3: AST Security Filter -->
+        <g transform="translate(388, 20)">
+          <rect x="0" y="0" width="148" height="56" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+          <text x="74" y="24" fill="#2d3142" font-size="9" font-weight="600" text-anchor="middle">Lớp 1: AST Filter</text>
+          <text x="74" y="38" fill="#4f5d75" font-size="7.5" text-anchor="middle">Kiểm tra cú pháp tĩnh</text>
+          <text x="74" y="49" fill="#7a8399" font-size="7" text-anchor="middle">Chỉ cho phép SELECT</text>
+        </g>
+      </g>
+
+
+      <!-- NODES: ZONE 3 (EXTERNAL AI & STORAGE) -->
+      <!-- Business Ontology Store -->
+      <g transform="translate(856, 76)">
+        <rect x="0" y="0" width="168" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="168" height="56" rx="6" fill="rgba(45,49,66,0.04)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="8" y="6" width="56" height="12" rx="2" fill="transparent" stroke="#4f5d75" stroke-width="0.8"/>
+        <text x="36" y="15" fill="#4f5d75" font-size="7" font-weight="600" text-anchor="middle">METADATA</text>
+        <text x="92" y="32" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">Từ Điển Khái Niệm</text>
+        <text x="92" y="46" fill="#4f5d75" font-size="8" text-anchor="middle">Bản địa hóa tiếng Việt CRM</text>
+      </g>
+
+      <!-- Golden SQL Store -->
+      <g transform="translate(856, 208)">
+        <rect x="0" y="0" width="168" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="168" height="56" rx="6" fill="rgba(45,49,66,0.04)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="8" y="6" width="56" height="12" rx="2" fill="transparent" stroke="#4f5d75" stroke-width="0.8"/>
+        <text x="36" y="15" fill="#4f5d75" font-size="7" font-weight="600" text-anchor="middle">DATASET</text>
+        <text x="92" y="32" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">Kho Mẫu Golden SQL</text>
+        <text x="92" y="46" fill="#4f5d75" font-size="8" text-anchor="middle">50 cặp Question-SQL chuẩn</text>
+      </g>
+
+      <!-- Black-Box LLM API (External AI) -->
+      <g transform="translate(856, 328)">
+        <rect x="0" y="0" width="168" height="68" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="168" height="68" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <rect x="8" y="6" width="60" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="38" y="15" fill="#4f5d75" font-size="7" font-weight="600" text-anchor="middle">PRIVATE AI</text>
+        <text x="88" y="38" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">Black-Box LLM API</text>
+        <text x="88" y="52" fill="#4f5d75" font-size="8" text-anchor="middle">VLLM / Ollama nội bộ</text>
+        <text x="88" y="62" fill="#7a8399" font-size="7.5" text-anchor="middle">Không can thiệp weights</text>
+      </g>
+
+      <!-- CRM Read-Replica DB (MySQL / PostgreSQL) -->
+      <g transform="translate(856, 528)">
+        <rect x="0" y="0" width="168" height="76" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="168" height="76" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="8" y="6" width="56" height="12" rx="2" fill="transparent" stroke="#4f5d75" stroke-width="0.8"/>
+        <text x="36" y="15" fill="#4f5d75" font-size="7" font-weight="600" text-anchor="middle">REPLICA DB</text>
+        <text x="88" y="38" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">CRM Read-Replica</text>
+        <text x="88" y="52" fill="#4f5d75" font-size="8" text-anchor="middle">PostgreSQL / MySQL</text>
+        <text x="88" y="66" fill="#eb6c36" font-size="7.5" font-weight="600" text-anchor="middle">Chỉ SELECT, work_mem 16MB</text>
+      </g>
+
+
+      <!-- LEGEND -->
+      <line x1="32" y1="676" x2="1048" y2="676" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="32" y="696" fill="#4f5d75" font-size="8" font-weight="600" letter-spacing="0.14em">CHÚ GIẢI KIẾN TRÚC</text>
+
+      <rect x="150" y="688" width="16" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="174" y="698" fill="#2d3142" font-size="8.5">Khối trọng tâm điều phối (Focal Accent)</text>
+
+      <line x1="380" y1="694" x2="410" y2="694" stroke="#eb6c36" stroke-width="1.2" stroke-dasharray="4,3"/>
+      <text x="418" y="698" fill="#2d3142" font-size="8.5">Vòng lặp sửa lỗi phản hồi (Self-Correction Loop)</text>
+
+      <line x1="640" y1="694" x2="670" y2="694" stroke="#2e5aa8" stroke-width="1.2"/>
+      <text x="678" y="698" fill="#2d3142" font-size="8.5">Truy vấn DB (EXPLAIN &amp; Thực thi dữ liệu)</text>
+
+      <line x1="880" y1="694" x2="910" y2="694" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3"/>
+      <text x="918" y="698" fill="#2d3142" font-size="8.5">Nạp tri thức &amp; Metadata tĩnh</text>
+    </svg>
+  </main>
+
+  <section class="cards-grid">
+    <div class="card">
+      <p class="eyebrow">PATTERNS ARUN SHANKAR</p>
+      <div class="card-header">
+        <span class="card-dot accent"></span>
+        <h3>Kết Hợp 4 Mẫu Kiến Trúc</h3>
+      </div>
+      <p>Hệ thống tích hợp có chọn lọc từ nghiên cứu `arunpshankar/LLM-Text-to-SQL-Architectures`:</p>
+      <ul>
+        <li><strong>Pattern I (Intent/Entity):</strong> Chuyển sang CPU rule-based để bóc tách ý định trong &lt;5ms.</li>
+        <li><strong>Pattern II (Schema RAG):</strong> Dùng đồ thị khóa ngoại trên CPU, không cần Vector DB nặng.</li>
+        <li><strong>Pattern IV (Self-Correction):</strong> Phản hồi mã lỗi cụ thể từ DB để LLM sửa đúng trong tối đa 2 lần.</li>
+        <li><strong>Pattern V (Optimization):</strong> Dùng `EXPLAIN` phân tích chi phí để chặn Full Scan.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">TỐI ƯU HÓA CPU &amp; PROMPT</p>
+      <div class="card-header">
+        <span class="card-dot link"></span>
+        <h3>DAIL-SQL Khớp Khung Xương</h3>
+      </div>
+      <p>Áp dụng nguyên lý DAIL-SQL để chọn Few-Shot mẫu có cấu trúc logic tương đồng nhất với câu hỏi:</p>
+      <ul>
+        <li>Rút gọn các câu SQL thành "khung xương" trừu tượng (Skeleton).</li>
+        <li>Tránh làm tràn cửa sổ ngữ cảnh (Context Window) của Black-Box LLM.</li>
+        <li>Giảm thời gian sinh token của LLM xuống dưới 1.5 giây.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">BẢO VỆ CƠ SỞ DỮ LIỆU</p>
+      <div class="card-header">
+        <span class="card-dot"></span>
+        <h3>Chỉ Đọc Trên Read-Replica</h3>
+      </div>
+      <p>Toàn bộ các lệnh kiểm tra và thực thi đều diễn ra trên cơ sở dữ liệu phân tích tách biệt:</p>
+      <ul>
+        <li>Tài khoản chuyên dụng chỉ có quyền `SELECT`.</li>
+        <li>Cấu hình `statement_timeout = 3000ms` chống treo hệ thống.</li>
+        <li>Bộ nhớ tạm `work_mem = 16MB` hạn chế tối đa tài nguyên RAM.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Text-to-SQL Architecture Documentation · CRM Vietnam Edition</span>
+    <span>Arun Shankar Patterns &amp; DAIL-SQL Standard</span>
+  </footer>
+
+  <script>
+    function exportDiagram(format) {
+      const svg = document.querySelector('main svg, .diagram-container svg, svg:not(.export-btn svg)');
+      if (!svg) return alert('Không tìm thấy sơ đồ SVG!');
+      const clone = svg.cloneNode(true);
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      
+      let defs = clone.querySelector('defs');
+      if (!defs) {
+        defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        clone.insertBefore(defs, clone.firstChild);
+      }
+      const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+      style.textContent = "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');";
+      defs.appendChild(style);
+
+      const title = (document.title || 'diagram')
+        .replace(/\s+/g, '_')
+        .replace(/[^\w\u00C0-\u024F\u1EA0-\u1EF9-]/g, '');
+
+      if (format === 'svg') {
+        const serializer = new XMLSerializer();
+        let src = serializer.serializeToString(clone);
+        if (!src.startsWith('<?xml')) {
+          src = '<?xml version="1.0" encoding="UTF-8"?>\n' + src;
+        }
+        const blob = new Blob([src], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${title}.svg`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else if (format === 'png') {
+        const box = svg.viewBox ? svg.viewBox.baseVal : { width: svg.clientWidth || 1080, height: svg.clientHeight || 720 };
+        const width = box.width || 1080;
+        const height = box.height || 720;
+        const scale = 2;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext('2d');
+
+        const serializer = new XMLSerializer();
+        const src = serializer.serializeToString(clone);
+        const blob = new Blob([src], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.onload = function() {
+          ctx.fillStyle = '#f5f5f5';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.scale(scale, scale);
+          ctx.drawImage(img, 0, 0);
+          URL.revokeObjectURL(url);
+          
+          canvas.toBlob(function(pngBlob) {
+            if (!pngBlob) return;
+            const pngUrl = URL.createObjectURL(pngBlob);
+            const a = document.createElement('a');
+            a.href = pngUrl;
+            a.download = `${title}.png`;
+            a.click();
+            URL.revokeObjectURL(pngUrl);
+          }, 'image/png');
+        };
+        img.src = url;
+      }
+    }
+  </script>
+</body>
+</html>

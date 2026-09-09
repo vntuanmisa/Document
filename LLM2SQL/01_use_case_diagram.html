@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biểu Đồ Ca Sử Dụng (Use Case Diagram) - Text-to-SQL CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f5f5f5;
+      --paper-2: #ececec;
+      --ink: #2d3142;
+      --muted: #4f5d75;
+      --soft: #7a8399;
+      --rule: rgba(45, 49, 66, 0.12);
+      --rule-solid: #bfc0c0;
+      --accent: #eb6c36;
+      --accent-tint: rgba(235, 108, 54, 0.08);
+      --link: #2e5aa8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .header {
+      width: 100%;
+      max-width: 1100px;
+      margin-bottom: 2rem;
+    }
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .diagram-container {
+      width: 100%;
+      max-width: 1100px;
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Top-Right Floating Export Toolbar */
+    .export-toolbar {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      gap: 8px;
+      z-index: 9999;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 5px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(45, 49, 66, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    .export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink);
+      background: #ffffff;
+      border: 1px solid rgba(45, 49, 66, 0.15);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1;
+    }
+    .export-btn:hover {
+      background: var(--paper);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .export-btn svg {
+      width: 13px;
+      height: 13px;
+      min-width: 13px;
+      stroke: currentColor;
+    }
+    .cards-grid {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 0.9fr;
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 1.25rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    .card-dot.accent { background: var(--accent); }
+    .card-dot.link { background: var(--link); }
+    .card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .card p, .card li {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .card ul {
+      padding-left: 1.2rem;
+      margin-top: 0.5rem;
+    }
+    .card li { margin-bottom: 0.35rem; }
+    footer {
+      width: 100%;
+      max-width: 1100px;
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--rule);
+      font-size: 0.75rem;
+      color: var(--soft);
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top-Right Floating Export Toolbar -->
+  <div class="export-toolbar">
+    <button class="export-btn" onclick="exportDiagram('png')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Xuất PNG
+    </button>
+    <button class="export-btn" onclick="exportDiagram('svg')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Xuất SVG
+    </button>
+  </div>
+
+  <header class="header">
+    <p class="eyebrow">UML MODELING · USE CASE SPECIFICATION</p>
+    <h1>Mô Hình Ca Sử Dụng (Use Case Diagram)</h1>
+    <p class="subtitle">Đặc tả các tác nhân (Actors) và ca sử dụng trong hệ thống Text-to-SQL CRM tối ưu cho hạ tầng CPU & mô hình ngôn ngữ nội bộ.</p>
+  </header>
+
+  <main class="diagram-container">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" role="img" aria-labelledby="uc-diag-title uc-diag-desc">
+      <title id="uc-diag-title">Use Case Diagram - CRM Text-to-SQL System</title>
+      <desc id="uc-diag-desc">Sơ đồ ca sử dụng thể hiện tương tác của Nhân viên Sales/CSKH, Quản trị viên/Data Engineer với Hệ thống Text-to-SQL CRM.</desc>
+
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+        </marker>
+      </defs>
+
+      <!-- Background -->
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- SYSTEM BOUNDARY -->
+      <rect x="236" y="32" width="528" height="528" rx="8" fill="#ffffff" stroke="rgba(45,49,66,0.20)" stroke-width="1.2"/>
+      <rect x="252" y="24" width="280" height="20" rx="4" fill="#f5f5f5" stroke="rgba(45,49,66,0.20)" stroke-width="0.8"/>
+      <text x="392" y="38" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle" letter-spacing="0.08em">HỆ THỐNG TEXT-TO-SQL CRM (CPU HYBRID)</text>
+
+      <!-- CONNECTORS (Drawn before boxes and pills) -->
+      <!-- Actor Sales (x=120) to UC1 (x=272, y=92, cy=116) -->
+      <path d="M 172,160 H 220 Q 228,160 228,152 V 124 Q 228,116 236,116 H 272" fill="none" stroke="#4f5d75" stroke-width="1.2"/>
+
+      <!-- Actor Sales to UC2 (x=272, y=172, cy=196) -->
+      <path d="M 172,180 H 220 Q 228,180 228,188 V 196 H 272" fill="none" stroke="#4f5d75" stroke-width="1.2"/>
+
+      <!-- Actor Sales to UC3 (x=272, y=252, cy=276) -->
+      <path d="M 172,200 H 216 Q 224,200 224,212 V 268 Q 224,276 232,276 H 272" fill="none" stroke="#4f5d75" stroke-width="1.2"/>
+
+      <!-- Include from UC1 to UC4 (Normalize Vietnamese) -->
+      <path d="M 492,116 H 540" fill="none" stroke="#2e5aa8" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+      <rect x="496" y="102" width="48" height="12" rx="2" fill="#ffffff"/>
+      <text x="520" y="111" fill="#2e5aa8" font-size="8" font-weight="600" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>
+
+      <!-- Include from UC1 to UC5 (Self-Correction & EXPLAIN) -->
+      <path d="M 476,140 Q 484,152 496,164 L 540,196" fill="none" stroke="#eb6c36" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-accent)"/>
+      <rect x="480" y="166" width="48" height="12" rx="2" fill="#ffffff"/>
+      <text x="504" y="175" fill="#eb6c36" font-size="8" font-weight="600" text-anchor="middle">&lt;&lt;include&gt;&gt;</text>
+
+      <!-- Extend from UC5 to UC6 (Cost Optimization Limit) -->
+      <path d="M 640,220 V 260" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+      <rect x="644" y="234" width="48" height="12" rx="2" fill="#ffffff"/>
+      <text x="668" y="243" fill="#4f5d75" font-size="8" font-weight="600" text-anchor="middle">&lt;&lt;extend&gt;&gt;</text>
+
+      <!-- Actor Admin (x=880) to UC7 (x=540, y=348, cy=372) -->
+      <path d="M 828,340 H 780 Q 772,340 772,352 V 364 Q 772,372 764,372 H 740" fill="none" stroke="#4f5d75" stroke-width="1.2"/>
+
+      <!-- Actor Admin to UC8 (x=540, y=428, cy=452) -->
+      <path d="M 828,360 H 780 Q 772,360 772,440 Q 772,452 764,452 H 740" fill="none" stroke="#4f5d75" stroke-width="1.2"/>
+
+      <!-- Actor Admin to UC9 (x=272, y=428, cy=452) -->
+      <path d="M 828,380 H 792 Q 784,380 784,484 Q 784,496 772,496 H 488 Q 476,496 476,464 V 452 H 472" fill="none" stroke="#4f5d75" stroke-width="1.2"/>
+
+      <!-- ACTOR 1: Nhân viên Sales / CSKH (Left) -->
+      <g transform="translate(72, 136)">
+        <!-- Paper background for stickman -->
+        <rect x="0" y="0" width="100" height="128" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="100" height="128" rx="6" fill="rgba(45,49,66,0.04)" stroke="rgba(45,49,66,0.20)" stroke-width="1"/>
+        <!-- Stick figure -->
+        <circle cx="50" cy="28" r="12" fill="#ffffff" stroke="#2d3142" stroke-width="1.4"/>
+        <line x1="50" y1="40" x2="50" y2="76" stroke="#2d3142" stroke-width="1.4"/>
+        <line x1="30" y1="54" x2="70" y2="54" stroke="#2d3142" stroke-width="1.4"/>
+        <line x1="50" y1="76" x2="34" y2="104" stroke="#2d3142" stroke-width="1.4"/>
+        <line x1="50" y1="76" x2="66" y2="104" stroke="#2d3142" stroke-width="1.4"/>
+        <!-- Text -->
+        <text x="50" y="118" fill="#2d3142" font-size="10" font-weight="600" text-anchor="middle">Sales / CSKH</text>
+      </g>
+
+      <!-- ACTOR 2: Quản trị viên CRM / Data Engineer (Right) -->
+      <g transform="translate(828, 296)">
+        <rect x="0" y="0" width="108" height="128" rx="6" fill="#f5f5f5"/>
+        <rect x="0" y="0" width="108" height="128" rx="6" fill="rgba(45,49,66,0.04)" stroke="rgba(45,49,66,0.20)" stroke-width="1"/>
+        <!-- Stick figure -->
+        <circle cx="54" cy="28" r="12" fill="#ffffff" stroke="#eb6c36" stroke-width="1.4"/>
+        <line x1="54" y1="40" x2="54" y2="76" stroke="#2d3142" stroke-width="1.4"/>
+        <line x1="34" y1="54" x2="74" y2="54" stroke="#2d3142" stroke-width="1.4"/>
+        <line x1="54" y1="76" x2="38" y2="104" stroke="#2d3142" stroke-width="1.4"/>
+        <line x1="54" y1="76" x2="70" y2="104" stroke="#2d3142" stroke-width="1.4"/>
+        <!-- Text -->
+        <text x="54" y="118" fill="#2d3142" font-size="9.5" font-weight="600" text-anchor="middle">Admin / Data Eng</text>
+      </g>
+
+      <!-- USE CASES (ELLIPSES / PILLS) -->
+      <!-- UC1: Đặt câu hỏi tự nhiên tiếng Việt (Focal) -->
+      <g transform="translate(272, 92)">
+        <rect x="0" y="0" width="220" height="48" rx="24" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="110" y="22" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">UC-01: Truy vấn CRM bằng tiếng Việt</text>
+        <text x="110" y="36" fill="#4f5d75" font-size="8.5" text-anchor="middle">Hỏi doanh số, top khách B2B, đơn treo</text>
+      </g>
+
+      <!-- UC2: Xem báo cáo số liệu & biểu đồ -->
+      <g transform="translate(272, 172)">
+        <rect x="0" y="0" width="220" height="48" rx="24" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="110" y="22" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">UC-02: Xem bảng kết quả dữ liệu</text>
+        <text x="110" y="36" fill="#4f5d75" font-size="8.5" text-anchor="middle">Bảng chi tiết đơn hàng, giới hạn LIMIT 100</text>
+      </g>
+
+      <!-- UC3: Đánh giá & phản hồi chất lượng câu trả lời -->
+      <g transform="translate(272, 252)">
+        <rect x="0" y="0" width="220" height="48" rx="24" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="110" y="22" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">UC-03: Đánh giá kết quả (Feedback)</text>
+        <text x="110" y="36" fill="#4f5d75" font-size="8.5" text-anchor="middle">Gắn cờ câu trả lời đúng / sai thực tế</text>
+      </g>
+
+      <!-- UC4: Chuẩn hóa thực thể & thời gian (Included) -->
+      <g transform="translate(540, 92)">
+        <rect x="0" y="0" width="200" height="48" rx="24" fill="#ffffff" stroke="#2e5aa8" stroke-width="1"/>
+        <text x="100" y="22" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">UC-04: Chuẩn hóa Từ điển & Giờ</text>
+        <text x="100" y="36" fill="#4f5d75" font-size="8.5" text-anchor="middle">Map "tháng này", "HN", "B2B" trên CPU</text>
+      </g>
+
+      <!-- UC5: Tự sửa lỗi qua EXPLAIN DB (Included - Focal) -->
+      <g transform="translate(540, 172)">
+        <rect x="0" y="0" width="200" height="48" rx="24" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.2"/>
+        <text x="100" y="22" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">UC-05: Tự sửa lỗi SQL (Pattern IV)</text>
+        <text x="100" y="36" fill="#eb6c36" font-size="8.5" font-weight="500" text-anchor="middle">AST Check & EXPLAIN ảo (≤2 lần lặp)</text>
+      </g>
+
+      <!-- UC6: Tối ưu chi phí & Ngắt Timeout (Extended) -->
+      <g transform="translate(540, 260)">
+        <rect x="0" y="0" width="200" height="48" rx="24" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+        <text x="100" y="22" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">UC-06: Giới hạn chi phí (Pattern V)</text>
+        <text x="100" y="36" fill="#4f5d75" font-size="8.5" text-anchor="middle">Chặn Full Scan, ngắt cứng 3000ms</text>
+      </g>
+
+      <!-- UC7: Cấu hình Từ điển Nghiệp vụ CRM (Admin) -->
+      <g transform="translate(540, 348)">
+        <rect x="0" y="0" width="200" height="48" rx="24" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="100" y="22" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">UC-07: Quản trị Từ điển Ontology</text>
+        <text x="100" y="36" fill="#4f5d75" font-size="8.5" text-anchor="middle">Cập nhật bí danh bảng & tiếng lóng Sales</text>
+      </g>
+
+      <!-- UC8: Duyệt & Nạp mẫu Golden SQL (Admin) -->
+      <g transform="translate(540, 428)">
+        <rect x="0" y="0" width="200" height="48" rx="24" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="100" y="22" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">UC-08: Duyệt kho Golden SQL</text>
+        <text x="100" y="36" fill="#4f5d75" font-size="8.5" text-anchor="middle">Gắn nhãn Skeleton cho 50+ cặp mẫu</text>
+      </g>
+
+      <!-- UC9: Giám sát hiệu năng & Benchmark (Admin) -->
+      <g transform="translate(272, 428)">
+        <rect x="0" y="0" width="220" height="48" rx="24" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="110" y="22" fill="#2d3142" font-size="11" font-weight="600" text-anchor="middle">UC-09: Giám sát độ trễ & Độ chính xác</text>
+        <text x="110" y="36" fill="#4f5d75" font-size="8.5" text-anchor="middle">Kiểm tra mục tiêu độ chính xác >85%</text>
+      </g>
+
+      <!-- LEGEND (Horizontal strip at bottom per diagram-design spec) -->
+      <line x1="32" y1="576" x2="968" y2="576" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="32" y="596" fill="#4f5d75" font-size="8" font-weight="600" letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <!-- Legend items -->
+      <circle cx="120" cy="593" r="5" fill="#f5f5f5" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="132" y="596" fill="#2d3142" font-size="8.5">Ca sử dụng trọng tâm (Focal)</text>
+
+      <line x1="280" y1="593" x2="312" y2="593" stroke="#2e5aa8" stroke-width="1.2" stroke-dasharray="4,3"/>
+      <text x="320" y="596" fill="#2d3142" font-size="8.5">&lt;&lt;include&gt;&gt; Bắt buộc thực hiện</text>
+
+      <line x1="464" y1="593" x2="496" y2="593" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3"/>
+      <text x="504" y="596" fill="#2d3142" font-size="8.5">&lt;&lt;extend&gt;&gt; Mở rộng điều kiện</text>
+
+      <line x1="648" y1="593" x2="680" y2="593" stroke="#4f5d75" stroke-width="1.2"/>
+      <text x="688" y="596" fill="#2d3142" font-size="8.5">Liên kết tác nhân (Association)</text>
+    </svg>
+  </main>
+
+  <section class="cards-grid">
+    <div class="card">
+      <p class="eyebrow">TÁC NHÂN CHÍNH</p>
+      <div class="card-header">
+        <span class="card-dot accent"></span>
+        <h3>Nhân Viên Sales & CSKH</h3>
+      </div>
+      <p>Là người dùng trực tiếp đưa ra câu hỏi tự nhiên bằng tiếng Việt qua giao diện CRM / Chatbot nội bộ.</p>
+      <ul>
+        <li>Không cần biết cú pháp SQL hay cấu trúc bảng.</li>
+        <li>Sử dụng ngôn ngữ tự nhiên: "tiền về", "khách B2B", "hôm nay".</li>
+        <li>Nhận lại dữ liệu bảng sạch đã qua lọc an toàn.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">CƠ CHẾ NỘI BỘ</p>
+      <div class="card-header">
+        <span class="card-dot link"></span>
+        <h3>Tự Động Hóa & Tự Sửa Lỗi</h3>
+      </div>
+      <p>Hệ thống tự động thực hiện các ca sử dụng ngầm nhằm bảo vệ cơ sở dữ liệu và gia tăng độ chính xác >85%.</p>
+      <ul>
+        <li><strong>UC-04:</strong> Chuẩn hóa thực thể & thời gian mốc thực trên CPU.</li>
+        <li><strong>UC-05:</strong> Chạy thử `EXPLAIN` trên Read-Replica để phát hiện lỗi cột/bảng trước khi trả lời.</li>
+        <li><strong>UC-06:</strong> Ngắt cưỡng bức 3000ms ngăn nghẽn DB.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">QUẢN TRỊ VIÊN</p>
+      <div class="card-header">
+        <span class="card-dot"></span>
+        <h3>Data Engineer & Vận Hành</h3>
+      </div>
+      <p>Duy trì tính chính xác lâu dài của hệ thống mà không cần đào tạo lại (re-train) mô hình AI.</p>
+      <ul>
+        <li>Cập nhật từ điển phương ngữ và thuật ngữ Sales.</li>
+        <li>Phê duyệt các câu hỏi đạt điểm cao vào kho Golden SQL.</li>
+        <li>Giám sát Benchmark định kỳ với 50 câu mẫu chuẩn.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Text-to-SQL Architecture Documentation · CRM Vietnam Edition</span>
+    <span>Editorial Visual System · Pure CPU Pipeline</span>
+  </footer>
+
+  <script>
+    function exportDiagram(format) {
+      const svg = document.querySelector('main svg, .diagram-container svg, svg:not(.export-btn svg)');
+      if (!svg) return alert('Không tìm thấy sơ đồ SVG!');
+      const clone = svg.cloneNode(true);
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      
+      let defs = clone.querySelector('defs');
+      if (!defs) {
+        defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        clone.insertBefore(defs, clone.firstChild);
+      }
+      const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+      style.textContent = "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');";
+      defs.appendChild(style);
+
+      const title = (document.title || 'diagram')
+        .replace(/\s+/g, '_')
+        .replace(/[^\w\u00C0-\u024F\u1EA0-\u1EF9-]/g, '');
+
+      if (format === 'svg') {
+        const serializer = new XMLSerializer();
+        let src = serializer.serializeToString(clone);
+        if (!src.startsWith('<?xml')) {
+          src = '<?xml version="1.0" encoding="UTF-8"?>\n' + src;
+        }
+        const blob = new Blob([src], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${title}.svg`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else if (format === 'png') {
+        const box = svg.viewBox ? svg.viewBox.baseVal : { width: svg.clientWidth || 1080, height: svg.clientHeight || 720 };
+        const width = box.width || 1080;
+        const height = box.height || 720;
+        const scale = 2;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext('2d');
+
+        const serializer = new XMLSerializer();
+        const src = serializer.serializeToString(clone);
+        const blob = new Blob([src], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.onload = function() {
+          ctx.fillStyle = '#f5f5f5';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.scale(scale, scale);
+          ctx.drawImage(img, 0, 0);
+          URL.revokeObjectURL(url);
+          
+          canvas.toBlob(function(pngBlob) {
+            if (!pngBlob) return;
+            const pngUrl = URL.createObjectURL(pngBlob);
+            const a = document.createElement('a');
+            a.href = pngUrl;
+            a.download = `${title}.png`;
+            a.click();
+            URL.revokeObjectURL(pngUrl);
+          }, 'image/png');
+        };
+        img.src = url;
+      }
+    }
+  </script>
+</body>
+</html>
